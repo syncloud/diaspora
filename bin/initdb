@@ -1,0 +1,9 @@
+#!/usr/bin/env python
+from subprocess import check_output
+from os.path import isdir
+
+app_root = '/opt/app/diaspora/'
+database = '/opt/data/diaspora/database'
+if not isdir(database):
+    print("creating database files")
+    check_output(['{0}postgresql/bin/initdb'.format(app_root), database])

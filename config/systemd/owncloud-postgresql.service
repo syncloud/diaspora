@@ -1,0 +1,21 @@
+[Unit]
+Description=Diaspora PostgreSQL database server
+Requires=network.target
+After=network.target
+
+[Service]
+User=diaspora
+Type=forking
+SyslogIdentifier=postgres
+PIDFile=/opt/data/diaspora/database/postmaster.pid
+ExecStartPre=/opt/app/diaspora/bin/initdb
+ExecStart=/opt/app/diaspora/postgresql/bin/pg_ctl -w -s -D /opt/data/diaspora/database start
+ExecReload=/opt/app/diaspora/postgresql/bin/pg_ctl -s -D /opt/data/diaspora/database reload
+ExecStop=/opt/app/diaspora/postgresql/bin/pg_ctl -s -D /opt/data/diaspora/database stop -m fast
+
+# Due to PostgreSQL's use of shared memory, OOM killer is often overzealous in
+# killing Postgres
+OOMScoreAdjust=-200
+
+[Install]
+WantedBy=multi-user.target
