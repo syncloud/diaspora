@@ -1,0 +1,25 @@
+[Unit]
+Description=Diaspora Sidekiq Worker
+Requires=redis.service
+After=redis.service network.target
+
+[Service]
+User=diaspora
+Group=diaspora
+SyslogIdentifier=diaspora-sidekiq
+WorkingDirectory=/home/diaspora/diaspora
+Environment=RAILS_ENV=production
+## Uncomment if postgres is installed
+#Environment=DB=postgres
+
+Restart=always
+CPUAccounting=true
+MemoryAccounting=true
+BlockIOAccounting=true
+CapabilityBoundingSet=
+PrivateTmp=true
+
+ExecStart=/usr/bin/bundle exec "sidekiq -e production -L log/sidekiq.log >> log/sidekiq.log 2>&1"
+
+[Install]
+WantedBy=multi-user.target

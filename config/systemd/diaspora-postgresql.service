@@ -6,7 +6,7 @@ After=network.target
 [Service]
 User=diaspora
 Type=forking
-SyslogIdentifier=postgres
+SyslogIdentifier=diaspora-postgres
 PIDFile=/opt/data/diaspora/database/postmaster.pid
 ExecStartPre=/opt/app/diaspora/bin/initdb
 ExecStart=/opt/app/diaspora/postgresql/bin/pg_ctl -w -s -D /opt/data/diaspora/database start

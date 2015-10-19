@@ -56,9 +56,26 @@ echo "patching"
 #patch -p0 < ${DIR}/patches/filemtime.patch
 
 echo "installing libraries"
+
 export PATH=$PATH:${BUILD_DIR}/ruby/bin
 export GEM_HOME=${BUILD_DIR}/ruby
-${BUILD_DIR}/ruby/bin/gem install bundler
+
+DIASPORA_RUBY_CACHE=/tmp/diaspora_ruby_cache
+if [ ! -z "$TEAMCITY_VERSION" ]; then
+  echo "running under TeamCity, cleaning ruby dependencies cache"
+  rm -rf ${DIASPORA_RUBY_CACHE}
+fi
+
+if [ ! -d "$DIASPORA_RUBY_CACHE" ]; then
+    echo "building diaspora ruby dependencies"
+    ${BUILD_DIR}/ruby/bin/gem install bundler
+    cp -r ${BUILD_DIR}/ruby ${DIASPORA_RUBY_CACHE}
+else
+    echo "using diaspora ruby dependencies cache: ${DIASPORA_RUBY_CACHE}"
+    rm -rf ${BUILD_DIR}/ruby
+    cp -r ${DIASPORA_RUBY_CACHE} ${BUILD_DIR}/ruby
+fi
+
 RAILS_ENV=production DB=postgres bin/bundle install --without test development
 
 echo "zipping"
