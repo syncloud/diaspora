@@ -12,7 +12,6 @@ libs = [abspath(join(lib_path, item)) for item in listdir(lib_path) if isdir(joi
 map(lambda x: sys.path.insert(0, x), libs)
 
 import requests
-from bs4 import BeautifulSoup
 
 device_user = 'user'
 device_password = 'password'
