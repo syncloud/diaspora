@@ -1,17 +1,17 @@
 [Unit]
 Description=Diaspora Unicorn Server
-Requires=redis.service
-After=redis.service network.target
+Requires=diaspora-redis.service
+After=diaspora-redis.service network.target
 
 [Service]
 User=diaspora
 Group=diaspora
 SyslogIdentifier=diaspora-unicorn
-WorkingDirectory=/home/diaspora/diaspora
-Environment=RAILS_ENV=production
+WorkingDirectory=/opt/app/diaspora/diaspora
+Environment=RAILS_ENV=production GEM_HOME=/opt/app/diaspora/ruby
 ## Uncomment if postgres is installed
 Environment=DB=postgres
-PIDFile=/run/diaspora/unicorn.pid
+PIDFile=/opt/data/diaspora/unicorn.pid
 Restart=always
 
 CPUAccounting=true
@@ -21,7 +21,7 @@ CapabilityBoundingSet=
 PrivateTmp=true
 NoNewPrivileges=true
 
-ExecStart=/usr/bin/bundle exec "unicorn_rails -c config/unicorn.rb -E ${RAILS_ENV}"
+ExecStart=/opt/app/diaspora/ruby/bin/bundle exec "unicorn_rails -c config/unicorn.rb -E ${RAILS_ENV}"
 
 [Install]
 WantedBy=multi-user.target

@@ -1,16 +1,16 @@
 [Unit]
 Description=Diaspora Sidekiq Worker
-Requires=redis.service
-After=redis.service network.target
+Requires=diaspora-redis.service
+After=diaspora-redis.service network.target
 
 [Service]
 User=diaspora
 Group=diaspora
 SyslogIdentifier=diaspora-sidekiq
-WorkingDirectory=/home/diaspora/diaspora
-Environment=RAILS_ENV=production
+WorkingDirectory=/opt/app/diaspora/diaspora
+Environment=RAILS_ENV=production GEM_HOME=/opt/app/diaspora/ruby
 ## Uncomment if postgres is installed
-#Environment=DB=postgres
+Environment=DB=postgres
 
 Restart=always
 CPUAccounting=true
@@ -19,7 +19,7 @@ BlockIOAccounting=true
 CapabilityBoundingSet=
 PrivateTmp=true
 
-ExecStart=/usr/bin/bundle exec "sidekiq -e production -L log/sidekiq.log >> log/sidekiq.log 2>&1"
+ExecStart=/opt/app/diaspora/ruby/bin/bundle exec "sidekiq -e production -L /opt/app/diaspora/log/sidekiq.log >> /opt/app/diaspora/log/sidekiq.log 2>&1"
 
 [Install]
 WantedBy=multi-user.target

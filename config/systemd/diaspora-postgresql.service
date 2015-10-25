@@ -7,11 +7,11 @@ After=network.target
 User=diaspora
 Type=forking
 SyslogIdentifier=diaspora-postgres
-PIDFile=/opt/data/diaspora/database/postmaster.pid
+PIDFile=/opt/data/diaspora/postgresql/database/postmaster.pid
 ExecStartPre=/opt/app/diaspora/bin/initdb
-ExecStart=/opt/app/diaspora/postgresql/bin/pg_ctl -w -s -D /opt/data/diaspora/database start
-ExecReload=/opt/app/diaspora/postgresql/bin/pg_ctl -s -D /opt/data/diaspora/database reload
-ExecStop=/opt/app/diaspora/postgresql/bin/pg_ctl -s -D /opt/data/diaspora/database stop -m fast
+ExecStart=/opt/app/diaspora/postgresql/bin/pg_ctl -w -s -D /opt/data/diaspora/postgresql/database start
+ExecReload=/opt/app/diaspora/postgresql/bin/pg_ctl -s -D /opt/data/diaspora/postgresql/database reload
+ExecStop=/opt/app/diaspora/postgresql/bin/pg_ctl -s -D /opt/data/diaspora/postgresql/database stop -m fast
 
 # Due to PostgreSQL's use of shared memory, OOM killer is often overzealous in
 # killing Postgres

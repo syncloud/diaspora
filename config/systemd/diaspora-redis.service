@@ -1,0 +1,13 @@
+[Unit]
+Description=Diaspora Redis Server
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/opt/app/diaspora/redis/bin/redis-server /opt/app/diaspora/config/redis/redis.conf
+ExecStop=/bin/kill -15 $MAINPID
+PIDFile=/opt/data/diaspora/redis/redis.pid
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

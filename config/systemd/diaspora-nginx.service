@@ -1,12 +1,12 @@
 [Unit]
-Description=diaspora nginx
-Requires=diaspora.service
-After=diaspora.service
+Description=Diaspora Nginx
+Requires=diaspora-unicorn.service
+After=diaspora-unicorn.service
 
 [Service]
 User=diaspora
 Type=forking
-PIDFile=/opt/app/diaspora/nginx/logs/nginx.pid
+PIDFile=/opt/data/diaspora/nginx/nginx.pid
 ExecStartPre=/opt/app/diaspora/nginx/sbin/nginx -t -c /opt/app/diaspora/config/nginx.conf -p /opt/app/diaspora/nginx
 ExecStart=/opt/app/diaspora/nginx/sbin/nginx -c /opt/app/diaspora/config/nginx.conf -p /opt/app/diaspora/nginx
 ExecReload=/opt/app/diaspora/nginx/sbin/nginx -c /opt/app/diaspora/config/nginx.conf -s reload -p /opt/app/diaspora/nginx

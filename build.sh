@@ -50,7 +50,7 @@ echo ${VERSION} >> META/version
 cp ${DIR}/config/postgresql/postgresql.conf ${BUILD_DIR}/postgresql/share/postgresql.conf.sample
 
 echo "getting latest diaspora source"
-git clone -b master git://github.com/diaspora/diaspora.git
+git clone -b stable git://github.com/diaspora/diaspora.git
 rm -rf diaspora/.git
 cd diaspora
 cp config/database.yml.example config/database.yml
@@ -70,16 +70,15 @@ if [ ! -z "$TEAMCITY_VERSION" ]; then
   rm -rf ${DIASPORA_RUBY_CACHE}
 fi
 
-if [ ! -d "$DIASPORA_RUBY_CACHE" ]; then
-    echo "building diaspora ruby dependencies"
-    ${BUILD_DIR}/ruby/bin/gem install bundler
-    RAILS_ENV=production DB=postgres bin/bundle install --without test development
-    cp -r ${BUILD_DIR}/ruby ${DIASPORA_RUBY_CACHE}
-else
+if [ -d "$DIASPORA_RUBY_CACHE" ]; then
     echo "using diaspora ruby dependencies cache: ${DIASPORA_RUBY_CACHE}"
     rm -rf ${BUILD_DIR}/ruby
     cp -r ${DIASPORA_RUBY_CACHE} ${BUILD_DIR}/ruby
 fi
+
+${BUILD_DIR}/ruby/bin/gem install bundler
+RAILS_ENV=production DB=postgres bin/bundle install --without test development
+cp -r ${BUILD_DIR}/ruby ${DIASPORA_RUBY_CACHE}
 
 echo "zipping"
 tar cpzf ${DIR}/${NAME}-${VERSION}-${ARCH}.tar.gz -C ${DIR}/build/ ${NAME}
