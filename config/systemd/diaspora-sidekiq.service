@@ -8,7 +8,7 @@ User=diaspora
 Group=diaspora
 SyslogIdentifier=diaspora-sidekiq
 WorkingDirectory=/opt/app/diaspora/diaspora
-Environment=RAILS_ENV=production GEM_HOME=/opt/app/diaspora/ruby
+Environment=RAILS_ENV=production GEM_HOME=/opt/app/diaspora/ruby PATH=/opt/app/diaspora/ruby/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 ## Uncomment if postgres is installed
 Environment=DB=postgres
 
@@ -19,7 +19,7 @@ BlockIOAccounting=true
 CapabilityBoundingSet=
 PrivateTmp=true
 
-ExecStart=/opt/app/diaspora/ruby/bin/bundle exec "sidekiq -e production -L /opt/app/diaspora/log/sidekiq.log >> /opt/app/diaspora/log/sidekiq.log 2>&1"
+ExecStart=/opt/app/diaspora/ruby/bin/bundle exec "sidekiq -e production -L /opt/data/diaspora/log/sidekiq.log >> /opt/app/diaspora/log/sidekiq.log 2>&1"
 
 [Install]
 WantedBy=multi-user.target

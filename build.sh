@@ -53,8 +53,8 @@ echo "getting latest diaspora source"
 git clone -b stable git://github.com/diaspora/diaspora.git
 rm -rf diaspora/.git
 cd diaspora
-cp config/database.yml.example config/database.yml
-cp config/diaspora.yml.example config/diaspora.yml
+cp ${DIR}/config/diaspora/database.yml config/database.yml
+cp ${DIR}/config/diaspora/diaspora.yml config/diaspora.yml
 
 echo "patching"
 #patch -p0 < ${DIR}/patches/filemtime.patch
@@ -77,6 +77,7 @@ if [ -d "$DIASPORA_RUBY_CACHE" ]; then
 fi
 
 ${BUILD_DIR}/ruby/bin/gem install bundler
+bundle update
 RAILS_ENV=production DB=postgres bin/bundle install --without test development
 cp -r ${BUILD_DIR}/ruby ${DIASPORA_RUBY_CACHE}
 
