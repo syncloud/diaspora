@@ -3,11 +3,12 @@
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd ${DIR}
 
+apt-get install -y libgmp3-dev
+
 export TMPDIR=/tmp
 export TMP=/tmp
 
 NAME=diaspora
-#OWNCLOUD_VERSION=8.1.3
 
 ARCH=$(dpkg-architecture -qDEB_HOST_GNU_CPU)
 if [ ! -z "$1" ]; then
@@ -32,6 +33,7 @@ DOWNLOAD_URL=http://build.syncloud.org:8111/guestAuth/repository/download
 coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_ruby_${ARCH}/lastSuccessful/ruby-${ARCH}.tar.gz
 coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_nginx_${ARCH}/lastSuccessful/nginx-${ARCH}.tar.gz
 coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_postgresql_${ARCH}/lastSuccessful/postgresql-${ARCH}.tar.gz
+coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_redis_${ARCH}/lastSuccessful/redis-${ARCH}.tar.gz
 
 cp -r bin ${BUILD_DIR}
 cp -r config ${BUILD_DIR}
@@ -45,6 +47,8 @@ mkdir META
 echo ${NAME} >> META/app
 echo ${VERSION} >> META/version
 
+cp ${DIR}/config/postgresql/postgresql.conf ${BUILD_DIR}/postgresql/share/postgresql.conf.sample
+
 echo "getting latest diaspora source"
 git clone -b master git://github.com/diaspora/diaspora.git
 rm -rf diaspora/.git
@@ -57,7 +61,7 @@ echo "patching"
 
 echo "installing libraries"
 
-export PATH=$PATH:${BUILD_DIR}/ruby/bin
+export PATH=${BUILD_DIR}/ruby/bin:$PATH
 export GEM_HOME=${BUILD_DIR}/ruby
 
 DIASPORA_RUBY_CACHE=/tmp/diaspora_ruby_cache
@@ -69,14 +73,13 @@ fi
 if [ ! -d "$DIASPORA_RUBY_CACHE" ]; then
     echo "building diaspora ruby dependencies"
     ${BUILD_DIR}/ruby/bin/gem install bundler
+    RAILS_ENV=production DB=postgres bin/bundle install --without test development
     cp -r ${BUILD_DIR}/ruby ${DIASPORA_RUBY_CACHE}
 else
     echo "using diaspora ruby dependencies cache: ${DIASPORA_RUBY_CACHE}"
     rm -rf ${BUILD_DIR}/ruby
     cp -r ${DIASPORA_RUBY_CACHE} ${BUILD_DIR}/ruby
 fi
-
-RAILS_ENV=production DB=postgres bin/bundle install --without test development
 
 echo "zipping"
 tar cpzf ${DIR}/${NAME}-${VERSION}-${ARCH}.tar.gz -C ${DIR}/build/ ${NAME}

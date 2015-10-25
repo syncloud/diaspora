@@ -16,6 +16,9 @@ from diaspora.config import Config
 
 SYSTEMD_NGINX_NAME = 'diaspora-nginx'
 SYSTEMD_POSTGRESQL = 'diaspora-postgresql'
+SYSTEMD_REDIS = 'diaspora-redis'
+SYSTEMD_SIDEKIQ = 'diaspora-sidekiq'
+SYSTEMD_UNICORN = 'diaspora-unicorn'
 INSTALL_USER = 'installer'
 
 
@@ -36,12 +39,27 @@ class DiasporaInstaller:
         self.log.info(chown.chown(self.config.app_name(), self.config.install_path()))
 
         app_data_dir = app.get_app_data_root(self.config.app_name(), self.config.app_name())
+
         if not isdir(join(app_data_dir, 'config')):
             app.create_data_dir(app_data_dir, 'config', self.config.app_name())
 
+        if not isdir(join(app_data_dir, 'postgresql')):
+            app.create_data_dir(app_data_dir, 'postgresql', self.config.app_name())
+
+        if not isdir(join(app_data_dir, 'redis')):
+            app.create_data_dir(app_data_dir, 'redis', self.config.app_name())
+
+        if not isdir(join(app_data_dir, 'log')):
+            app.create_data_dir(app_data_dir, 'log', self.config.app_name())
+
+        if not isdir(join(app_data_dir, 'nginx')):
+            app.create_data_dir(app_data_dir, 'nginx', self.config.app_name())
+
         print("setup systemd")
         add_service(self.config.install_path(), SYSTEMD_POSTGRESQL)
-        # add_service(config.install_path(), SYSTEMD_PHP_FPM_NAME)
+        add_service(self.config.install_path(), SYSTEMD_REDIS)
+        add_service(self.config.install_path(), SYSTEMD_SIDEKIQ)
+        add_service(self.config.install_path(), SYSTEMD_UNICORN)
         add_service(self.config.install_path(), SYSTEMD_NGINX_NAME)
 
         self.prepare_storage()
