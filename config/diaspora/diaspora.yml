@@ -42,7 +42,7 @@ configuration: ## Section
     ## This is specific to your operating system.
     ## Examples (uncomment the relevant one or add your own):
     ## For Debian, Ubuntu, Archlinux, Gentoo (package ca-certificates):
-    #certificate_authorities: '/etc/ssl/certs/ca-certificates.crt'
+    certificate_authorities: '/etc/ssl/certs/ca-certificates.crt'
     ## For CentOS, Fedora:
     #certificate_authorities: '/etc/pki/tls/certs/ca-bundle.crt'
 
