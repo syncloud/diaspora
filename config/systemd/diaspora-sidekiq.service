@@ -19,7 +19,7 @@ BlockIOAccounting=true
 CapabilityBoundingSet=
 PrivateTmp=true
 
-ExecStart=/opt/app/diaspora/ruby/bin/bundle exec "sidekiq -e production -L /opt/data/diaspora/log/sidekiq.log >> /opt/app/diaspora/log/sidekiq.log 2>&1"
+ExecStart=/opt/app/diaspora/ruby/bin/bundle exec "sidekiq -e production -L /opt/data/diaspora/log/sidekiq.log >> /opt/data/diaspora/log/sidekiq.log 2>&1"
 
 [Install]
 WantedBy=multi-user.target
