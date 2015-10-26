@@ -10,10 +10,11 @@ export TMP=/tmp
 
 NAME=diaspora
 
-ARCH=$(dpkg-architecture -qDEB_HOST_GNU_CPU)
-if [ ! -z "$1" ]; then
-    ARCH=$1
+if [ -z "$1" ]; then
+    echo "usage: $0 arch [version]"
 fi
+
+ARCH=$1
 
 VERSION="local"
 if [ ! -z "$2" ]; then
@@ -34,6 +35,7 @@ coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_ruby_${ARCH}/lastSuccessfu
 coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_nginx_${ARCH}/lastSuccessful/nginx-${ARCH}.tar.gz
 coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_postgresql_${ARCH}/lastSuccessful/postgresql-${ARCH}.tar.gz
 coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_redis_${ARCH}/lastSuccessful/redis-${ARCH}.tar.gz
+coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_nodejs_${ARCH}/lastSuccessful/nodejs-${ARCH}.tar.gz
 
 cp -r bin ${BUILD_DIR}
 cp -r config ${BUILD_DIR}

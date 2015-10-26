@@ -8,9 +8,10 @@ User=diaspora
 Group=diaspora
 SyslogIdentifier=diaspora-sidekiq
 WorkingDirectory=/opt/app/diaspora/diaspora
-Environment=RAILS_ENV=production GEM_HOME=/opt/app/diaspora/ruby PATH=/opt/app/diaspora/ruby/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-## Uncomment if postgres is installed
+Environment=RAILS_ENV=production
+Environment=GEM_HOME=/opt/app/diaspora/ruby
 Environment=DB=postgres
+Environment=PATH=/opt/app/diaspora/ruby/bin:/opt/app/diaspora/nodejs/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 Restart=always
 CPUAccounting=true

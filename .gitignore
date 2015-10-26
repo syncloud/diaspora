@@ -1,0 +1,8 @@
+build
+*.tar.gz
+*.log
+.idea
+__pycache__
+*.pyc
+.cache
+lib

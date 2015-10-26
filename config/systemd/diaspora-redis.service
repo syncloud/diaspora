@@ -3,6 +3,8 @@ Description=Diaspora Redis Server
 After=network.target
 
 [Service]
+User=diaspora
+Group=diaspora
 Type=simple
 ExecStart=/opt/app/diaspora/redis/bin/redis-server /opt/app/diaspora/config/redis/redis.conf
 ExecStop=/bin/kill -15 $MAINPID
