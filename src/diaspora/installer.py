@@ -56,16 +56,18 @@ class DiasporaInstaller:
             app.create_data_dir(app_data_dir, 'nginx', self.config.app_name())
 
         print("setup systemd")
+
         add_service(self.config.install_path(), SYSTEMD_POSTGRESQL)
+
+        if not self.installed():
+            self.initialize()
+
         add_service(self.config.install_path(), SYSTEMD_REDIS)
         add_service(self.config.install_path(), SYSTEMD_SIDEKIQ)
         add_service(self.config.install_path(), SYSTEMD_UNICORN)
         add_service(self.config.install_path(), SYSTEMD_NGINX_NAME)
 
         self.prepare_storage()
-
-        if not self.installed():
-            self.initialize()
 
         Nginx().add_app('owncloud', self.config.port())
 
@@ -92,6 +94,8 @@ class DiasporaInstaller:
 
             print("initialization")
             postgres.execute("ALTER USER {0} WITH PASSWORD '{0}';".format(self.config.app_name()), database="postgres")
+            postgres.execute("create database diaspora_production;", database="postgres")
+	    #RAILS_ENV=production DB=postgres bin/rake db:create db:schema:load
 
             # Setup().finish(INSTALL_USER, unicode(uuid.uuid4().hex))
 

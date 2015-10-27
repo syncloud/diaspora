@@ -163,7 +163,7 @@ configuration: ## Section
   ## Settings affecting how ./script/server behaves.
   server: ## Section
     ## Where the appserver should listen to (default=0.0.0.0:3000)
-    #listen: '127.0.0.1:3000'
+    listen: '127.0.0.1:1084'
     #listen: 'unix:tmp/diaspora.sock'
     listen: 'unix:/opt/data/diaspora/diaspora.sock'
 

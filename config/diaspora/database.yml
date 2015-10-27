@@ -12,8 +12,8 @@ postgres: &postgres
   adapter: postgresql
   host: /opt/data/diaspora/postgresql
   port: 5432
-  username: postgres
-  password:
+  username: diaspora
+  password: diaspora
   encoding: unicode
 
 # Comment the the mysql line and uncomment the postgres line
