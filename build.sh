@@ -21,6 +21,11 @@ if [ ! -z "$2" ]; then
     VERSION=$2
 fi
 
+wget --no-check-certificate --progress=dot:giga -O /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py 2>&1
+python /tmp/get-pip.py
+pip install coin
+apt-get install -y git
+
 ./coin_lib.sh
 
 cp -r ${DIR}/src lib/syncloud-diaspora-${VERSION}
