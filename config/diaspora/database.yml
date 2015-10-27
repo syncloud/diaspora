@@ -10,7 +10,7 @@
 
 postgres: &postgres
   adapter: postgresql
-  host: localhost
+  host: /opt/data/diaspora/postgresql
   port: 5432
   username: postgres
   password:

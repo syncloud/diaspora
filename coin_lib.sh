@@ -15,7 +15,7 @@ fi
 rm -rf lib/*
 
 cd lib
-
+pip install coin
 coin py https://pypi.python.org/packages/2.7/r/requests/requests-2.7.0-py2.py3-none-any.whl
 coin py https://pypi.python.org/packages/source/s/syncloud-app/syncloud-app-0.38.tar.gz
 cd ..
