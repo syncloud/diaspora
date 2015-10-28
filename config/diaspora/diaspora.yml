@@ -58,7 +58,7 @@ configuration: ## Section
     ## you're not using SSL. Also there is no guarantee that posting to
     ## services will be possible if SSL is disabled.
     ## Do not change this default unless you are sure!
-    #require_ssl: true
+    require_ssl: false
 
     ## Single-process mode (default=false).
     ## If set to true, Diaspora will work with just the appserver (Unicorn by
@@ -95,7 +95,7 @@ configuration: ## Section
       #backtrace: 15
 
       ## Log file for Sidekiq (default="log/sidekiq.log")
-      #log: "log/sidekiq.log"
+      log: "/opt/data/diaspora/log/sidekiq.log"
 
     ## Use Amazon S3 instead of your local filesystem
     ## to handle uploaded pictures (disabled by default).
@@ -163,9 +163,9 @@ configuration: ## Section
   ## Settings affecting how ./script/server behaves.
   server: ## Section
     ## Where the appserver should listen to (default=0.0.0.0:3000)
-    listen: '127.0.0.1:1084'
+    listen: '0.0.0.0:1084'
     #listen: 'unix:tmp/diaspora.sock'
-    listen: 'unix:/opt/data/diaspora/diaspora.sock'
+    #listen: 'unix:/opt/data/diaspora/diaspora.sock'
 
     ## The port on which the appserver should listen (default=none).
     ## Note: this setting is deprecated, use listen instead.

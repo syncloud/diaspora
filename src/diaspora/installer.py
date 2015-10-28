@@ -13,6 +13,7 @@ from syncloud_platform.tools.hardware import Hardware
 from syncloud_platform.tools import chown
 from diaspora import postgres
 from diaspora.config import Config
+from diaspora.config import UserConfig
 
 SYSTEMD_NGINX_NAME = 'diaspora-nginx'
 SYSTEMD_POSTGRESQL = 'diaspora-postgresql'
@@ -59,7 +60,7 @@ class DiasporaInstaller:
 
         add_service(self.config.install_path(), SYSTEMD_POSTGRESQL)
 
-        if not self.installed():
+        if not UserConfig().is_installed():
             self.initialize()
 
         add_service(self.config.install_path(), SYSTEMD_REDIS)
@@ -69,35 +70,36 @@ class DiasporaInstaller:
 
         self.prepare_storage()
 
-        Nginx().add_app('owncloud', self.config.port())
+        Nginx().add_app('diaspora', self.config.port())
 
     def remove(self):
 
-        config = Config()
-        Nginx().remove_app('owncloud')
+        Nginx().remove_app('diaspora')
         remove_service(SYSTEMD_NGINX_NAME)
-        # remove_service(SYSTEMD_PHP_FPM_NAME)
+        remove_service(SYSTEMD_UNICORN)
+        remove_service(SYSTEMD_SIDEKIQ)
+        remove_service(SYSTEMD_REDIS)
         remove_service(SYSTEMD_POSTGRESQL)
 
-        if isdir(config.install_path()):
-            shutil.rmtree(config.install_path())
-
-    def installed(self):
-        config = Config()
-        # if not isfile(config.config_file()):
-        #     return False
-        #
-        # return 'installed' in open(config.config_file()).read().strip()
-        return False
+        if isdir(self.config.install_path()):
+            shutil.rmtree(self.config.install_path())
 
     def initialize(self):
 
-            print("initialization")
-            postgres.execute("ALTER USER {0} WITH PASSWORD '{0}';".format(self.config.app_name()), database="postgres")
-            postgres.execute("create database diaspora_production;", database="postgres")
-	    #RAILS_ENV=production DB=postgres bin/rake db:create db:schema:load
+        print("initialization")
+        postgres.execute("ALTER USER {0} WITH PASSWORD '{0}';".format(self.config.app_name()), database="postgres")
+        postgres.execute("create database diaspora_production;", database="postgres")
+        environ['RAILS_ENV'] = 'production'
+        environ['DB'] = 'postgres'
+        environ['GEM_HOME'] = '{0}/ruby'.format(self.config.install_path())
+        environ['PATH'] = '{0}/ruby/bin:{0}/nodejs/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'.format(self.config.install_path())
+        check_output('{0}/diaspora/bin/rake db:create db:schema:load'.format(self.config.install_path()),
+                     shell=True,
+                     cwd='{0}/diaspora'.format(self.config.install_path()))
 
-            # Setup().finish(INSTALL_USER, unicode(uuid.uuid4().hex))
+        self.log.info(chown.chown(self.config.app_name(), self.config.install_path()))
+
+        UserConfig().set_activated(True)
 
     def prepare_storage(self):
         hardware = Hardware()
