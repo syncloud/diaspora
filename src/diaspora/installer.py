@@ -10,7 +10,7 @@ from syncloud_platform.systemd.systemctl import remove_service, add_service
 from syncloud_platform.tools import app
 from syncloud_platform.tools.nginx import Nginx
 from syncloud_platform.tools.hardware import Hardware
-from syncloud_platform.tools import chown
+from syncloud_platform.tools import chown, locale
 from diaspora import postgres
 from diaspora.config import Config
 from diaspora.config import UserConfig
@@ -30,12 +30,7 @@ class DiasporaInstaller:
 
     def install(self):
 
-        if 'LANG' in environ:
-            lang = environ['LANG']
-            if lang not in check_output(['locale', '-a']):
-                print("generating locale: {0}".format(lang))
-                fix_locale_gen(lang)
-                check_output('locale-gen')
+        locale.fix_locale()
 
         self.log.info(chown.chown(self.config.app_name(), self.config.install_path()))
 
@@ -88,7 +83,7 @@ class DiasporaInstaller:
 
         print("initialization")
         postgres.execute("ALTER USER {0} WITH PASSWORD '{0}';".format(self.config.app_name()), database="postgres")
-        postgres.execute("create database diaspora_production;", database="postgres")
+        # postgres.execute("create database diaspora_production;", database="postgres")
         environ['RAILS_ENV'] = 'production'
         environ['DB'] = 'postgres'
         environ['GEM_HOME'] = '{0}/ruby'.format(self.config.install_path())
@@ -97,6 +92,9 @@ class DiasporaInstaller:
                      shell=True,
                      cwd='{0}/diaspora'.format(self.config.install_path()))
 
+        check_output('{0}/diaspora/bin/rake assets:precompile'.format(self.config.install_path()),
+                     shell=True,
+                     cwd='{0}/diaspora'.format(self.config.install_path()))
         self.log.info(chown.chown(self.config.app_name(), self.config.install_path()))
 
         UserConfig().set_activated(True)
@@ -104,9 +102,3 @@ class DiasporaInstaller:
     def prepare_storage(self):
         hardware = Hardware()
         hardware.init_app_storage(self.config.app_name(), self.config.app_name())
-
-def fix_locale_gen(lang, locale_gen='/etc/locale.gen'):
-    editor = massedit.MassEdit()
-    editor.append_code_expr("re.sub('# {0}', '{0}', line)".format(lang))
-    editor.edit_file(locale_gen)
-
