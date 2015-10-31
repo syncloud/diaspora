@@ -18,6 +18,9 @@ class Config:
     def port(self):
         return self.parser.getint('diaspora', 'port')
 
+    def unicorn_port(self):
+        return self.parser.getint('diaspora', 'unicorn_port')
+
     def app_name(self):
         return self.parser.get('diaspora', 'app_name')
 
@@ -53,6 +56,30 @@ class Config:
 
     def db_socket(self):
         return self.parser.get('diaspora', 'db_socket')
+
+    def rails_env(self):
+        return self.parser.get('diaspora', 'rails_env')
+
+    def db(self):
+        return self.parser.get('diaspora', 'db')
+
+    def gem_home(self):
+        return self.parser.get('diaspora', 'gem_home')
+
+    def path(self):
+        return self.parser.get('diaspora', 'path')
+
+    def unicorn_cmd(self):
+        return self.parser.get('diaspora', 'unicorn_cmd')
+
+    def rake_db_cmd(self):
+        return self.parser.get('diaspora', 'rake_db_cmd')
+
+    def diaspora_dir(self):
+        return self.parser.get('diaspora', 'diaspora_dir')
+
+    def rake_assets(self):
+        return self.parser.get('diaspora', 'rake_assets')
 
 
 class UserConfig:

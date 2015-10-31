@@ -20,7 +20,6 @@ SYSTEMD_POSTGRESQL = 'diaspora-postgresql'
 SYSTEMD_REDIS = 'diaspora-redis'
 SYSTEMD_SIDEKIQ = 'diaspora-sidekiq'
 SYSTEMD_UNICORN = 'diaspora-unicorn'
-INSTALL_USER = 'installer'
 
 
 class DiasporaInstaller:
@@ -83,18 +82,15 @@ class DiasporaInstaller:
 
         print("initialization")
         postgres.execute("ALTER USER {0} WITH PASSWORD '{0}';".format(self.config.app_name()), database="postgres")
-        # postgres.execute("create database diaspora_production;", database="postgres")
-        environ['RAILS_ENV'] = 'production'
-        environ['DB'] = 'postgres'
-        environ['GEM_HOME'] = '{0}/ruby'.format(self.config.install_path())
-        environ['PATH'] = '{0}/ruby/bin:{0}/nodejs/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'.format(self.config.install_path())
-        check_output('{0}/diaspora/bin/rake db:create db:schema:load'.format(self.config.install_path()),
-                     shell=True,
-                     cwd='{0}/diaspora'.format(self.config.install_path()))
 
-        check_output('{0}/diaspora/bin/rake assets:precompile'.format(self.config.install_path()),
-                     shell=True,
-                     cwd='{0}/diaspora'.format(self.config.install_path()))
+        environ['RAILS_ENV'] = self.config.rails_env()
+        environ['DB'] = self.config.db()
+        environ['GEM_HOME'] = self.config.gem_home()
+        environ['PATH'] = self.config.path()
+
+        print(check_output(self.config.rake_db_cmd(), shell=True, cwd=self.config.diaspora_dir()))
+        print(check_output(self.config.rake_assets(), shell=True, cwd=self.config.diaspora_dir()))
+
         self.log.info(chown.chown(self.config.app_name(), self.config.install_path()))
 
         UserConfig().set_activated(True)
