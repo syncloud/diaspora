@@ -17,7 +17,7 @@ CapabilityBoundingSet=
 PrivateTmp=true
 NoNewPrivileges=true
 Type=forking
-
+TimeoutStartSec=200
 ExecStart=/opt/app/diaspora/bin/unicorn.py
 ExecStartPost=/opt/app/diaspora/bin/unicorn_wait.py
 

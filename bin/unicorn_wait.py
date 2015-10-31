@@ -14,7 +14,7 @@ import requests
 from diaspora.config import Config
 
 
-def wait_for_unicorn(delay=2, retries=10):
+def wait_for_unicorn(delay=2, retries=20):
     config = Config()
     for retry in range(0, retries):
         unicorn_url = 'http://localhost:{0}'.format(config.unicorn_port())
