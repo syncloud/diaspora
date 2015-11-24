@@ -93,7 +93,11 @@ RAILS_ENV=production DB=postgres bin/bundle install --without test development
 rm -rf ${DIASPORA_RUBY_CACHE}
 cp -r ${BUILD_DIR}/ruby ${DIASPORA_RUBY_CACHE}
 
-find ${BUILD_DIR}/ruby/ -xtype l -exec sh -c 'cp --remove-destination $(readlink {})  {}' \;
+find ${BUILD_DIR}/ruby/ -xtype l
+
+find ${BUILD_DIR}/ruby/ -xtype l -exec readlink {} \;
+
+find ${BUILD_DIR}/ruby/ -xtype l -exec sh -c 'cp --remove-destination $(readlink {}) {}' \;
 
 echo "zipping"
 tar cpzf ${DIR}/${NAME}-${VERSION}-${ARCH}.tar.gz -C ${DIR}/build/ ${NAME}
