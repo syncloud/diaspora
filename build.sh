@@ -9,6 +9,8 @@ export TMPDIR=/tmp
 export TMP=/tmp
 
 NAME=diaspora
+DIASPORA_VERSION=0.5.4.0
+DIASPORA_ARCHIVE=v${DIASPORA_VERSION}
 
 if [ -z "$1" ]; then
     echo "usage: $0 arch [version]"
@@ -58,8 +60,9 @@ echo ${VERSION} >> META/version
 cp ${DIR}/config/postgresql/postgresql.conf ${BUILD_DIR}/postgresql/share/postgresql.conf.sample
 
 echo "getting latest diaspora source"
-git clone -b stable git://github.com/diaspora/diaspora.git
-rm -rf diaspora/.git
+wget --progress=dot:giga https://github.com/diaspora/diaspora/archive/v${DIASPORA_VERSION}.tar.gz 2>&1 -O ${BUILD_DIR}/v${DIASPORA_VERSION}.tar.gz
+tar xzf v${DIASPORA_VERSION}.tar.gz
+mv ${BUILD_DIR}/diaspora-${DIASPORA_VERSION} ${BUILD_DIR}/diaspora
 cd diaspora
 cp ${DIR}/config/diaspora/database.yml config/database.yml
 cp ${DIR}/config/diaspora/diaspora.yml config/diaspora.yml
@@ -85,10 +88,10 @@ if [ -d "$DIASPORA_RUBY_CACHE" ]; then
 fi
 
 ${BUILD_DIR}/ruby/bin/gem install bundler
-DB=postgres bundle update
+#RAILS_ENV=production DB=postgres bundle update --without test development
 RAILS_ENV=production DB=postgres bin/bundle install --without test development
 rm -rf ${DIASPORA_RUBY_CACHE}
 cp -r ${BUILD_DIR}/ruby ${DIASPORA_RUBY_CACHE}
-
+find ${BUILD_DIR}/ruby/ -xtype l -exec sh -c 'cp --remove-destination $(readlink {})  {}' \;
 echo "zipping"
 tar cpzf ${DIR}/${NAME}-${VERSION}-${ARCH}.tar.gz -C ${DIR}/build/ ${NAME}
