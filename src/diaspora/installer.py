@@ -3,7 +3,6 @@ from os.path import isdir, join
 import shutil
 from subprocess import check_output
 
-import massedit
 from syncloud_app import logger
 
 from syncloud_platform.systemd.systemctl import remove_service, add_service
@@ -11,9 +10,11 @@ from syncloud_platform.tools import app
 from syncloud_platform.tools.nginx import Nginx
 from syncloud_platform.tools.hardware import Hardware
 from syncloud_platform.tools import chown, locale
+from syncloud_platform.api import info
 from diaspora import postgres
 from diaspora.config import Config
 from diaspora.config import UserConfig
+import yaml
 
 SYSTEMD_NGINX_NAME = 'diaspora-nginx'
 SYSTEMD_POSTGRESQL = 'diaspora-postgresql'
@@ -53,6 +54,8 @@ class DiasporaInstaller:
         print("setup systemd")
 
         add_service(self.config.install_path(), SYSTEMD_POSTGRESQL)
+
+        self.update_domain()
 
         if not UserConfig().is_installed():
             self.initialize()
@@ -98,3 +101,12 @@ class DiasporaInstaller:
     def prepare_storage(self):
         hardware = Hardware()
         hardware.init_app_storage(self.config.app_name(), self.config.app_name())
+
+    def update_domain(self):
+        url = info.url()
+        config = yaml.load(open(self.config.diaspora_config()))
+
+        config['configuration']['environment']['url'] = '{0}/diaspora'.format(url)
+        config['configuration']['environment']['assets']['host'] = '{0}/diaspora'.format(url)
+
+        yaml.dump(config, open(self.config.diaspora_config(), 'w'))
