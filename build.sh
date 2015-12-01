@@ -92,8 +92,10 @@ if [ -d "$DIASPORA_RUBY_CACHE" ]; then
 fi
 
 ${BUILD_DIR}/ruby/bin/gem install bundler
-#RAILS_ENV=production DB=postgres bundle update --without test development
-RAILS_ENV=production DB=postgres bin/bundle install --without test development
+export DB=postgres
+export RAILS_ENV=production
+
+bin/bundle install --without test development
 rm -rf ${DIASPORA_RUBY_CACHE}
 cp -r ${BUILD_DIR}/ruby ${DIASPORA_RUBY_CACHE}
 
@@ -102,6 +104,8 @@ find ${BUILD_DIR}/ruby/ -type l
 find ${BUILD_DIR}/ruby/ -type l -exec readlink {} \;
 
 find ${BUILD_DIR}/ruby/ -type l -exec sh -c 'cp --remove-destination $(readlink {}) {}' \;
+
+bin/rake assets:precompile
 
 echo "zipping"
 tar cpzf ${DIR}/${NAME}-${VERSION}-${ARCH}.tar.gz -C ${DIR}/build/ ${NAME}

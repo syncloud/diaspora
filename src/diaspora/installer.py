@@ -59,6 +59,8 @@ class DiasporaInstaller:
 
         if not UserConfig().is_installed():
             self.initialize()
+        
+        self.log.info(chown.chown(self.config.app_name(), self.config.install_path()))
 
         add_service(self.config.install_path(), SYSTEMD_REDIS)
         add_service(self.config.install_path(), SYSTEMD_SIDEKIQ)
@@ -92,9 +94,7 @@ class DiasporaInstaller:
         environ['PATH'] = self.config.path()
 
         print(check_output(self.config.rake_db_cmd(), shell=True, cwd=self.config.diaspora_dir()))
-        print(check_output(self.config.rake_assets(), shell=True, cwd=self.config.diaspora_dir()))
-
-        self.log.info(chown.chown(self.config.app_name(), self.config.install_path()))
+        #print(check_output(self.config.rake_assets(), shell=True, cwd=self.config.diaspora_dir()))
 
         UserConfig().set_activated(True)
 
