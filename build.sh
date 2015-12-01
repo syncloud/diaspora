@@ -62,10 +62,14 @@ cp ${DIR}/config/postgresql/postgresql.conf ${BUILD_DIR}/postgresql/share/postgr
 echo "getting latest diaspora source"
 wget --progress=dot:giga https://github.com/diaspora/diaspora/archive/v${DIASPORA_VERSION}.tar.gz 2>&1 -O ${BUILD_DIR}/v${DIASPORA_VERSION}.tar.gz
 tar xzf v${DIASPORA_VERSION}.tar.gz
+rm v${DIASPORA_VERSION}.tar.gz
 mv ${BUILD_DIR}/diaspora-${DIASPORA_VERSION} ${BUILD_DIR}/diaspora
 cd diaspora
 cp ${DIR}/config/diaspora/database.yml config/database.yml
 cp ${DIR}/config/diaspora/diaspora.yml config/diaspora.yml
+
+sed -i 's#Backbone.history.start({pushState: true});#Backbone.history.start({pushState: true, root: "/diaspora/"});#g' app/assets/javascripts/app/app.js
+sed -i 's#"users/sign_up"#"diaspora/users/sign_up"#g' app/assets/javascripts/app/router.js
 
 echo "patching"
 #patch -p0 < ${DIR}/patches/filemtime.patch
