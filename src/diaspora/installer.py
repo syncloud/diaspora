@@ -7,10 +7,10 @@ from syncloud_app import logger
 
 from syncloud_platform.systemd.systemctl import remove_service, add_service
 from syncloud_platform.tools import app
-from syncloud_platform.tools.nginx import Nginx
 from syncloud_platform.tools.hardware import Hardware
 from syncloud_platform.tools import chown, locale
 from syncloud_platform.api import info
+from syncloud_platform.api import app as platform_app
 from diaspora import postgres
 from diaspora.config import Config
 from diaspora.config import UserConfig
@@ -69,11 +69,11 @@ class DiasporaInstaller:
 
         self.prepare_storage()
 
-        Nginx().add_app('diaspora', self.config.port())
+        platform_app.register_app('diaspora', self.config.port())
 
     def remove(self):
 
-        Nginx().remove_app('diaspora')
+        platform_app.unregister_app('diaspora')
         remove_service(SYSTEMD_NGINX_NAME)
         remove_service(SYSTEMD_UNICORN)
         remove_service(SYSTEMD_SIDEKIQ)
@@ -103,10 +103,10 @@ class DiasporaInstaller:
         hardware.init_app_storage(self.config.app_name(), self.config.app_name())
 
     def update_domain(self):
-        url = info.url()
+        url = info.url('diaspora')
         config = yaml.load(open(self.config.diaspora_config()))
 
-        config['configuration']['environment']['url'] = '{0}/diaspora'.format(url)
-        config['configuration']['environment']['assets']['host'] = '{0}/diaspora'.format(url)
+        config['configuration']['environment']['url'] = url
+        config['configuration']['environment']['assets']['host'] = url
 
         yaml.dump(config, open(self.config.diaspora_config(), 'w'))

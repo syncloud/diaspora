@@ -68,8 +68,12 @@ cd diaspora
 cp ${DIR}/config/diaspora/database.yml config/database.yml
 cp ${DIR}/config/diaspora/diaspora.yml config/diaspora.yml
 
-sed -i 's#Backbone.history.start({pushState: true});#Backbone.history.start({pushState: true, root: "/diaspora/"});#g' app/assets/javascripts/app/app.js
-sed -i 's#"users/sign_up"#"diaspora/users/sign_up"#g' app/assets/javascripts/app/router.js
+#sed -i 's#Backbone.history.start({pushState: true});#Backbone.history.start({pushState: true, root: "/diaspora/"});#g' app/assets/javascripts/app/app.js
+#sed -i 's#"users/sign_up"#"diaspora/users/sign_up"#g' app/assets/javascripts/app/router.js
+#sed -i "/get 'login' => redirect('\/users\/sign_in')/a \ \ get 'diaspora\/users\/sign_up'   => 'users\/registrations#new',   :as => :new_user_registration_path" config/routes.rb
+#sed -i "/config.cache_classes = true/a \ \ config.relative_url_root = '/diaspora'" config/environments/production.rb
+#sed -i "/config.cache_classes = true/a \ \ config.action_controller.relative_url_root = '/diaspora'" config/environments/production.rb
+sed -i "s/.*config.force_ssl =.*/  config.force_ssl = false/g" config/environments/production.rb
 
 echo "patching"
 #patch -p0 < ${DIR}/patches/filemtime.patch
@@ -78,6 +82,7 @@ echo "installing libraries"
 
 export PATH=${BUILD_DIR}/ruby/bin:$PATH
 export GEM_HOME=${BUILD_DIR}/ruby
+#export RAILS_RELATIVE_URL_ROOT='/diaspora'
 
 DIASPORA_RUBY_CACHE=/tmp/diaspora_ruby_cache
 if [ ! -z "$TEAMCITY_VERSION" ]; then
