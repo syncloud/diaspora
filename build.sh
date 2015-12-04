@@ -80,7 +80,7 @@ echo "patching"
 
 echo "installing libraries"
 
-export PATH=${BUILD_DIR}/ruby/bin:$PATH
+export PATH=${BUILD_DIR}/ruby/bin:${BUILD_DIR}/nodejs/bin:$PATH
 export GEM_HOME=${BUILD_DIR}/ruby
 #export RAILS_RELATIVE_URL_ROOT='/diaspora'
 
