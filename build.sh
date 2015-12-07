@@ -110,7 +110,7 @@ find ${BUILD_DIR}/ruby/ -type l -exec readlink {} \;
 
 find ${BUILD_DIR}/ruby/ -type l -exec sh -c 'cp --remove-destination $(readlink {}) {}' \;
 
-bin/rake assets:precompile
+#bin/rake assets:precompile
 
 echo "zipping"
 tar cpzf ${DIR}/${NAME}-${VERSION}-${ARCH}.tar.gz -C ${DIR}/build/ ${NAME}

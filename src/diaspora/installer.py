@@ -55,11 +55,13 @@ class DiasporaInstaller:
 
         add_service(self.config.install_path(), SYSTEMD_POSTGRESQL)
 
-        self.update_domain()
+        self.update_configuraiton()
 
         if not UserConfig().is_installed():
             self.initialize()
-        
+
+        self.recompile_assets()
+
         self.log.info(chown.chown(self.config.app_name(), self.config.install_path()))
 
         add_service(self.config.install_path(), SYSTEMD_REDIS)
@@ -88,21 +90,30 @@ class DiasporaInstaller:
         print("initialization")
         postgres.execute("ALTER USER {0} WITH PASSWORD '{0}';".format(self.config.app_name()), database="postgres")
 
+        self.environment()
+        print(check_output(self.config.rake_db_cmd(), shell=True, cwd=self.config.diaspora_dir()))
+
+        UserConfig().set_activated(True)
+
+    def environment(self):
         environ['RAILS_ENV'] = self.config.rails_env()
         environ['DB'] = self.config.db()
         environ['GEM_HOME'] = self.config.gem_home()
         environ['PATH'] = self.config.path()
-
-        print(check_output(self.config.rake_db_cmd(), shell=True, cwd=self.config.diaspora_dir()))
-        #print(check_output(self.config.rake_assets(), shell=True, cwd=self.config.diaspora_dir()))
-
-        UserConfig().set_activated(True)
 
     def prepare_storage(self):
         hardware = Hardware()
         hardware.init_app_storage(self.config.app_name(), self.config.app_name())
 
     def update_domain(self):
+        self.update_configuraiton()
+        self.recompile_assets()
+
+    def recompile_assets(self):
+        self.environment()
+        print(check_output(self.config.rake_assets(), shell=True, cwd=self.config.diaspora_dir()))
+
+    def update_configuraiton(self):
         url = info.url('diaspora')
         config = yaml.load(open(self.config.diaspora_config()))
 
