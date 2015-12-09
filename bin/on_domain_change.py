@@ -8,4 +8,4 @@ libs = [join(lib_path, item) for item in listdir(lib_path) if isdir(join(lib_pat
 map(sys.path.append, libs)
 
 from diaspora.installer import DiasporaInstaller
-DiasporaInstaller().install()
+DiasporaInstaller().update_domain()
