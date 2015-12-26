@@ -1,3 +1,4 @@
+import os
 import sys
 from os import listdir
 from os.path import dirname, join, abspath, isdir
@@ -21,8 +22,10 @@ LOG_DIR = join(DIR, 'log')
 device_user = 'user'
 device_password = 'password'
 
+
 def test_remove_logs():
     shutil.rmtree(LOG_DIR, ignore_errors=True)
+
 
 def test_activate_device(auth):
     email, password, domain, release, version, arch = auth
@@ -69,7 +72,6 @@ session = requests.session()
 
 # def test_reinstall(auth):
 #     __local_install(auth)
-
 
 
 def test_copy_logs():
