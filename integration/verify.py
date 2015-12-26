@@ -12,12 +12,17 @@ libs = [abspath(join(lib_path, item)) for item in listdir(lib_path) if isdir(joi
 map(lambda x: sys.path.insert(0, x), libs)
 
 import requests
+import shutil
 
 from integration.util.ssh import run_scp, ssh_command, SSH, run_ssh, set_docker_ssh_port
 
+DIR = dirname(__file__)
+LOG_DIR = join(DIR, 'log')
 device_user = 'user'
 device_password = 'password'
 
+def test_remove_logs():
+    shutil.rmtree(LOG_DIR, ignore_errors=True)
 
 def test_activate_device(auth):
     email, password, domain, release, version, arch = auth
@@ -66,8 +71,19 @@ session = requests.session()
 #     __local_install(auth)
 
 
+
+def test_copy_logs():
+    os.mkdir(LOG_DIR)
+    run_scp('root@localhost:/opt/data/platform/log/* {0}'.format(LOG_DIR), password=device_password)
+
+    print('-------------------------------------------------------')
+    print('syncloud docker image is running')
+    print('connect using: {0}'.format(ssh_command(device_password, SSH)))
+    print('-------------------------------------------------------')
+
+
 def __local_install(auth):
     email, password, domain, release, version, arch = auth
-    
+    run_scp('{0}/../diaspora-{1}-{2}.tar.gz root@localhost:/'.format(DIR, version, arch), password=device_password)
     run_ssh('/opt/app/sam/bin/sam --debug install /diaspora-{0}-{1}.tar.gz'.format(version, arch), password=device_password)
     time.sleep(3)
