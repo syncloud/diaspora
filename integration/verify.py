@@ -13,6 +13,8 @@ map(lambda x: sys.path.insert(0, x), libs)
 
 import requests
 
+from integration.util.ssh import run_scp, ssh_command, SSH, run_ssh, set_docker_ssh_port
+
 device_user = 'user'
 device_password = 'password'
 
@@ -66,7 +68,6 @@ session = requests.session()
 
 def __local_install(auth):
     email, password, domain, release, version, arch = auth
-    ssh = 'sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost'
-    print(check_output('{0} /opt/app/sam/bin/sam --debug install /diaspora-{1}-{2}.tar.gz'.format(ssh, version, arch),
-                       shell=True))
+    
+    run_ssh('{0} /opt/app/sam/bin/sam --debug install /diaspora-{1}-{2}.tar.gz'.format(ssh, version, arch), password=device_password)
     time.sleep(3)
