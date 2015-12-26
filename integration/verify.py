@@ -69,5 +69,5 @@ session = requests.session()
 def __local_install(auth):
     email, password, domain, release, version, arch = auth
     
-    run_ssh('/opt/app/sam/bin/sam --debug install /diaspora-{1}-{2}.tar.gz'.format(version, arch), password=device_password)
+    run_ssh('/opt/app/sam/bin/sam --debug install /diaspora-{0}-{1}.tar.gz'.format(version, arch), password=device_password)
     time.sleep(3)
