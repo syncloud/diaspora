@@ -11,7 +11,7 @@ fi
 ./docker.sh
 
 apt-get install sshpass
-
+pip2 install -r ${DIR}/../src/dev_requirements.txt
 pip2 install -U pytest
 
 py.test -s verify.py --email=$1 --password=$2 --domain=$3 --release=$4 --app-version=$5 --arch=$6
