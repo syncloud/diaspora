@@ -80,11 +80,25 @@ def test_non_authenticated_resource(user_domain):
     response = requests.get('https://127.0.0.1', headers={"Host": user_domain}, verify=False)
     soup = BeautifulSoup(response.text, "html.parser")
     smiley_png_url = soup.find_all('img', {'alt': 'Smiley laughing'})[0]['src']
-    smiley_png_localurl = re.match("https://.*/assets/(.*)".format(SYNCLOUD_INFO), smiley_png_url).group(1)
+    smiley_png_localurl = re.match("https://.*/assets/(.*)", smiley_png_url).group(1)
     print(smiley_png_localurl)
-    response = requests.get('https://127.0.0.1/assets/{0}'.format(smiley_png_localurl), headers={"Host": user_domain}, verify=False)
+    response = requests.get('https://127.0.0.1/assets/{0}'.format(smiley_png_localurl), headers={"Host": user_domain},
+                            verify=False)
     assert response.status_code == 200, response.text
 
+
+def test_create_user(auth, user_domain):
+    email, password, domain, release, version, arch = auth
+    response = requests.post('https://127.0.0.1/users', headers={"Host": user_domain},
+                             verify=False, allow_redirects=False,
+                             data={
+                                 'user[email]': email,
+                                 'user[username]': DEVICE_USER,
+                                 'user[password]': DEVICE_PASSWORD,
+                                 'user[password_confirmation]': DEVICE_PASSWORD,
+                                 'commit': "Sign+up"
+                             })
+    assert response.status_code == 302, response.text
 
 # def test_authenticated_resource(diaspora_session):
 #     response = diaspora_session.get('http://localhost/diaspora/', allow_redirects=False)
