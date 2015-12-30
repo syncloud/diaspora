@@ -44,11 +44,22 @@ def syncloud_session():
 @pytest.fixture(scope='function')
 def diaspora_session(user_domain):
     session = requests.session()
-    response = session.post('http://127.0.0.1',
+    response = session.get('https://127.0.0.1/login',
+                           headers={"Host": user_domain},
+                           allow_redirects=False, verify=False)
+    assert response.status_code == 301, response.text
+
+    response = session.post('https://127.0.0.1/users/sign_in',
                             headers={"Host": user_domain},
-                            data={'user': DEVICE_USER, 'password': DEVICE_PASSWORD},
-                            allow_redirects=False)
+                            data={'user[username]': DEVICE_USER,
+                                  'user[password]': DEVICE_PASSWORD,
+                                  # 'authenticity_token': token,
+                                  'user[remember_me]': '1',
+                                  'commit': 'Sign in'},
+                            allow_redirects=False, verify=False)
+    print(response.text)
     assert response.status_code == 302, response.text
+    assert 'getting_started' in response.headers['Location'], response.text
     return session
 
 
@@ -82,7 +93,8 @@ def test_non_authenticated_resource(user_domain):
     smiley_png_url = soup.find_all('img', {'alt': 'Smiley laughing'})[0]['src']
     smiley_png_localurl = re.match("https://.*/assets/(.*)", smiley_png_url).group(1)
     print(smiley_png_localurl)
-    response = requests.get('https://127.0.0.1/assets/{0}'.format(smiley_png_localurl), headers={"Host": user_domain},
+    response = requests.get('https://127.0.0.1/assets/{0}'.format(smiley_png_localurl),
+                            headers={"Host": user_domain},
                             verify=False)
     assert response.status_code == 200, response.text
 
@@ -99,6 +111,37 @@ def test_create_user(auth, user_domain):
                                  'commit': "Sign+up"
                              })
     assert response.status_code == 302, response.text
+
+
+# def test_upload_profile_photo(diaspora_session, user_domain):
+#
+#     response = diaspora_session.get('https://127.0.0.1/profile/edit',
+#                                     headers={"Host": user_domain},
+#                                     allow_redirects=False, verify=False)
+#     assert response.status_code == 200, response.text
+#
+#     soup = BeautifulSoup(response.text, "html.parser")
+#     token = soup.find_all('meta', {'name': 'csrf-token'})[0]['content']
+#
+#     response = diaspora_session.post('https://127.0.0.1/photos',
+#                                      headers={
+#                                          "Host": user_domain,
+#                                          'X-File-Name': 'profile.png',
+#                                          'X-CSRF-Token': token
+#                                      },
+#                                      verify=False, allow_redirects=False,
+#                                      params={
+#                                          'photo[pending]': 'true',
+#                                          'photo[aspect_ids]': 'all',
+#                                          'photo[set_profile_photo]': 'true',
+#                                          'qqfile': 'profile.png'
+#                                      })
+#     assert response.status_code == 200, response.text
+
+    # with open(join(DIR, 'images', 'profile.png'),'rb') as payload:
+    #     headers = {'content-type': 'application/x-www-form-urlencoded'}
+    #     r = requests.post('https://IP_ADDRESS/rest/rest/2', auth=('userid', 'password'),
+    #                   data=payload, verify=False, headers=headers)
 
 # def test_authenticated_resource(diaspora_session):
 #     response = diaspora_session.get('http://localhost/diaspora/', allow_redirects=False)
