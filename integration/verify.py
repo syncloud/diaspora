@@ -172,6 +172,7 @@ def test_create_user(auth, user_domain):
 def test_copy_logs():
     os.mkdir(LOG_DIR)
     run_scp('root@localhost:/opt/data/platform/log/* {0}'.format(LOG_DIR), password=DEVICE_PASSWORD)
+    run_ssh('ls -la /opt/app/diaspora/diaspora/log', password=DEVICE_PASSWORD)
     run_scp('root@localhost:/opt/app/diaspora/diaspora/log/* {0}'.format(LOG_DIR), password=DEVICE_PASSWORD)
 
     print('-------------------------------------------------------')
