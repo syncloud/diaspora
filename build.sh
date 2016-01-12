@@ -102,7 +102,10 @@ export RAILS_ENV=production
 
 bin/bundle install --without test development
 rm -rf ${DIASPORA_RUBY_CACHE}
-cp -r ${BUILD_DIR}/ruby ${DIASPORA_RUBY_CACHE}
+
+if [ -z "$TEAMCITY_VERSION" ]; then
+   cp -r ${BUILD_DIR}/ruby ${DIASPORA_RUBY_CACHE}
+fi
 
 find ${BUILD_DIR}/ruby/ -type l
 
