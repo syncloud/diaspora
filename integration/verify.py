@@ -72,7 +72,7 @@ def test_activate_device(auth):
     response = requests.post('http://localhost:81/server/rest/activate',
                              data={'redirect-email': email, 'redirect-password': password, 'redirect-domain': domain,
                                    'name': DEVICE_USER, 'password': DEVICE_PASSWORD,
-                                   'api-url': 'http://api.syncloud.info:81', 'domain': 'syncloud.info',
+                                   'api-url': 'http://api.syncloud.info', 'domain': 'syncloud.info',
                                    'release': release})
     assert response.status_code == 200
 
