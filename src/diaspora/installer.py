@@ -7,7 +7,7 @@ from syncloud_app import logger
 
 from syncloud_platform.systemd.systemctl import remove_service, add_service
 from syncloud_platform.tools import app
-from syncloud_platform.tools.hardware import Hardware
+from syncloud_platform.api import storage
 from syncloud_platform.tools import chown, locale
 from syncloud_platform.api import info
 from syncloud_platform.api import app as platform_app
@@ -102,8 +102,7 @@ class DiasporaInstaller:
         environ['PATH'] = self.config.path()
 
     def prepare_storage(self):
-        hardware = Hardware()
-        hardware.init_app_storage(self.config.app_name(), self.config.app_name())
+        storage.init(self.config.app_name(), self.config.app_name())
 
     def update_domain(self):
         self.update_configuraiton()
