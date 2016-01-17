@@ -10,7 +10,6 @@ fi
 
 ./docker.sh $6
 
-apt-get install sshpass
 pip2 install -r ${DIR}/../src/dev_requirements.txt
 pip2 install -U pytest
 
