@@ -26,7 +26,7 @@ else
   echo "skipping rootfs"
 fi
 
-apt-get install docker.io
+apt-get install -y docker.io
 service docker start
 
 function cleanup {
