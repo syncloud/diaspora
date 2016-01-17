@@ -65,7 +65,8 @@ docker run --net host -v /var/run/dbus:/var/run/dbus --name rootfs --privileged 
 #sleep 10
 
 sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost date
-while test $? -gt 0 do
+while test $? -gt 0
+do
   sleep 1
   echo "Waiting for SSH ..." 
   sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost date
