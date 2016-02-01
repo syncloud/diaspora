@@ -26,6 +26,7 @@ LOG_DIR = join(DIR, 'log')
 SYNCLOUD_INFO = 'syncloud.info'
 DEVICE_USER = 'user'
 DEVICE_PASSWORD = 'password'
+DEFAULT_DEVICE_PASSWORD = 'syncloud'
 
 
 @pytest.fixture(scope='module')
