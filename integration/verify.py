@@ -75,10 +75,8 @@ def test_activate_device(auth):
     run_ssh('/opt/app/sam/bin/sam --debug upgrade platform', password=DEFAULT_DEVICE_PASSWORD)
 
     response = requests.post('http://localhost:81/server/rest/activate',
-                             data={'redirect-email': email, 'redirect-password': password, 'redirect-domain': domain,
-                                   'name': DEVICE_USER, 'password': DEVICE_PASSWORD,
-                                   'api-url': 'http://api.syncloud.info', 'domain': 'syncloud.info',
-                                   'release': release})
+                             data={'main_domain': 'syncloud.info', 'redirect_email': email, 'redirect_password': password,
+                                   'user_domain': domain, 'device_username': DEVICE_USER, 'device_password': DEVICE_PASSWORD})
     assert response.status_code == 200
 
 
