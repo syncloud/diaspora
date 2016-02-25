@@ -118,9 +118,5 @@ class DiasporaInstaller:
 
         config['configuration']['environment']['url'] = url
         config['configuration']['environment']['assets']['host'] = url
-        config['configuration']['relay']['outbound']['send'] = True
-        config['configuration']['relay']['inbound']['subscribe'] = True
-        config['configuration']['relay']['outbound']['scope'] = 'all'
-
 
         yaml.dump(config, open(self.config.diaspora_config(), 'w'))
