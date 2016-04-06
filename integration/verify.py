@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from os import listdir
 from os.path import dirname, join, abspath, isdir
 import time
+from requests.adapters import HTTPAdapter
 from subprocess import check_output
 
 import pytest
@@ -66,6 +67,17 @@ def diaspora_session(user_domain):
 
 def test_remove_logs():
     shutil.rmtree(LOG_DIR, ignore_errors=True)
+
+
+def test_running_platform_web():
+    print(check_output('nc -zv -w 1 localhost 81', shell=True))
+
+
+def test_platform_rest():
+    session = requests.session()
+    session.mount('http://localhost:81', HTTPAdapter(max_retries=5))
+    response = session.get('http://localhost:81', timeout=60)
+    assert response.status_code == 200
 
 
 def test_activate_device(auth):
