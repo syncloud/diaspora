@@ -39,7 +39,7 @@ def user_domain(auth):
 @pytest.fixture(scope='function')
 def syncloud_session():
     session = requests.session()
-    session.post('http://localhost/server/rest/login', data={'name': DEVICE_USER, 'password': DEVICE_PASSWORD})
+    session.post('http://localhost/rest/login', data={'name': DEVICE_USER, 'password': DEVICE_PASSWORD})
     return session
 
 
@@ -93,7 +93,7 @@ def test_activate_device(auth):
 
 
 def test_enable_https(syncloud_session):
-    response = syncloud_session.get('http://localhost/server/rest/settings/set_protocol', params={'protocol': 'https'})
+    response = syncloud_session.get('http://localhost/rest/settings/set_protocol', params={'protocol': 'https'})
     assert '"success": true' in response.text
     assert response.status_code == 200
 
