@@ -60,7 +60,7 @@ class DiasporaInstaller:
         if not UserConfig().is_installed():
             self.initialize()
 
-        self.recompile_assets()
+        #self.recompile_assets()
 
         self.log.info(chown.chown(self.config.app_name(), self.config.install_path()))
 
@@ -108,9 +108,9 @@ class DiasporaInstaller:
         self.update_configuraiton()
         self.recompile_assets()
 
-    def recompile_assets(self):
-        self.environment()
-        print(check_output(self.config.rake_assets(), shell=True, cwd=self.config.diaspora_dir()))
+    #def recompile_assets(self):
+    #    self.environment()
+    #    print(check_output(self.config.rake_assets(), shell=True, cwd=self.config.diaspora_dir()))
 
     def update_configuraiton(self):
         url = info.url('diaspora')

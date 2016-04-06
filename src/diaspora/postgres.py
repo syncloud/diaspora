@@ -5,7 +5,7 @@ from diaspora.config import Config
 
 def execute(sql, database=None):
 
-    log = logger.get_logger('diaspora.postgres.execute')
+    log = logger.get_logger('diaspora_postgres')
     config = Config()
 
     if not database:
