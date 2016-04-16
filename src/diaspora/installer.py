@@ -1,4 +1,4 @@
-from os import environ
+from os import environ, makedirs
 from os.path import isdir, join
 import shutil
 from subprocess import check_output
@@ -22,6 +22,12 @@ SYSTEMD_REDIS = 'diaspora-redis'
 SYSTEMD_SIDEKIQ = 'diaspora-sidekiq'
 SYSTEMD_UNICORN = 'diaspora-unicorn'
 
+APP_NAME = 'diaspora'
+USER_NAME = 'diaspora'
+
+def makepath(path):
+    if not isdir(path):
+        makedirs(path)
 
 class DiasporaInstaller:
     def __init__(self):
@@ -32,24 +38,17 @@ class DiasporaInstaller:
 
         locale.fix_locale()
 
-        self.log.info(chown.chown(self.config.app_name(), self.config.install_path()))
+        self.log.info(chown.chown(USER_NAME, self.config.install_path()))
 
-        app_data_dir = app.get_app_data_root(self.config.app_name(), self.config.app_name())
+        app_data_dir = app.get_app_data_dir(APP_NAME)
 
-        if not isdir(join(app_data_dir, 'config')):
-            app.create_data_dir(app_data_dir, 'config', self.config.app_name())
+        makepath(join(app_data_dir, 'config'))
+        makepath(join(app_data_dir, 'postgresql'))
+        makepath(join(app_data_dir, 'redis'))
+        makepath(join(app_data_dir, 'log'))
+        makepath(join(app_data_dir, 'nginx'))
 
-        if not isdir(join(app_data_dir, 'postgresql')):
-            app.create_data_dir(app_data_dir, 'postgresql', self.config.app_name())
-
-        if not isdir(join(app_data_dir, 'redis')):
-            app.create_data_dir(app_data_dir, 'redis', self.config.app_name())
-
-        if not isdir(join(app_data_dir, 'log')):
-            app.create_data_dir(app_data_dir, 'log', self.config.app_name())
-
-        if not isdir(join(app_data_dir, 'nginx')):
-            app.create_data_dir(app_data_dir, 'nginx', self.config.app_name())
+        chown.chown(USER_NAME, app_data_dir)
 
         print("setup systemd")
 
@@ -62,7 +61,7 @@ class DiasporaInstaller:
 
         #self.recompile_assets()
 
-        self.log.info(chown.chown(self.config.app_name(), self.config.install_path()))
+        self.log.info(chown.chown(USER_NAME, self.config.install_path()))
 
         add_service(self.config.install_path(), SYSTEMD_REDIS)
         add_service(self.config.install_path(), SYSTEMD_SIDEKIQ)
