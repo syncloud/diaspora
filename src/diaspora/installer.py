@@ -8,9 +8,12 @@ from syncloud_app import logger
 from syncloud_platform.systemd.systemctl import remove_service, add_service
 from syncloud_platform.tools import app
 from syncloud_platform.api import storage
-from syncloud_platform.tools import chown, locale
+from syncloud_platform.tools import chown
 from syncloud_platform.api import info
 from syncloud_platform.api import app as platform_app
+
+from syncloud_platform.gaplib import fs, linux
+
 from diaspora import postgres
 from diaspora.config import Config
 from diaspora.config import UserConfig
@@ -36,7 +39,7 @@ class DiasporaInstaller:
 
     def install(self):
 
-        locale.fix_locale()
+        linux.fix_locale()
 
         self.log.info(chown.chown(USER_NAME, self.config.install_path()))
 
