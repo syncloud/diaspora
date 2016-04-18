@@ -8,7 +8,6 @@ from syncloud_app import logger
 from syncloud_platform.systemd.systemctl import remove_service, add_service
 from syncloud_platform.tools import app
 from syncloud_platform.api import storage
-from syncloud_platform.tools import chown
 from syncloud_platform.api import info
 from syncloud_platform.api import app as platform_app
 
@@ -41,7 +40,9 @@ class DiasporaInstaller:
 
         linux.fix_locale()
 
-        self.log.info(chown.chown(USER_NAME, self.config.install_path()))
+        linux.useradd(USER_NAME)
+
+        self.log.info(fs.chownpath(self.config.install_path(), USER_NAME, recursive=True))
 
         app_data_dir = app.get_app_data_dir(APP_NAME)
 
@@ -51,7 +52,7 @@ class DiasporaInstaller:
         makepath(join(app_data_dir, 'log'))
         makepath(join(app_data_dir, 'nginx'))
 
-        chown.chown(USER_NAME, app_data_dir)
+        fs.chownpath(app_data_dir, USER_NAME, recursive=True)
 
         print("setup systemd")
 
@@ -64,7 +65,7 @@ class DiasporaInstaller:
 
         #self.recompile_assets()
 
-        self.log.info(chown.chown(USER_NAME, self.config.install_path()))
+        self.log.info(fs.chownpath(self.config.install_path(), USER_NAME, recursive=True))
 
         add_service(self.config.install_path(), SYSTEMD_REDIS)
         add_service(self.config.install_path(), SYSTEMD_SIDEKIQ)
