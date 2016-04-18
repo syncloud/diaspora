@@ -27,10 +27,6 @@ SYSTEMD_UNICORN = 'diaspora-unicorn'
 APP_NAME = 'diaspora'
 USER_NAME = 'diaspora'
 
-def makepath(path):
-    if not isdir(path):
-        makedirs(path)
-
 class DiasporaInstaller:
     def __init__(self):
         self.log = logger.get_logger('diaspora.installer')
@@ -46,11 +42,11 @@ class DiasporaInstaller:
 
         app_data_dir = app.get_app_data_dir(APP_NAME)
 
-        makepath(join(app_data_dir, 'config'))
-        makepath(join(app_data_dir, 'postgresql'))
-        makepath(join(app_data_dir, 'redis'))
-        makepath(join(app_data_dir, 'log'))
-        makepath(join(app_data_dir, 'nginx'))
+        fs.makepath(join(app_data_dir, 'config'))
+        fs.makepath(join(app_data_dir, 'postgresql'))
+        fs.makepath(join(app_data_dir, 'redis'))
+        fs.makepath(join(app_data_dir, 'log'))
+        fs.makepath(join(app_data_dir, 'nginx'))
 
         fs.chownpath(app_data_dir, USER_NAME, recursive=True)
 
