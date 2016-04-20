@@ -1,4 +1,4 @@
-from os import environ, makedirs
+from os import environ
 from os.path import isdir, join
 import shutil
 from subprocess import check_output
@@ -6,12 +6,12 @@ from subprocess import check_output
 from syncloud_app import logger
 
 from syncloud_platform.systemd.systemctl import remove_service, add_service
-from syncloud_platform.tools import app
 from syncloud_platform.api import storage
 from syncloud_platform.api import info
-from syncloud_platform.api import app as platform_app
 
 from syncloud_platform.gaplib import fs, linux
+
+from syncloud_platform.application import api
 
 from diaspora import postgres
 from diaspora.config import Config
@@ -38,9 +38,11 @@ class DiasporaInstaller:
 
         linux.useradd(USER_NAME)
 
-        self.log.info(fs.chownpath(self.config.install_path(), USER_NAME, recursive=True))
+        app_setup = api.get_app_setup(APP_NAME)
 
-        app_data_dir = app.get_app_data_dir(APP_NAME)
+        self.log.info(fs.chownpath(app_setup.get_install_dir(), USER_NAME, recursive=True))
+
+        app_data_dir = app_setup.get_data_dir()
 
         fs.makepath(join(app_data_dir, 'config'))
         fs.makepath(join(app_data_dir, 'postgresql'))
@@ -70,11 +72,14 @@ class DiasporaInstaller:
 
         self.prepare_storage()
 
-        platform_app.register_app('diaspora', self.config.port())
+        app_setup.register_web(self.config.port())
 
     def remove(self):
 
-        platform_app.unregister_app('diaspora')
+        app_setup = api.get_app_setup(APP_NAME)
+
+        app_setup.unregister_web()
+
         remove_service(SYSTEMD_NGINX_NAME)
         remove_service(SYSTEMD_UNICORN)
         remove_service(SYSTEMD_SIDEKIQ)
