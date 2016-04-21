@@ -6,7 +6,6 @@ from subprocess import check_output
 from syncloud_app import logger
 
 from syncloud_platform.systemd.systemctl import remove_service, add_service
-from syncloud_platform.api import storage
 from syncloud_platform.api import info
 
 from syncloud_platform.gaplib import fs, linux
@@ -70,7 +69,7 @@ class DiasporaInstaller:
         add_service(self.config.install_path(), SYSTEMD_UNICORN)
         add_service(self.config.install_path(), SYSTEMD_NGINX_NAME)
 
-        self.prepare_storage()
+        app_setup.init_storage(USER_NAME)
 
         app_setup.register_web(self.config.port())
 
@@ -104,9 +103,6 @@ class DiasporaInstaller:
         environ['DB'] = self.config.db()
         environ['GEM_HOME'] = self.config.gem_home()
         environ['PATH'] = self.config.path()
-
-    def prepare_storage(self):
-        storage.init(self.config.app_name(), self.config.app_name())
 
     def update_domain(self):
         self.update_configuraiton()
