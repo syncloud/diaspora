@@ -29,6 +29,7 @@ class DiasporaInstaller:
     def __init__(self):
         self.log = logger.get_logger('diaspora.installer')
         self.config = Config()
+        self.app = api.get_app_setup(APP_NAME)
 
     def install(self):
 
@@ -36,11 +37,9 @@ class DiasporaInstaller:
 
         linux.useradd(USER_NAME)
 
-        app_setup = api.get_app_setup(APP_NAME)
+        self.log.info(fs.chownpath(self.app.get_install_dir(), USER_NAME, recursive=True))
 
-        self.log.info(fs.chownpath(app_setup.get_install_dir(), USER_NAME, recursive=True))
-
-        app_data_dir = app_setup.get_data_dir()
+        app_data_dir = self.app.get_data_dir()
 
         fs.makepath(join(app_data_dir, 'config'))
         fs.makepath(join(app_data_dir, 'postgresql'))
@@ -68,15 +67,13 @@ class DiasporaInstaller:
         add_service(self.config.install_path(), SYSTEMD_UNICORN)
         add_service(self.config.install_path(), SYSTEMD_NGINX_NAME)
 
-        app_setup.init_storage(USER_NAME)
+        self.app.init_storage(USER_NAME)
 
-        app_setup.register_web(self.config.port())
+        self.app.register_web(self.config.port())
 
     def remove(self):
 
-        app_setup = api.get_app_setup(APP_NAME)
-
-        app_setup.unregister_web()
+        self.app.unregister_web()
 
         remove_service(SYSTEMD_NGINX_NAME)
         remove_service(SYSTEMD_UNICORN)
@@ -112,8 +109,7 @@ class DiasporaInstaller:
     #    print(check_output(self.config.rake_assets(), shell=True, cwd=self.config.diaspora_dir()))
 
     def update_configuraiton(self):
-        app_setup = api.get_app_setup(APP_NAME)
-        url = app_setup.app_url()
+        url = self.app.app_url()
         config = yaml.load(open(self.config.diaspora_config()))
 
         config['configuration']['environment']['url'] = url
