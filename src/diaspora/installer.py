@@ -6,7 +6,6 @@ from subprocess import check_output
 from syncloud_app import logger
 
 from syncloud_platform.systemd.systemctl import remove_service, add_service
-from syncloud_platform.api import info
 
 from syncloud_platform.gaplib import fs, linux
 
@@ -113,7 +112,8 @@ class DiasporaInstaller:
     #    print(check_output(self.config.rake_assets(), shell=True, cwd=self.config.diaspora_dir()))
 
     def update_configuraiton(self):
-        url = info.url('diaspora')
+        app_setup = api.get_app_setup(APP_NAME)
+        url = app_setup.app_url()
         config = yaml.load(open(self.config.diaspora_config()))
 
         config['configuration']['environment']['url'] = url
