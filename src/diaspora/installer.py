@@ -5,8 +5,6 @@ from subprocess import check_output
 
 from syncloud_app import logger
 
-from syncloud_platform.systemd.systemctl import remove_service, add_service
-
 from syncloud_platform.gaplib import fs, linux
 
 from syncloud_platform.application import api
@@ -51,7 +49,7 @@ class DiasporaInstaller:
 
         print("setup systemd")
 
-        add_service(self.config.install_path(), SYSTEMD_POSTGRESQL)
+        self.app.add_service(SYSTEMD_POSTGRESQL)
 
         self.update_configuraiton()
 
@@ -62,10 +60,10 @@ class DiasporaInstaller:
 
         self.log.info(fs.chownpath(self.config.install_path(), USER_NAME, recursive=True))
 
-        add_service(self.config.install_path(), SYSTEMD_REDIS)
-        add_service(self.config.install_path(), SYSTEMD_SIDEKIQ)
-        add_service(self.config.install_path(), SYSTEMD_UNICORN)
-        add_service(self.config.install_path(), SYSTEMD_NGINX_NAME)
+        self.app.add_service(SYSTEMD_REDIS)
+        self.app.add_service(SYSTEMD_SIDEKIQ)
+        self.app.add_service(SYSTEMD_UNICORN)
+        self.app.add_service(SYSTEMD_NGINX_NAME)
 
         self.app.init_storage(USER_NAME)
 
@@ -75,11 +73,11 @@ class DiasporaInstaller:
 
         self.app.unregister_web()
 
-        remove_service(SYSTEMD_NGINX_NAME)
-        remove_service(SYSTEMD_UNICORN)
-        remove_service(SYSTEMD_SIDEKIQ)
-        remove_service(SYSTEMD_REDIS)
-        remove_service(SYSTEMD_POSTGRESQL)
+        self.app.remove_service(SYSTEMD_NGINX_NAME)
+        self.app.remove_service(SYSTEMD_UNICORN)
+        self.app.remove_service(SYSTEMD_SIDEKIQ)
+        self.app.remove_service(SYSTEMD_REDIS)
+        self.app.remove_service(SYSTEMD_POSTGRESQL)
 
         if isdir(self.config.install_path()):
             shutil.rmtree(self.config.install_path())
