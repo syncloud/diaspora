@@ -5,8 +5,7 @@ from os import listdir
 from os.path import dirname, join, abspath, isdir
 import time
 from requests.adapters import HTTPAdapter
-from subprocess import check_output
-
+from subprocess import check_output, check_call
 import pytest
 import re
 
@@ -92,11 +91,11 @@ def test_activate_device(auth):
     assert response.status_code == 200
 
 
-def test_running_platform_web():
+def test_running_platform_web_after_activation():
     check_call('nc -zv -w 1 localhost 80', shell=True)
 
 
-def test_platform_rest():
+def test_platform_rest_after_activation():
     session = requests.session()
     session.mount('http://localhost', HTTPAdapter(max_retries=5))
     response = session.get('http://localhost', timeout=60)
