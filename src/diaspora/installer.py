@@ -5,12 +5,10 @@ from subprocess import check_output
 
 from syncloud_app import logger
 
-from syncloud_platform.systemd.systemctl import remove_service, add_service
-from syncloud_platform.tools import app
-from syncloud_platform.api import storage
-from syncloud_platform.tools import chown, locale
-from syncloud_platform.api import info
-from syncloud_platform.api import app as platform_app
+from syncloud_platform.gaplib import fs, linux
+
+from syncloud_platform.application import api
+
 from diaspora import postgres
 from diaspora.config import Config
 from diaspora.config import UserConfig
@@ -22,65 +20,64 @@ SYSTEMD_REDIS = 'diaspora-redis'
 SYSTEMD_SIDEKIQ = 'diaspora-sidekiq'
 SYSTEMD_UNICORN = 'diaspora-unicorn'
 
+APP_NAME = 'diaspora'
+USER_NAME = 'diaspora'
 
 class DiasporaInstaller:
     def __init__(self):
         self.log = logger.get_logger('diaspora.installer')
         self.config = Config()
+        self.app = api.get_app_setup(APP_NAME)
 
     def install(self):
 
-        locale.fix_locale()
+        linux.fix_locale()
 
-        self.log.info(chown.chown(self.config.app_name(), self.config.install_path()))
+        linux.useradd(USER_NAME)
 
-        app_data_dir = app.get_app_data_root(self.config.app_name(), self.config.app_name())
+        self.log.info(fs.chownpath(self.app.get_install_dir(), USER_NAME, recursive=True))
 
-        if not isdir(join(app_data_dir, 'config')):
-            app.create_data_dir(app_data_dir, 'config', self.config.app_name())
+        app_data_dir = self.app.get_data_dir()
 
-        if not isdir(join(app_data_dir, 'postgresql')):
-            app.create_data_dir(app_data_dir, 'postgresql', self.config.app_name())
+        fs.makepath(join(app_data_dir, 'config'))
+        fs.makepath(join(app_data_dir, 'postgresql'))
+        fs.makepath(join(app_data_dir, 'redis'))
+        fs.makepath(join(app_data_dir, 'log'))
+        fs.makepath(join(app_data_dir, 'nginx'))
 
-        if not isdir(join(app_data_dir, 'redis')):
-            app.create_data_dir(app_data_dir, 'redis', self.config.app_name())
-
-        if not isdir(join(app_data_dir, 'log')):
-            app.create_data_dir(app_data_dir, 'log', self.config.app_name())
-
-        if not isdir(join(app_data_dir, 'nginx')):
-            app.create_data_dir(app_data_dir, 'nginx', self.config.app_name())
+        fs.chownpath(app_data_dir, USER_NAME, recursive=True)
 
         print("setup systemd")
 
-        add_service(self.config.install_path(), SYSTEMD_POSTGRESQL)
+        self.app.add_service(SYSTEMD_POSTGRESQL)
 
         self.update_configuraiton()
 
         if not UserConfig().is_installed():
             self.initialize()
 
-        self.recompile_assets()
+        #self.recompile_assets()
 
-        self.log.info(chown.chown(self.config.app_name(), self.config.install_path()))
+        self.log.info(fs.chownpath(self.config.install_path(), USER_NAME, recursive=True))
 
-        add_service(self.config.install_path(), SYSTEMD_REDIS)
-        add_service(self.config.install_path(), SYSTEMD_SIDEKIQ)
-        add_service(self.config.install_path(), SYSTEMD_UNICORN)
-        add_service(self.config.install_path(), SYSTEMD_NGINX_NAME)
+        self.app.add_service(SYSTEMD_REDIS)
+        self.app.add_service(SYSTEMD_SIDEKIQ)
+        self.app.add_service(SYSTEMD_UNICORN)
+        self.app.add_service(SYSTEMD_NGINX_NAME)
 
-        self.prepare_storage()
+        self.app.init_storage(USER_NAME)
 
-        platform_app.register_app('diaspora', self.config.port())
+        self.app.register_web(self.config.port())
 
     def remove(self):
 
-        platform_app.unregister_app('diaspora')
-        remove_service(SYSTEMD_NGINX_NAME)
-        remove_service(SYSTEMD_UNICORN)
-        remove_service(SYSTEMD_SIDEKIQ)
-        remove_service(SYSTEMD_REDIS)
-        remove_service(SYSTEMD_POSTGRESQL)
+        self.app.unregister_web()
+
+        self.app.remove_service(SYSTEMD_NGINX_NAME)
+        self.app.remove_service(SYSTEMD_UNICORN)
+        self.app.remove_service(SYSTEMD_SIDEKIQ)
+        self.app.remove_service(SYSTEMD_REDIS)
+        self.app.remove_service(SYSTEMD_POSTGRESQL)
 
         if isdir(self.config.install_path()):
             shutil.rmtree(self.config.install_path())
@@ -101,19 +98,16 @@ class DiasporaInstaller:
         environ['GEM_HOME'] = self.config.gem_home()
         environ['PATH'] = self.config.path()
 
-    def prepare_storage(self):
-        storage.init(self.config.app_name(), self.config.app_name())
-
     def update_domain(self):
         self.update_configuraiton()
         self.recompile_assets()
 
-    def recompile_assets(self):
-        self.environment()
-        print(check_output(self.config.rake_assets(), shell=True, cwd=self.config.diaspora_dir()))
+    #def recompile_assets(self):
+    #    self.environment()
+    #    print(check_output(self.config.rake_assets(), shell=True, cwd=self.config.diaspora_dir()))
 
     def update_configuraiton(self):
-        url = info.url('diaspora')
+        url = self.app.app_url()
         config = yaml.load(open(self.config.diaspora_config()))
 
         config['configuration']['environment']['url'] = url

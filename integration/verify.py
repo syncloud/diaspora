@@ -4,8 +4,8 @@ from bs4 import BeautifulSoup
 from os import listdir
 from os.path import dirname, join, abspath, isdir
 import time
-from subprocess import check_output
-
+from requests.adapters import HTTPAdapter
+from subprocess import check_output, check_call
 import pytest
 import re
 
@@ -38,7 +38,7 @@ def user_domain(auth):
 @pytest.fixture(scope='function')
 def syncloud_session():
     session = requests.session()
-    session.post('http://localhost/server/rest/login', data={'name': DEVICE_USER, 'password': DEVICE_PASSWORD})
+    session.post('http://localhost/rest/login', data={'name': DEVICE_USER, 'password': DEVICE_PASSWORD})
     return session
 
 
@@ -68,20 +68,42 @@ def test_remove_logs():
     shutil.rmtree(LOG_DIR, ignore_errors=True)
 
 
+def test_running_platform_web():
+    print(check_output('nc -zv -w 1 localhost 81', shell=True))
+
+
+def test_platform_rest():
+    session = requests.session()
+    session.mount('http://localhost:81', HTTPAdapter(max_retries=5))
+    response = session.get('http://localhost:81', timeout=60)
+    assert response.status_code == 200
+
+
 def test_activate_device(auth):
     email, password, domain, release, version, arch = auth
 
     run_ssh('/opt/app/sam/bin/sam update --release {0}'.format(release), password=DEFAULT_DEVICE_PASSWORD)
     run_ssh('/opt/app/sam/bin/sam --debug upgrade platform', password=DEFAULT_DEVICE_PASSWORD)
 
-    response = requests.post('http://localhost:81/server/rest/activate',
+    response = requests.post('http://localhost:81/rest/activate',
                              data={'main_domain': 'syncloud.info', 'redirect_email': email, 'redirect_password': password,
                                    'user_domain': domain, 'device_username': DEVICE_USER, 'device_password': DEVICE_PASSWORD})
     assert response.status_code == 200
 
 
+def test_running_platform_web_after_activation():
+    check_call('nc -zv -w 1 localhost 80', shell=True)
+
+
+def test_platform_rest_after_activation():
+    session = requests.session()
+    session.mount('http://localhost', HTTPAdapter(max_retries=5))
+    response = session.get('http://localhost', timeout=60)
+    assert response.status_code == 200
+
+
 def test_enable_https(syncloud_session):
-    response = syncloud_session.get('http://localhost/server/rest/settings/set_protocol', params={'protocol': 'https'})
+    response = syncloud_session.get('http://localhost/rest/settings/set_protocol', params={'protocol': 'https'})
     assert '"success": true' in response.text
     assert response.status_code == 200
 

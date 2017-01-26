@@ -9,7 +9,7 @@ export TMPDIR=/tmp
 export TMP=/tmp
 
 NAME=diaspora
-DIASPORA_VERSION=0.5.6.0
+DIASPORA_VERSION=0.5.7.0
 DIASPORA_ARCHIVE=v${DIASPORA_VERSION}
 
 if [ -z "$1" ]; then
@@ -68,6 +68,7 @@ cd diaspora
 cp ${DIR}/config/diaspora/database.yml config/database.yml
 cp ${DIR}/config/diaspora/diaspora.yml config/diaspora.yml
 
+
 #sed -i 's#Backbone.history.start({pushState: true});#Backbone.history.start({pushState: true, root: "/diaspora/"});#g' app/assets/javascripts/app/app.js
 #sed -i 's#"users/sign_up"#"diaspora/users/sign_up"#g' app/assets/javascripts/app/router.js
 #sed -i "/get 'login' => redirect('\/users\/sign_in')/a \ \ get 'diaspora\/users\/sign_up'   => 'users\/registrations#new',   :as => :new_user_registration_path" config/routes.rb
@@ -113,7 +114,7 @@ find ${BUILD_DIR}/ruby/ -type l -exec readlink {} \;
 
 find ${BUILD_DIR}/ruby/ -type l -exec sh -c 'cp --remove-destination $(readlink {}) {}' \;
 
-#bin/rake assets:precompile
+bin/rake assets:precompile
 
 echo "zipping"
 tar cpzf ${DIR}/${NAME}-${VERSION}-${ARCH}.tar.gz -C ${DIR}/build/ ${NAME}
