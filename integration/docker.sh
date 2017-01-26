@@ -31,7 +31,13 @@ service docker start
 
 function cleanup {
 
-    mount | grep ${ROOTFS} | awk '{print "umounting "$1; system("umount "$3)}'
+    losetup -a
+#    mount
+    losetup -d /dev/loop0
+    losetup -a
+    mount | grep rootfs | awk '{print "umounting "$1; system("umount "$3)}'
+#    mount | grep docker | awk '{print "umounting "$1; system("umount "$3)}'
+    mount | grep rootfs
 
     echo "cleaning old rootfs"
     rm -rf ${ROOTFS}
@@ -40,7 +46,8 @@ function cleanup {
     docker images -q
 
     echo "removing images"
-    docker rm $(docker kill $(docker ps -qa))
+    docker kill $(docker ps -qa)
+    docker rm $(docker ps -qa)
     docker rmi $(docker images -q)
 
     echo "docker images"
@@ -53,16 +60,16 @@ echo "extracting rootfs"
 rm -rf ${ROOTFS}
 mkdir -p ${ROOTFS}
 tar xzf ${APP_DIR}/3rdparty/rootfs-${ARCH}.tar.gz -C ${ROOTFS}
-sed -i 's/Port 22/Port 2222/g' ${ROOTFS}/etc/ssh/sshd_config
+
+cp -r ${APP_DIR}/integration ${ROOTFS}
 
 echo "importing rootfs"
 tar -C ${ROOTFS} -c . | docker import - syncloud
 
 echo "starting rootfs"
-docker run --net host -v /var/run/dbus:/var/run/dbus --name rootfs --privileged -d -it syncloud /sbin/init
+docker run -v /var/run/dbus:/var/run/dbus --name rootfs --cap-add=ALL -p 2222:22 -p 80:80 -p 81:81 --privileged -d -it syncloud /sbin/init 
 
-#echo "sleeping for services to start"
-#sleep 10
+ssh-keygen -f "/root/.ssh/known_hosts" -R [localhost]:2222
 
 sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost date
 while test $? -gt 0
