@@ -1,6 +1,9 @@
 import pytest
 
 
+SYNCLOUD_INFO = 'syncloud.info'
+
+
 def pytest_addoption(parser):
     parser.addoption("--email", action="store")
     parser.addoption("--password", action="store")
@@ -20,3 +23,8 @@ def auth(request):
            config.getoption("--app-version"), \
            config.getoption("--arch")
 
+
+@pytest.fixture(scope='module')
+def user_domain(auth):
+    email, password, domain, release, version, arch = auth
+    return 'diaspora.{0}.{1}'.format(domain, SYNCLOUD_INFO)

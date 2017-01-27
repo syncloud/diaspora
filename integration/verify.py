@@ -29,10 +29,26 @@ DEVICE_PASSWORD = 'password'
 DEFAULT_DEVICE_PASSWORD = 'syncloud'
 
 
-@pytest.fixture(scope='module')
-def user_domain(auth):
-    email, password, domain, release, version, arch = auth
-    return 'diaspora.{0}.{1}'.format(domain, SYNCLOUD_INFO)
+@pytest.fixture(scope="session")
+def module_setup(request):
+    request.addfinalizer(module_teardown)
+
+
+def module_teardown():
+    os.mkdir(LOG_DIR)
+    platform_log_dir = join(LOG_DIR, 'platform_log')
+    os.mkdir(platform_log_dir)
+    run_scp('root@localhost:/opt/data/platform/log/* {0}'.format(platform_log_dir), password=LOGS_SSH_PASSWORD)
+    app_log_dir = join(LOG_DIR, 'app_log')
+    os.mkdir(app_log_dir)
+    run_scp('root@localhost:/opt/data/diaspora/log/*.log {0}'.format(app_log_dir), password=LOGS_SSH_PASSWORD)
+
+    run_scp('root@localhost:/var/log/sam.log {0}'.format(platform_log_dir), password=LOGS_SSH_PASSWORD)
+
+    print('-------------------------------------------------------')
+    print('syncloud docker image is running')
+    print('connect using: {0}'.format(ssh_command(DEVICE_PASSWORD, SSH)))
+    print('-------------------------------------------------------')
 
 
 @pytest.fixture(scope='function')
@@ -62,10 +78,6 @@ def diaspora_session(user_domain):
     assert response.status_code == 302, response.text
     assert 'getting_started' in response.headers['Location'], response.text
     return session
-
-
-def test_remove_logs():
-    shutil.rmtree(LOG_DIR, ignore_errors=True)
 
 
 def test_running_platform_web():
@@ -185,18 +197,6 @@ def test_create_user(auth, user_domain):
 
 # def test_reinstall(auth):
 #     __local_install(auth)
-
-
-def test_copy_logs():
-    os.mkdir(LOG_DIR)
-    run_scp('root@localhost:/opt/data/platform/log/* {0}'.format(LOG_DIR), password=DEVICE_PASSWORD)
-    run_ssh('ls -la /opt/app/diaspora/diaspora/log', password=DEVICE_PASSWORD)
-    run_scp('root@localhost:/opt/app/diaspora/diaspora/log/* {0}'.format(LOG_DIR), password=DEVICE_PASSWORD)
-
-    print('-------------------------------------------------------')
-    print('syncloud docker image is running')
-    print('connect using: {0}'.format(ssh_command(DEVICE_PASSWORD, SSH)))
-    print('-------------------------------------------------------')
 
 
 def __local_install(auth):

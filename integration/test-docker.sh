@@ -10,7 +10,10 @@ fi
 
 ./docker.sh $6
 
+apt-get install -y sshpass firefox xvfb
+coin --to ${DIR} raw --subfolder geckodriver https://github.com/mozilla/geckodriver/releases/download/v0.9.0/geckodriver-v0.9.0-linux64.tar.gz
+mv ${DIR}/geckodriver/geckodriver ${DIR}/geckodriver/wires
+
 pip2 install -r ${DIR}/../src/dev_requirements.txt
 pip2 install -U pytest
-
-py.test -s verify.py --email=$1 --password=$2 --domain=$3 --release=$4 --app-version=$5 --arch=$6
+xvfb-run py.test -x -s verify.py test_ui.py --email=$1 --password=$2 --domain=$3 --release=$4 --app-version=$5 --arch=$6
