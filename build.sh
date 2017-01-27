@@ -26,7 +26,7 @@ fi
 wget --no-check-certificate --progress=dot:giga -O /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py 2>&1
 python /tmp/get-pip.py
 pip install coin
-apt-get install -y git build-essential
+apt-get install -y git build-essential libpq-dev
 
 ./coin_lib.sh
 
