@@ -27,7 +27,7 @@ SYNCLOUD_INFO = 'syncloud.info'
 DEVICE_USER = 'user'
 DEVICE_PASSWORD = 'password'
 DEFAULT_DEVICE_PASSWORD = 'syncloud'
-LOGS_SSH_PASSWORD = DEVICE_PASSWORD
+LOGS_SSH_PASSWORD = DEFAULT_DEVICE_PASSWORD
 
 @pytest.fixture(scope="session")
 def module_setup(request):
@@ -47,7 +47,7 @@ def module_teardown():
 
     print('-------------------------------------------------------')
     print('syncloud docker image is running')
-    print('connect using: {0}'.format(ssh_command(DEVICE_PASSWORD, SSH)))
+    print('connect using: {0}'.format(ssh_command(LOGS_SSH_PASSWORD, SSH)))
     print('-------------------------------------------------------')
 
 
@@ -94,6 +94,8 @@ def test_activate_device(auth):
                              data={'main_domain': 'syncloud.info', 'redirect_email': email, 'redirect_password': password,
                                    'user_domain': domain, 'device_username': DEVICE_USER, 'device_password': DEVICE_PASSWORD})
     assert response.status_code == 200
+    global LOGS_SSH_PASSWORD
+    LOGS_SSH_PASSWORD = DEVICE_PASSWORD
 
 
 def test_running_platform_web_after_activation():
