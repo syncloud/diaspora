@@ -85,7 +85,7 @@ export PATH=${BUILD_DIR}/ruby/bin:${BUILD_DIR}/nodejs/bin:$PATH
 export GEM_HOME=${BUILD_DIR}/ruby
 #export RAILS_RELATIVE_URL_ROOT='/diaspora'
 
-DIASPORA_RUBY_CACHE=/tmp/diaspora_ruby_cache
+DIASPORA_RUBY_CACHE=${DIR}/.ruby.cache
 if [ ! -z "$TEAMCITY_VERSION" ]; then
   echo "running under TeamCity, cleaning ruby dependencies cache"
   rm -rf ${DIASPORA_RUBY_CACHE}
@@ -98,10 +98,8 @@ if [ -d "$DIASPORA_RUBY_CACHE" ]; then
 fi
 
 ${BUILD_DIR}/ruby/bin/gem install bundler
-export DB=postgres
 export RAILS_ENV=production
-
-bin/bundle install --without test development
+bin/bundle install --deployment --without test development --with postgresql
 rm -rf ${DIASPORA_RUBY_CACHE}
 
 if [ -z "$TEAMCITY_VERSION" ]; then
