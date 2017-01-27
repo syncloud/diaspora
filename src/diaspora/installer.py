@@ -56,8 +56,6 @@ class DiasporaInstaller:
         if not UserConfig().is_installed():
             self.initialize()
 
-        #self.recompile_assets()
-
         self.log.info(fs.chownpath(self.config.install_path(), USER_NAME, recursive=True))
 
         self.app.add_service(SYSTEMD_REDIS)
@@ -100,11 +98,6 @@ class DiasporaInstaller:
 
     def update_domain(self):
         self.update_configuraiton()
-        self.recompile_assets()
-
-    #def recompile_assets(self):
-    #    self.environment()
-    #    print(check_output(self.config.rake_assets(), shell=True, cwd=self.config.diaspora_dir()))
 
     def update_configuraiton(self):
         url = self.app.app_url()
