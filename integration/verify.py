@@ -27,7 +27,7 @@ SYNCLOUD_INFO = 'syncloud.info'
 DEVICE_USER = 'user'
 DEVICE_PASSWORD = 'password'
 DEFAULT_DEVICE_PASSWORD = 'syncloud'
-
+LOGS_SSH_PASSWORD = DEVICE_PASSWORD
 
 @pytest.fixture(scope="session")
 def module_setup(request):
