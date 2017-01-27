@@ -69,14 +69,7 @@ def test_remove_logs():
 
 
 def test_running_platform_web():
-    print(check_output('nc -zv -w 1 localhost 81', shell=True))
-
-
-def test_platform_rest():
-    session = requests.session()
-    session.mount('http://localhost:81', HTTPAdapter(max_retries=5))
-    response = session.get('http://localhost:81', timeout=60)
-    assert response.status_code == 200
+    print(check_output('nc -zv -w 1 localhost 80', shell=True))
 
 
 def test_activate_device(auth):
