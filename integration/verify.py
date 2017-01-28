@@ -82,6 +82,10 @@ def diaspora_session(user_domain):
     return session
 
 
+def test_start(module_setup):
+    shutil.rmtree(LOG_DIR, ignore_errors=True)
+
+
 def test_running_platform_web():
     print(check_output('nc -zv -w 1 localhost 80', shell=True))
 
