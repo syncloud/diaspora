@@ -31,10 +31,12 @@ LOGS_SSH_PASSWORD = DEFAULT_DEVICE_PASSWORD
 
 @pytest.fixture(scope="session")
 def module_setup(request):
+    print('setup')
     request.addfinalizer(module_teardown)
 
 
 def module_teardown():
+    print('tear down')
     os.mkdir(LOG_DIR)
     platform_log_dir = join(LOG_DIR, 'platform_log')
     os.mkdir(platform_log_dir)
