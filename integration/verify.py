@@ -19,7 +19,7 @@ map(lambda x: sys.path.insert(0, x), libs)
 import requests
 import shutil
 
-from integration.util.ssh import run_scp, ssh_command, SSH, run_ssh, set_docker_ssh_port
+from integration.util.ssh import run_scp, ssh_command, SSH, run_ssh
 
 DIR = dirname(__file__)
 LOG_DIR = join(DIR, 'log')
