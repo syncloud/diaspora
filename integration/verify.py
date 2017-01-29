@@ -130,6 +130,7 @@ def test_install(auth):
 
 def test_non_authenticated_resource(user_domain):
     response = requests.get('https://127.0.0.1', headers={"Host": user_domain}, verify=False)
+    print(response.text)
     soup = BeautifulSoup(response.text, "html.parser")
     smiley_png_url = soup.find_all('img', {'alt': 'Smiley laughing'})[0]['src']
     smiley_png_localurl = re.match("https://.*/assets/(.*)", smiley_png_url).group(1)
