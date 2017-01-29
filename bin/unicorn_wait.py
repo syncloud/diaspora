@@ -22,7 +22,7 @@ def wait_for_unicorn(delay=2, retries=20):
         try:
             response = requests.get(unicorn_url, allow_redirects=False)
             print('response.status_code: {0}'.format(response.status_code))
-            if response.status_code == 200:
+            if response.status_code == 302:
                 return True
         except Exception, e:
             print(e.message)

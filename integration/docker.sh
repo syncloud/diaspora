@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-ROOTFS=/tmp/diaspora/rootfs
 APP_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )
 cd ${APP_DIR}
 if [[ $EUID -ne 0 ]]; then
@@ -15,6 +14,7 @@ if [[ -z "$1" ]]; then
 fi
 
 ARCH=$1
+ROOTFS=$APP_DIR/.rootfs
 
 if [ ! -f 3rdparty/rootfs-${ARCH}.tar.gz ]; then
   if [ ! -d 3rdparty ]; then
@@ -32,11 +32,9 @@ service docker start
 function cleanup {
 
     losetup -a
-#    mount
     losetup -d /dev/loop0
     losetup -a
     mount | grep rootfs | awk '{print "umounting "$1; system("umount "$3)}'
-#    mount | grep docker | awk '{print "umounting "$1; system("umount "$3)}'
     mount | grep rootfs
 
     echo "cleaning old rootfs"
