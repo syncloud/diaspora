@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash -e
 
 APP_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )
 cd ${APP_DIR}
@@ -32,7 +32,7 @@ service docker start
 function cleanup {
 
     losetup -a
-    losetup -d /dev/loop0
+    losetup -d /dev/loop0 || true
     losetup -a
     mount | grep rootfs | awk '{print "umounting "$1; system("umount "$3)}'
     mount | grep rootfs
@@ -44,9 +44,9 @@ function cleanup {
     docker images -q
 
     echo "removing images"
-    docker kill $(docker ps -qa)
-    docker rm $(docker ps -qa)
-    docker rmi $(docker images -q)
+    docker kill $(docker ps -qa) || true
+    docker rm $(docker ps -qa) || true
+    docker rmi $(docker images -q) || true
 
     echo "docker images"
     docker images -q
@@ -67,8 +67,9 @@ tar -C ${ROOTFS} -c . | docker import - syncloud
 echo "starting rootfs"
 docker run -v /var/run/dbus:/var/run/dbus --name rootfs --cap-add=ALL -p 2222:22 -p 80:80 -p 81:81 -p 443:443 --privileged -d -it syncloud /sbin/init 
 
-ssh-keygen -f "/root/.ssh/known_hosts" -R [localhost]:2222
+ssh-keygen -f "/root/.ssh/known_hosts" -R [localhost]:2222 || true
 
+set +e
 sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost date
 while test $? -gt 0
 do
