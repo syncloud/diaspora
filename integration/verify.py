@@ -199,7 +199,6 @@ def test_create_user(auth, user_domain):
 
 
 def __local_install(app_archive_path):
-    run_scp('{0} root@localhost:/app.tar
-gz'.format(DIR, app_archive_path), password=DEVICE_PASSWORD)
-    run_ssh('/opt/app/sam/bin/sam --debug install /app.tar.gz'.format(version, arch), password=DEVICE_PASSWORD)
+    run_scp('{0} root@localhost:/app.tar.gz'.format(app_archive_path), password=DEVICE_PASSWORD)
+    run_ssh('/opt/app/sam/bin/sam --debug install /app.tar.gz', password=DEVICE_PASSWORD)
     time.sleep(3)
