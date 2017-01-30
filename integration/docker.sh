@@ -34,8 +34,8 @@ function cleanup {
     losetup -a
     losetup -d /dev/loop0 || true
     losetup -a
-    mount | grep rootfs | awk '{print "umounting "$1; system("umount "$3)}'
-    mount | grep rootfs
+    mount | grep rootfs | awk '{print "umounting "$1; system("umount "$3)}' || true
+    mount | grep rootfs || true
 
     echo "cleaning old rootfs"
     rm -rf ${ROOTFS}
