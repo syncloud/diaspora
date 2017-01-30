@@ -94,7 +94,7 @@ def test_running_platform_web():
 
 
 def test_activate_device(auth):
-    email, password, domain, release, version, arch = auth
+    email, password, domain, release, version = auth
 
     run_ssh('/opt/app/sam/bin/sam update --release {0}'.format(release), password=DEFAULT_DEVICE_PASSWORD)
     run_ssh('/opt/app/sam/bin/sam --debug upgrade platform', password=DEFAULT_DEVICE_PASSWORD)
@@ -124,8 +124,8 @@ def test_platform_rest_after_activation():
 #    assert response.status_code == 200
 
 
-def test_install(auth):
-    __local_install(auth)
+def test_install(app_archive_path):
+    __local_install(app_archive_path)
 
 
 def test_create_user(auth, user_domain):
@@ -198,8 +198,8 @@ def test_create_user(auth, user_domain):
 #     __local_install(auth)
 
 
-def __local_install(auth):
-    email, password, domain, release, version, arch = auth
-    run_scp('{0}/../diaspora-{1}-{2}.tar.gz root@localhost:/'.format(DIR, version, arch), password=DEVICE_PASSWORD)
-    run_ssh('/opt/app/sam/bin/sam --debug install /diaspora-{0}-{1}.tar.gz'.format(version, arch), password=DEVICE_PASSWORD)
+def __local_install(app_archive_path):
+    run_scp('{0} root@localhost:/app.tar
+gz'.format(DIR, app_archive_path), password=DEVICE_PASSWORD)
+    run_ssh('/opt/app/sam/bin/sam --debug install /app.tar.gz'.format(version, arch), password=DEVICE_PASSWORD)
     time.sleep(3)

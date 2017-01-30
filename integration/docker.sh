@@ -7,13 +7,7 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-
-if [[ -z "$1" ]]; then
-    echo "usage $0 app_arch"
-    exit 1
-fi
-
-ARCH=$1
+ARCH=$(dpkg-architecture -q DEB_HOST_GNU_CPU)
 ROOTFS=$APP_DIR/.rootfs
 
 if [ ! -f 3rdparty/rootfs-${ARCH}.tar.gz ]; then
