@@ -118,10 +118,10 @@ def test_platform_rest_after_activation():
     assert response.status_code == 200
 
 
-def test_enable_https(syncloud_session):
-    response = syncloud_session.get('http://localhost/rest/settings/set_protocol', params={'protocol': 'https'})
-    assert '"success": true' in response.text
-    assert response.status_code == 200
+#def test_enable_https(syncloud_session):
+#    response = syncloud_session.get('http://localhost/rest/settings/set_protocol', params={'protocol': 'https'})
+#    assert '"success": true' in response.text
+#    assert response.status_code == 200
 
 
 def test_install(auth):
