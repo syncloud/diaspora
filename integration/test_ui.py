@@ -27,6 +27,7 @@ def test_web_with_selenium(user_domain):
 
     profile = webdriver.FirefoxProfile()
     profile.set_preference("webdriver.log.file", "{0}/firefox.log".format(log_dir))
+    profile.accept_untrusted_certs = True
     driver = webdriver.Firefox(profile, capabilities=caps)
 
     screenshot_dir = join(DIR, 'screenshot')
