@@ -8,14 +8,6 @@ from requests.adapters import HTTPAdapter
 from subprocess import check_output, check_call
 import pytest
 import re
-
-app_path = join(dirname(__file__), '..')
-sys.path.append(join(app_path, 'src'))
-
-lib_path = join(app_path, 'lib')
-libs = [abspath(join(lib_path, item)) for item in listdir(lib_path) if isdir(join(lib_path, item))]
-map(lambda x: sys.path.insert(0, x), libs)
-
 import requests
 import shutil
 
