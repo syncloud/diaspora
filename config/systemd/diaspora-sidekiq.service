@@ -12,6 +12,7 @@ Environment=RAILS_ENV=production
 Environment=GEM_HOME=/opt/app/diaspora/ruby
 Environment=DB=postgres
 Environment=PATH=/opt/app/diaspora/ruby/bin:/opt/app/diaspora/nodejs/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+Environment=LD_LIBRARY_PATH=/opt/app/diaspora/postgresql/lib
 
 Restart=always
 CPUAccounting=true

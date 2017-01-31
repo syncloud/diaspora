@@ -16,11 +16,13 @@ from diaspora.config import Config
 
 def wait_for_unicorn(delay=2, retries=20):
     config = Config()
-    for retry in range(0, retries):
+    retry = 0
+    while retry < retries:
         unicorn_url = 'http://localhost:{0}'.format(config.unicorn_port())
         try:
             response = requests.get(unicorn_url, allow_redirects=False)
-            if response.status_code == 200:
+            print('response.status_code: {0}'.format(response.status_code))
+            if response.status_code == 302:
                 return True
         except Exception, e:
             print(e.message)

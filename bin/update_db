@@ -1,0 +1,5 @@
+#!/bin/bash -e
+
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )
+export LD_LIBRARY_PATH=${DIR}/postgresql/lib
+exec ${DIR}/diaspora/bin/rake db:create db:schema:load 2>&1

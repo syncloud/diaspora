@@ -6,11 +6,6 @@ SSH = 'ssh -o StrictHostKeyChecking=no -p {0} root@localhost'.format(DOCKER_SSH_
 SCP = 'scp -o StrictHostKeyChecking=no -P {0}'.format(DOCKER_SSH_PORT)
 
 
-def set_docker_ssh_port(password):
-    run_ssh("sed -i 's/ssh_port.*/ssh_port:{0}/g' /opt/app/platform/config/platform.cfg".format(DOCKER_SSH_PORT),
-            password=password)
-
-
 def run_scp(command, throw=True, debug=True, password='syncloud'):
     return _run_command('{0} {1}'.format(SCP, command), throw, debug, password)
 
@@ -32,6 +27,7 @@ def _run_command(command, throw, debug, password):
             print
         return output
     except Exception, e:
+        print(e.output)
         print(e.message)
         if throw:
             raise e

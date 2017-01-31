@@ -1,6 +1,5 @@
-#!/usr/bin/env bash
+#!/bin/bash -ex
 
-ROOTFS=/tmp/diaspora/rootfs
 APP_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )
 cd ${APP_DIR}
 if [[ $EUID -ne 0 ]]; then
@@ -8,13 +7,8 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-
-if [[ -z "$1" ]]; then
-    echo "usage $0 app_arch"
-    exit 1
-fi
-
-ARCH=$1
+ARCH=$(dpkg-architecture -q DEB_HOST_GNU_CPU)
+ROOTFS=$APP_DIR/.rootfs
 
 if [ ! -f 3rdparty/rootfs-${ARCH}.tar.gz ]; then
   if [ ! -d 3rdparty ]; then
@@ -31,7 +25,11 @@ service docker start
 
 function cleanup {
 
-    mount | grep ${ROOTFS} | awk '{print "umounting "$1; system("umount "$3)}'
+    losetup -a
+    losetup -d /dev/loop0 || true
+    losetup -a
+    mount | grep rootfs | awk '{print "umounting "$1; system("umount "$3)}' || true
+    mount | grep rootfs || true
 
     echo "cleaning old rootfs"
     rm -rf ${ROOTFS}
@@ -40,8 +38,9 @@ function cleanup {
     docker images -q
 
     echo "removing images"
-    docker rm $(docker kill $(docker ps -qa))
-    docker rmi $(docker images -q)
+    docker kill $(docker ps -qa) || true
+    docker rm $(docker ps -qa) || true
+    docker rmi $(docker images -q) || true
 
     echo "docker images"
     docker images -q
@@ -53,21 +52,22 @@ echo "extracting rootfs"
 rm -rf ${ROOTFS}
 mkdir -p ${ROOTFS}
 tar xzf ${APP_DIR}/3rdparty/rootfs-${ARCH}.tar.gz -C ${ROOTFS}
-sed -i 's/Port 22/Port 2222/g' ${ROOTFS}/etc/ssh/sshd_config
+
+cp -r ${APP_DIR}/integration ${ROOTFS}
 
 echo "importing rootfs"
 tar -C ${ROOTFS} -c . | docker import - syncloud
 
 echo "starting rootfs"
-docker run --net host -v /var/run/dbus:/var/run/dbus --name rootfs --privileged -d -it syncloud /sbin/init
+docker run -v /var/run/dbus:/var/run/dbus --name rootfs --cap-add=ALL -p 2222:22 -p 80:80 -p 81:81 -p 443:443 --privileged -d -it syncloud /sbin/init 
 
-#echo "sleeping for services to start"
-#sleep 10
+ssh-keygen -f "/root/.ssh/known_hosts" -R [localhost]:2222 || true
 
+set +e
 sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost date
 while test $? -gt 0
 do
-  sleep 1
+  sleep 5
   echo "Waiting for SSH ..." 
   sshpass -p syncloud ssh -o StrictHostKeyChecking=no -p 2222 root@localhost date
 done

@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash -xe
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd ${DIR}
@@ -9,7 +9,7 @@ export TMPDIR=/tmp
 export TMP=/tmp
 
 NAME=diaspora
-DIASPORA_VERSION=0.5.7.0
+DIASPORA_VERSION=0.6.3.0
 DIASPORA_ARCHIVE=v${DIASPORA_VERSION}
 
 if [ -z "$1" ]; then
@@ -26,7 +26,7 @@ fi
 wget --no-check-certificate --progress=dot:giga -O /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py 2>&1
 python /tmp/get-pip.py
 pip install coin
-apt-get install -y git build-essential
+apt-get install -y git build-essential libpq-dev
 
 ./coin_lib.sh
 
@@ -68,24 +68,14 @@ cd diaspora
 cp ${DIR}/config/diaspora/database.yml config/database.yml
 cp ${DIR}/config/diaspora/diaspora.yml config/diaspora.yml
 
-
-#sed -i 's#Backbone.history.start({pushState: true});#Backbone.history.start({pushState: true, root: "/diaspora/"});#g' app/assets/javascripts/app/app.js
-#sed -i 's#"users/sign_up"#"diaspora/users/sign_up"#g' app/assets/javascripts/app/router.js
-#sed -i "/get 'login' => redirect('\/users\/sign_in')/a \ \ get 'diaspora\/users\/sign_up'   => 'users\/registrations#new',   :as => :new_user_registration_path" config/routes.rb
-#sed -i "/config.cache_classes = true/a \ \ config.relative_url_root = '/diaspora'" config/environments/production.rb
-#sed -i "/config.cache_classes = true/a \ \ config.action_controller.relative_url_root = '/diaspora'" config/environments/production.rb
 sed -i "s/.*config.force_ssl =.*/  config.force_ssl = false/g" config/environments/production.rb
-
-echo "patching"
-#patch -p0 < ${DIR}/patches/filemtime.patch
 
 echo "installing libraries"
 
 export PATH=${BUILD_DIR}/ruby/bin:${BUILD_DIR}/nodejs/bin:$PATH
 export GEM_HOME=${BUILD_DIR}/ruby
-#export RAILS_RELATIVE_URL_ROOT='/diaspora'
 
-DIASPORA_RUBY_CACHE=/tmp/diaspora_ruby_cache
+DIASPORA_RUBY_CACHE=${DIR}/.ruby.cache
 if [ ! -z "$TEAMCITY_VERSION" ]; then
   echo "running under TeamCity, cleaning ruby dependencies cache"
   rm -rf ${DIASPORA_RUBY_CACHE}
@@ -98,10 +88,8 @@ if [ -d "$DIASPORA_RUBY_CACHE" ]; then
 fi
 
 ${BUILD_DIR}/ruby/bin/gem install bundler
-export DB=postgres
 export RAILS_ENV=production
-
-bin/bundle install --without test development
+bin/bundle install --deployment --without test development --with postgresql
 rm -rf ${DIASPORA_RUBY_CACHE}
 
 if [ -z "$TEAMCITY_VERSION" ]; then
@@ -112,7 +100,7 @@ find ${BUILD_DIR}/ruby/ -type l
 
 find ${BUILD_DIR}/ruby/ -type l -exec readlink {} \;
 
-find ${BUILD_DIR}/ruby/ -type l -exec sh -c 'cp --remove-destination $(readlink {}) {}' \;
+find ${BUILD_DIR}/ruby/ -type l -exec sh -c 'cp --remove-destination $(readlink {}) {}' \; || true
 
 bin/rake assets:precompile
 

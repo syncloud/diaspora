@@ -81,9 +81,6 @@ class Config:
     def diaspora_dir(self):
         return self.parser.get('diaspora', 'diaspora_dir')
 
-    def rake_assets(self):
-        return self.parser.get('diaspora', 'rake_assets')
-
     def diaspora_config(self):
         return self.parser.get('diaspora', 'diaspora_config')
 
