@@ -121,7 +121,7 @@ def test_install(app_archive_path):
 
 
 def test_create_user(auth, user_domain):
-    email, password, domain, release, version, arch = auth
+    email, password, domain, release, _ = auth
     response = requests.post('https://127.0.0.1/users', headers={"Host": user_domain},
                              verify=False, allow_redirects=False,
                              data={
