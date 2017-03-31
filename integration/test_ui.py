@@ -24,6 +24,7 @@ def test_web_with_selenium(user_domain):
     caps = DesiredCapabilities.FIREFOX
     caps["marionette"] = True
     caps["binary"] = "/usr/bin/firefox"
+    caps["acceptInsecureCerts"] = True
 
     profile = webdriver.FirefoxProfile()
     profile.set_preference("webdriver.log.file", "{0}/firefox.log".format(log_dir))
