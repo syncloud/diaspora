@@ -3,8 +3,6 @@
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd ${DIR}
 
-apt-get install -y libgmp3-dev
-
 export TMPDIR=/tmp
 export TMP=/tmp
 
@@ -22,11 +20,6 @@ VERSION="local"
 if [ ! -z "$2" ]; then
     VERSION=$2
 fi
-
-wget --no-check-certificate --progress=dot:giga -O /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py 2>&1
-python /tmp/get-pip.py
-pip install coin
-apt-get install -y git build-essential libpq-dev
 
 ./coin_lib.sh
 
