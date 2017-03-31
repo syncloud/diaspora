@@ -15,11 +15,7 @@ if [ -z "$1" ]; then
 fi
 
 ARCH=$1
-
-VERSION="local"
-if [ ! -z "$2" ]; then
-    VERSION=$2
-fi
+VERSION=$2
 
 ./coin_lib.sh
 
@@ -89,11 +85,11 @@ if [ -z "$TEAMCITY_VERSION" ]; then
    cp -r ${BUILD_DIR}/ruby ${DIASPORA_RUBY_CACHE}
 fi
 
-find ${BUILD_DIR}/ruby/ -type l
+#find ${BUILD_DIR}/ruby/ -type l
 
-find ${BUILD_DIR}/ruby/ -type l -exec readlink {} \;
+#find ${BUILD_DIR}/ruby/ -type l -exec readlink {} \;
 
-find ${BUILD_DIR}/ruby/ -type l -exec sh -c 'cp --remove-destination $(readlink {}) {}' \; || true
+#find ${BUILD_DIR}/ruby/ -type l -exec sh -c 'cp --remove-destination $(readlink {}) {}' \; || true
 
 bin/rake assets:precompile
 
