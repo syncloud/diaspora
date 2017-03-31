@@ -85,11 +85,11 @@ if [ -z "$TEAMCITY_VERSION" ]; then
    cp -r ${BUILD_DIR}/ruby ${DIASPORA_RUBY_CACHE}
 fi
 
-#find ${BUILD_DIR}/ruby/ -type l
+find ${BUILD_DIR}/ruby/ -type l
 
-#find ${BUILD_DIR}/ruby/ -type l -exec readlink {} \;
+find ${BUILD_DIR}/ruby/ -type l -exec readlink {} \;
 
-#find ${BUILD_DIR}/ruby/ -type l -exec sh -c 'cp --remove-destination $(readlink {}) {}' \; || true
+find ${BUILD_DIR}/ruby/ -type l -exec sh -c 'cp --remove-destination $(readlink {}) {}' \; || true
 
 bin/rake assets:precompile
 
