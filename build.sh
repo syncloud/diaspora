@@ -7,7 +7,7 @@ export TMPDIR=/tmp
 export TMP=/tmp
 
 NAME=diaspora
-DIASPORA_VERSION=0.6.3.0
+DIASPORA_VERSION=0.6.4.1
 DIASPORA_ARCHIVE=v${DIASPORA_VERSION}
 
 if [ -z "$1" ]; then
