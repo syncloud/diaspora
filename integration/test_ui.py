@@ -37,8 +37,8 @@ def test_web_with_selenium(user_domain):
     os.mkdir(screenshot_dir)
 
     driver.get("https://{0}".format(user_domain))
+    WebDriverWait(driver, 10).until(lambda d: d.execute_script('return document.readyState') == 'complete')
     
-    time.sleep(5)
     driver.get_screenshot_as_file(join(screenshot_dir, 'login.png'))
 
     
