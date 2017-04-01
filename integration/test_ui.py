@@ -24,6 +24,7 @@ def test_web_with_selenium(user_domain):
     caps = DesiredCapabilities.FIREFOX
     caps["marionette"] = True
     caps["binary"] = "/usr/bin/firefox"
+    caps["acceptInsecureCerts"] = True
 
     profile = webdriver.FirefoxProfile()
     profile.set_preference("webdriver.log.file", "{0}/firefox.log".format(log_dir))
@@ -35,9 +36,9 @@ def test_web_with_selenium(user_domain):
         shutil.rmtree(screenshot_dir)
     os.mkdir(screenshot_dir)
 
-    driver.get("http://{0}".format(user_domain))
+    driver.get("https://{0}".format(user_domain))
+    WebDriverWait(driver, 10).until(lambda d: d.execute_script('return document.readyState') == 'complete')
     
-    time.sleep(2)
     driver.get_screenshot_as_file(join(screenshot_dir, 'login.png'))
 
     

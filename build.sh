@@ -3,12 +3,12 @@
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd ${DIR}
 
-apt-get install -y libgmp3-dev
-
 export TMPDIR=/tmp
 export TMP=/tmp
 
 NAME=diaspora
+#requires ruby 2.2.2
+#DIASPORA_VERSION=0.6.4.1
 DIASPORA_VERSION=0.6.3.0
 DIASPORA_ARCHIVE=v${DIASPORA_VERSION}
 
@@ -17,16 +17,7 @@ if [ -z "$1" ]; then
 fi
 
 ARCH=$1
-
-VERSION="local"
-if [ ! -z "$2" ]; then
-    VERSION=$2
-fi
-
-wget --no-check-certificate --progress=dot:giga -O /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py 2>&1
-python /tmp/get-pip.py
-pip install coin
-apt-get install -y git build-essential libpq-dev
+VERSION=$2
 
 ./coin_lib.sh
 
@@ -96,11 +87,9 @@ if [ -z "$TEAMCITY_VERSION" ]; then
    cp -r ${BUILD_DIR}/ruby ${DIASPORA_RUBY_CACHE}
 fi
 
-find ${BUILD_DIR}/ruby/ -type l
-
-find ${BUILD_DIR}/ruby/ -type l -exec readlink {} \;
-
-find ${BUILD_DIR}/ruby/ -type l -exec sh -c 'cp --remove-destination $(readlink {}) {}' \; || true
+find ${BUILD_DIR}/diaspora/vendor/bundle/ruby/ -type l
+find ${BUILD_DIR}/diaspora/vendor/bundle/ruby/ -type l -exec readlink {} \;
+find ${BUILD_DIR}/diaspora/vendor/bundle/ruby/ -type l -exec sh -c 'cp --remove-destination $(readlink {}) {}' \; || true
 
 bin/rake assets:precompile
 

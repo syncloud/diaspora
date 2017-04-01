@@ -33,9 +33,10 @@ def module_teardown():
     platform_log_dir = join(LOG_DIR, 'platform_log')
     os.mkdir(platform_log_dir)
     run_scp('root@localhost:/opt/data/platform/log/* {0}'.format(platform_log_dir), password=LOGS_SSH_PASSWORD)
-    app_log_dir = join(LOG_DIR, 'app_log')
+    app_log_dir = join(LOG_DIR, 'diaspora_log')
     os.mkdir(app_log_dir)
     run_scp('root@localhost:/opt/data/diaspora/log/*.log {0}'.format(app_log_dir), password=LOGS_SSH_PASSWORD)
+    run_scp('root@localhost:/opt/app/diaspora/diaspora/log/*.log {0}'.format(app_log_dir), password=LOGS_SSH_PASSWORD)
 
     run_scp('root@localhost:/var/log/sam.log {0}'.format(platform_log_dir), password=LOGS_SSH_PASSWORD)
 
