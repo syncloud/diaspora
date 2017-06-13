@@ -13,11 +13,11 @@ DIASPORA_VERSION=0.6.3.0
 DIASPORA_ARCHIVE=v${DIASPORA_VERSION}
 
 if [ -z "$1" ]; then
-    echo "usage: $0 arch [version]"
+    echo "usage: $0 version"
 fi
 
-ARCH=$1
-VERSION=$2
+ARCH=$(uname -m)
+VERSION=$1
 
 ./coin_lib.sh
 
