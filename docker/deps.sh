@@ -15,3 +15,6 @@ else
   cp phantomjs /usr/bin
 fi
 chmod +x /usr/bin/phantomjs
+
+./install-sam.sh 85 stable
+./install-s3cmd.sh
