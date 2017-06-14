@@ -4,6 +4,7 @@ apt-get install -y libgmp3-dev git build-essential libpq-dev sshpass curl netcat
 
 wget https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
+pip install -U pytest
 pip install coin
 ARCH=$(uname -m)
 if [ $ARCH == "x86_64" ]; then
