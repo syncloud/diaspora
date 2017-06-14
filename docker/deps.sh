@@ -1,6 +1,6 @@
 #!/bin/bash -xe
 
-apt-get install -y libgmp3-dev git build-essential libpq-dev
+apt-get install -y libgmp3-dev git build-essential libpq-dev sshpass curl netcat xvfb wget unzip
 
 wget https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
