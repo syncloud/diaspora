@@ -11,7 +11,7 @@ import re
 import requests
 import shutil
 
-from integration.util.ssh import run_scp, ssh_command, SSH, run_ssh
+from integration.util.ssh import run_scp, ssh_command, run_ssh
 
 DIR = dirname(__file__)
 LOG_DIR = join(DIR, 'log')
@@ -22,49 +22,44 @@ DEFAULT_DEVICE_PASSWORD = 'syncloud'
 LOGS_SSH_PASSWORD = DEFAULT_DEVICE_PASSWORD
 
 @pytest.fixture(scope="session")
-def module_setup(request):
+def module_setup(request, device_host):
     print('setup')
-    request.addfinalizer(module_teardown)
+    request.addfinalizer(lambda: module_teardown(device_host))
 
 
-def module_teardown():
+def module_teardown(device_host):
     print('tear down')
     os.mkdir(LOG_DIR)
     platform_log_dir = join(LOG_DIR, 'platform_log')
     os.mkdir(platform_log_dir)
-    run_scp('root@localhost:/opt/data/platform/log/* {0}'.format(platform_log_dir), password=LOGS_SSH_PASSWORD)
+    run_scp('root@{0}:/opt/data/platform/log/* {1}'.format(device_host, platform_log_dir), password=LOGS_SSH_PASSWORD)
     app_log_dir = join(LOG_DIR, 'diaspora_log')
     os.mkdir(app_log_dir)
-    run_scp('root@localhost:/opt/data/diaspora/log/*.log {0}'.format(app_log_dir), password=LOGS_SSH_PASSWORD)
-    run_scp('root@localhost:/opt/app/diaspora/diaspora/log/*.log {0}'.format(app_log_dir), password=LOGS_SSH_PASSWORD)
+    run_scp('root@{0}:/opt/data/diaspora/log/*.log {1}'.format(device_host, app_log_dir), password=LOGS_SSH_PASSWORD)
+    run_scp('root@{0}:/opt/app/diaspora/diaspora/log/*.log {1}'.format(device_host, app_log_dir), password=LOGS_SSH_PASSWORD)
 
-    run_scp('root@localhost:/var/log/sam.log {0}'.format(platform_log_dir), password=LOGS_SSH_PASSWORD)
+    run_scp('root@{0}:/var/log/sam.log {1}'.format(device_host, platform_log_dir), password=LOGS_SSH_PASSWORD)
 
     print('systemd logs')
     run_ssh('journalctl | tail -200', password=LOGS_SSH_PASSWORD)
 
-    print('-------------------------------------------------------')
-    print('syncloud docker image is running')
-    print('connect using: {0}'.format(ssh_command(LOGS_SSH_PASSWORD, SSH)))
-    print('-------------------------------------------------------')
-
 
 @pytest.fixture(scope='function')
-def syncloud_session():
+def syncloud_session(device_host):
     session = requests.session()
-    session.post('http://localhost/rest/login', data={'name': DEVICE_USER, 'password': DEVICE_PASSWORD})
+    session.post('http://{0}/rest/login'.format(device_host), data={'name': DEVICE_USER, 'password': DEVICE_PASSWORD})
     return session
 
 
 @pytest.fixture(scope='function')
-def diaspora_session(user_domain):
+def diaspora_session(device_host, user_domain):
     session = requests.session()
-    response = session.get('https://127.0.0.1/login',
+    response = session.get('https://{0}/login'.format(device_host),
                            headers={"Host": user_domain},
                            allow_redirects=False, verify=False)
     assert response.status_code == 301, response.text
 
-    response = session.post('https://127.0.0.1/users/sign_in',
+    response = session.post('https://{0}/users/sign_in'.format(device_host),
                             headers={"Host": user_domain},
                             data={'user[username]': DEVICE_USER,
                                   'user[password]': DEVICE_PASSWORD,
@@ -82,17 +77,17 @@ def test_start(module_setup):
     shutil.rmtree(LOG_DIR, ignore_errors=True)
 
 
-def test_running_platform_web():
-    print(check_output('nc -zv -w 1 localhost 80', shell=True))
+def test_running_platform_web(device_host):
+    print(check_output('nc -zv -w 1 {0} 80'.format(device_host), shell=True))
 
 
-def test_activate_device(auth):
+def test_activate_device(auth, device_host):
     email, password, domain, release, version = auth
 
     run_ssh('/opt/app/sam/bin/sam update --release {0}'.format(release), password=DEFAULT_DEVICE_PASSWORD)
     run_ssh('/opt/app/sam/bin/sam --debug upgrade platform', password=DEFAULT_DEVICE_PASSWORD)
 
-    response = requests.post('http://localhost:81/rest/activate',
+    response = requests.post('http://{0}:81/rest/activate'.format(device_host),
                              data={'main_domain': 'syncloud.info', 'redirect_email': email, 'redirect_password': password,
                                    'user_domain': domain, 'device_username': DEVICE_USER, 'device_password': DEVICE_PASSWORD})
     assert response.status_code == 200
@@ -100,8 +95,8 @@ def test_activate_device(auth):
     LOGS_SSH_PASSWORD = DEVICE_PASSWORD
 
 
-def test_running_platform_web_after_activation():
-    check_call('nc -zv -w 1 localhost 80', shell=True)
+def test_running_platform_web_after_activation(device_host):
+    check_call('nc -zv -w 1 {0} 80'.format(device_host), shell=True)
 
 
 def test_platform_rest_after_activation():
