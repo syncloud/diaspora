@@ -1,4 +1,4 @@
-,import os
+import os
 import sys
 from bs4 import BeautifulSoup
 from os import listdir
