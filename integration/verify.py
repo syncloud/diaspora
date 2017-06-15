@@ -1,4 +1,4 @@
-import os
+,import os
 import sys
 from bs4 import BeautifulSoup
 from os import listdir
@@ -82,10 +82,10 @@ def test_running_platform_web(device_host):
 
 
 def test_activate_device(auth, device_host):
-    email, password, domain, release, version = auth
+    email, password, domain = auth
 
-    run_ssh('/opt/app/sam/bin/sam update --release {0}'.format(release), password=DEFAULT_DEVICE_PASSWORD)
-    run_ssh('/opt/app/sam/bin/sam --debug upgrade platform', password=DEFAULT_DEVICE_PASSWORD)
+    run_ssh(device_host, '/opt/app/sam/bin/sam update --release stable', password=DEFAULT_DEVICE_PASSWORD)
+    run_ssh(device_host, '/opt/app/sam/bin/sam --debug upgrade platform', password=DEFAULT_DEVICE_PASSWORD)
 
     response = requests.post('http://{0}:81/rest/activate'.format(device_host),
                              data={'main_domain': 'syncloud.info', 'redirect_email': email, 'redirect_password': password,
@@ -99,26 +99,28 @@ def test_running_platform_web_after_activation(device_host):
     check_call('nc -zv -w 1 {0} 80'.format(device_host), shell=True)
 
 
-def test_platform_rest_after_activation():
+def test_platform_rest_after_activation(device_host):
     session = requests.session()
-    session.mount('http://localhost', HTTPAdapter(max_retries=5))
-    response = session.get('http://localhost', timeout=60)
+    url = 'http://{0}'.format(device_host)
+    session.mount(url, HTTPAdapter(max_retries=5))
+    response = session.get(url, timeout=60)
     assert response.status_code == 200
 
 
-#def test_enable_https(syncloud_session):
-#    response = syncloud_session.get('http://localhost/rest/settings/set_protocol', params={'protocol': 'https'})
+#def test_enable_https(syncloud_session, device_host):
+#    response = syncloud_session.get('http://{0}/rest/settings/set_protocol'.format(device_host), params={'protocol': 'https'})
 #    assert '"success": true' in response.text
 #    assert response.status_code == 200
 
 
-def test_install(app_archive_path):
-    __local_install(app_archive_path)
+def test_install(app_archive_path, device_host):
+    __local_install(app_archive_path, device_host)
 
 
 def test_create_user(auth, user_domain):
-    email, password, domain, release, _ = auth
-    response = requests.post('https://127.0.0.1/users', headers={"Host": user_domain},
+    email, password, domain = auth
+    response = requests.post('https://{0}/users'.format(device_host),
+                             headers={"Host": user_domain},
                              verify=False, allow_redirects=False,
                              data={
                                  'user[email]': email,
@@ -130,9 +132,9 @@ def test_create_user(auth, user_domain):
     assert response.status_code == 302, response.text
 
 
-# def test_upload_profile_photo(diaspora_session, user_domain):
+# def test_upload_profile_photo(diaspora_session, user_domain, device_host):
 #
-#     response = diaspora_session.get('https://127.0.0.1/profile/edit',
+#     response = diaspora_session.get('https://{0}/profile/edit'.format(device_host),
 #                                     headers={"Host": user_domain},
 #                                     allow_redirects=False, verify=False)
 #     assert response.status_code == 200, response.text
@@ -140,7 +142,7 @@ def test_create_user(auth, user_domain):
 #     soup = BeautifulSoup(response.text, "html.parser")
 #     token = soup.find_all('meta', {'name': 'csrf-token'})[0]['content']
 #
-#     response = diaspora_session.post('https://127.0.0.1/photos',
+#     response = diaspora_session.post('https://{0}/photos'.format(device_host),
 #                                      headers={
 #                                          "Host": user_domain,
 #                                          'X-File-Name': 'profile.png',
@@ -160,11 +162,11 @@ def test_create_user(auth, user_domain):
     #     r = requests.post('https://IP_ADDRESS/rest/rest/2', auth=('userid', 'password'),
     #                   data=payload, verify=False, headers=headers)
 
-# def test_authenticated_resource(diaspora_session):
-#     response = diaspora_session.get('http://localhost/diaspora/', allow_redirects=False)
+# def test_authenticated_resource(diaspora_session, device_host):
+#     response = diaspora_session.get('http://{0}/diaspora/'.format(device_host), allow_redirects=False)
 #     soup = BeautifulSoup(response.text, "html.parser")
 #     requesttoken = soup.find_all('input', {'name': 'requesttoken'})[0]['value']
-#     response = diaspora_session.post('http://localhost/diaspora/index.php',
+#     response = diaspora_session.post('http://{0}/diaspora/index.php'.format(device_host),
 #                             data={'user': device_user, 'password': device_password, 'requesttoken': requesttoken},
 #                             allow_redirects=False)
 #
@@ -172,21 +174,21 @@ def test_create_user(auth, user_domain):
 #
 #     assert session.get('http://localhost/diaspora/core/img/filetypes/text.png').status_code == 200
 
-# def test_admin():
-#     response = session.get('http://localhost/diaspora/index.php/settings/admin', allow_redirects=False)
+# def test_admin(device_host):
+#     response = session.get('http://{0}/diaspora/index.php/settings/admin'.format(device_host), allow_redirects=False)
 #     assert response.status_code == 200, response.text
 
-# def test_remove():
-#     session.post('http://localhost/server/rest/login', data={'name': device_user, 'password': device_password})
-#     response = session.get('http://localhost/server/rest/remove?app_id=diaspora', allow_redirects=False)
+# def test_remove(device_host):
+#     session.post('http://{0}/server/rest/login'.format(device_host), data={'name': device_user, 'password': device_password})
+#     response = session.get('http://{0}/server/rest/remove?app_id=diaspora'.format(device_host), allow_redirects=False)
 #     assert response.status_code == 200, response.text
 
 
-# def test_reinstall(auth):
-#     __local_install(auth)
+# def test_reinstall(app_archive_path, device_host):
+#     __local_install(app_archive_path, device_host)
 
 
-def __local_install(app_archive_path):
-    run_scp('{0} root@localhost:/app.tar.gz'.format(app_archive_path), password=DEVICE_PASSWORD)
-    run_ssh('/opt/app/sam/bin/sam --debug install /app.tar.gz', password=DEVICE_PASSWORD)
+def __local_install(app_archive_path, device_host):
+    run_scp('{0} root@{1}:/app.tar.gz'.format(app_archive_path, device_host), password=DEVICE_PASSWORD)
+    run_ssh(device_host, '/opt/app/sam/bin/sam --debug install /app.tar.gz', password=DEVICE_PASSWORD)
     time.sleep(3)

@@ -18,29 +18,24 @@ def auth(request):
     config = request.config
     return config.getoption("--email"), \
            config.getoption("--password"), \
-           config.getoption("--domain"), \
-           config.getoption("--release"), \
-           config.getoption("--app-archive-path")
+           config.getoption("--domain")
 
 
 @pytest.fixture(scope='module')
 def user_domain(auth):
-    _, _, domain, _, _ = auth
+    _, _, domain = auth
     return 'diaspora.{0}.{1}'.format(domain, SYNCLOUD_INFO)
 
 
 @pytest.fixture(scope='module')
-def app_archive_path(auth):
-    _, _, _, _, app_archive = auth
-    return app_archive
+def app_archive_path(request):
+    return request.config.getoption("--app-archive-path")
 
 @pytest.fixture(scope='session')
 def installer(request):
-    config = request.config
-    return config.getoption("--installer")
+    return request.config.getoption("--installer")
 
 @pytest.fixture(scope='session')
 def device_host(request):
-    config = request.config
-    return config.getoption("--device-host")
+    return request.config.getoption("--device-host")
 
