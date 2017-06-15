@@ -1,17 +1,14 @@
 import os
-import sys
-from bs4 import BeautifulSoup
-from os import listdir
-from os.path import dirname, join, abspath, isdir
-import time
-from requests.adapters import HTTPAdapter
-from subprocess import check_output, check_call
-import pytest
-import re
-import requests
 import shutil
+import time
+from os.path import dirname, join
+from subprocess import check_output, check_call
 
-from integration.util.ssh import run_scp, ssh_command, run_ssh
+import pytest
+import requests
+from requests.adapters import HTTPAdapter
+
+from integration.util.ssh import run_scp, run_ssh
 
 DIR = dirname(__file__)
 LOG_DIR = join(DIR, 'log')
@@ -20,6 +17,7 @@ DEVICE_USER = 'user'
 DEVICE_PASSWORD = 'password'
 DEFAULT_DEVICE_PASSWORD = 'syncloud'
 LOGS_SSH_PASSWORD = DEFAULT_DEVICE_PASSWORD
+
 
 @pytest.fixture(scope="session")
 def module_setup(request, device_host):
@@ -36,12 +34,13 @@ def module_teardown(device_host):
     app_log_dir = join(LOG_DIR, 'diaspora_log')
     os.mkdir(app_log_dir)
     run_scp('root@{0}:/opt/data/diaspora/log/*.log {1}'.format(device_host, app_log_dir), password=LOGS_SSH_PASSWORD)
-    run_scp('root@{0}:/opt/app/diaspora/diaspora/log/*.log {1}'.format(device_host, app_log_dir), password=LOGS_SSH_PASSWORD)
+    run_scp('root@{0}:/opt/app/diaspora/diaspora/log/*.log {1}'.format(device_host, app_log_dir),
+            password=LOGS_SSH_PASSWORD)
 
     run_scp('root@{0}:/var/log/sam.log {1}'.format(device_host, platform_log_dir), password=LOGS_SSH_PASSWORD)
 
     print('systemd logs')
-    run_ssh('journalctl | tail -200', password=LOGS_SSH_PASSWORD)
+    run_ssh(device_host, 'journalctl | tail -200', password=LOGS_SSH_PASSWORD)
 
 
 @pytest.fixture(scope='function')
@@ -88,8 +87,9 @@ def test_activate_device(auth, device_host):
     run_ssh(device_host, '/opt/app/sam/bin/sam --debug upgrade platform', password=DEFAULT_DEVICE_PASSWORD)
 
     response = requests.post('http://{0}:81/rest/activate'.format(device_host),
-                             data={'main_domain': 'syncloud.info', 'redirect_email': email, 'redirect_password': password,
-                                   'user_domain': domain, 'device_username': DEVICE_USER, 'device_password': DEVICE_PASSWORD})
+                             data={'main_domain': 'syncloud.info', 'redirect_email': email,
+                                   'redirect_password': password, 'user_domain': domain,
+                                   'device_username': DEVICE_USER, 'device_password': DEVICE_PASSWORD})
     assert response.status_code == 200
     global LOGS_SSH_PASSWORD
     LOGS_SSH_PASSWORD = DEVICE_PASSWORD
@@ -107,8 +107,9 @@ def test_platform_rest_after_activation(device_host):
     assert response.status_code == 200
 
 
-#def test_enable_https(syncloud_session, device_host):
-#    response = syncloud_session.get('http://{0}/rest/settings/set_protocol'.format(device_host), params={'protocol': 'https'})
+# def test_enable_https(syncloud_session, device_host):
+#    response = syncloud_session.get('http://{0}/rest/settings/set_protocol'.format(device_host),
+#                                    params={'protocol': 'https'})
 #    assert '"success": true' in response.text
 #    assert response.status_code == 200
 
@@ -117,7 +118,7 @@ def test_install(app_archive_path, device_host):
     __local_install(app_archive_path, device_host)
 
 
-def test_create_user(auth, user_domain):
+def test_create_user(auth, user_domain, device_host):
     email, password, domain = auth
     response = requests.post('https://{0}/users'.format(device_host),
                              headers={"Host": user_domain},
@@ -179,7 +180,8 @@ def test_create_user(auth, user_domain):
 #     assert response.status_code == 200, response.text
 
 # def test_remove(device_host):
-#     session.post('http://{0}/server/rest/login'.format(device_host), data={'name': device_user, 'password': device_password})
+#     session.post('http://{0}/server/rest/login'.format(device_host),
+#                  data={'name': device_user, 'password': device_password})
 #     response = session.get('http://{0}/server/rest/remove?app_id=diaspora'.format(device_host), allow_redirects=False)
 #     assert response.status_code == 200, response.text
 

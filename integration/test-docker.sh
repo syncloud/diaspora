@@ -1,7 +1,6 @@
 #!/bin/bash -e
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-cd ${DIR}
 
 if [ "$#" -lt 9 ]; then
     echo "usage $0 redirect_user redirect_password redirect_domain app_archive_path installer_version release [all|test_suite] [sam|snapd] device_host"
@@ -17,6 +16,8 @@ DEVICE_HOST=$9
 
 GECKODRIVER=0.14.0
 FIREFOX=50.0
+
+cd ${DIR}
 
 echo ${APP_ARCHIVE_PATH}
 
