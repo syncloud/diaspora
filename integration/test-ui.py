@@ -41,7 +41,7 @@ def driver():
     #print driver.capabilities['version']
     return driver
 
-def test_login(driver, device_host):
+def test_login(driver, user_domain):
 
     driver.get("https://{0}".format(device_host))
     WebDriverWait(driver, 10).until(lambda d: d.execute_script('return document.readyState') == 'complete')
