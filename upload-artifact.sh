@@ -14,8 +14,8 @@ if [ ! -d $1 ]; then
     echo "nothing to upload, $1 does not exist"
     exit 0
 fi
-
+APP=diaspora
 echo "$ARTIFACT_SSH_KEY" | base64 --decode > artifact_ssh.key
 chmod 600 artifact_ssh.key
 chmod -R a+r $1
-scp -r -oStrictHostKeyChecking=no -i artifact_ssh.key $1 artifact@artifact.syncloud.org:/home/artifact/repo/diaspora/ci/$2
+scp -r -oStrictHostKeyChecking=no -i artifact_ssh.key $1 artifact@artifact.syncloud.org:/home/artifact/repo/$APP/ci/$2
