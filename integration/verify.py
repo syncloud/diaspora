@@ -27,7 +27,6 @@ def module_setup(request, device_host):
 
 def module_teardown(device_host):
     print('tear down')
-    os.mkdir(LOG_DIR)
     platform_log_dir = join(LOG_DIR, 'platform_log')
     os.mkdir(platform_log_dir)
     run_scp('root@{0}:/opt/data/platform/log/* {1}'.format(device_host, platform_log_dir), password=LOGS_SSH_PASSWORD)
@@ -74,6 +73,7 @@ def diaspora_session(device_host, user_domain):
 
 def test_start(module_setup):
     shutil.rmtree(LOG_DIR, ignore_errors=True)
+    os.mkdir(LOG_DIR)
 
 
 def test_running_platform_web(device_host):
