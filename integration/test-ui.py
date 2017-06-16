@@ -28,6 +28,7 @@ def driver():
     firefox_path = '{0}/firefox/firefox'.format(DIR)
     caps = DesiredCapabilities.FIREFOX
     caps["marionette"] = True
+    caps['acceptSslCerts'] = True
 
     binary = FirefoxBinary(firefox_path)
 
