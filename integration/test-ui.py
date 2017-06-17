@@ -43,7 +43,7 @@ def driver():
 
 def test_login(driver, user_domain):
 
-    driver.get("https://{0}".format(device_host))
+    driver.get("https://{0}".format(user_domain))
     WebDriverWait(driver, 10).until(lambda d: d.execute_script('return document.readyState') == 'complete')
     
     driver.get_screenshot_as_file(join(screenshot_dir, 'login.png'))
