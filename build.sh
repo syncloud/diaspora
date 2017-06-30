@@ -6,9 +6,7 @@ export TMPDIR=/tmp
 export TMP=/tmp
 
 NAME=diaspora
-#requires ruby 2.2.2
-#DIASPORA_VERSION=0.6.4.1
-DIASPORA_VERSION=0.6.3.0
+DIASPORA_VERSION=0.6.6.0
 DIASPORA_ARCHIVE=v${DIASPORA_VERSION}
 DOWNLOAD_URL=http://artifact.syncloud.org/3rdparty
 
