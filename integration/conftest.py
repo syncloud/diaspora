@@ -8,6 +8,7 @@ def pytest_addoption(parser):
     parser.addoption("--email", action="store")
     parser.addoption("--password", action="store")
     parser.addoption("--domain", action="store")
+    parser.addoption("--release", action="store")
     parser.addoption("--installer", action="store")
     parser.addoption("--device-host", action="store")
     parser.addoption("--app-archive-path", action="store")
