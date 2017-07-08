@@ -57,6 +57,9 @@ class Config:
     def db_socket(self):
         return self.parser.get('diaspora', 'db_socket')
 
+    def db_port(self):
+        return self.parser.get('diaspora', 'db_port')
+
     def rails_env(self):
         return self.parser.get('diaspora', 'rails_env')
 
