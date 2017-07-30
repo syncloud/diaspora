@@ -1,48 +1,47 @@
 #!/bin/bash -xe
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-cd ${DIR}
 
 export TMPDIR=/tmp
 export TMP=/tmp
 
 NAME=diaspora
-#requires ruby 2.2.2
-#DIASPORA_VERSION=0.6.4.1
-DIASPORA_VERSION=0.6.3.0
+DIASPORA_VERSION=0.6.6.0
 DIASPORA_ARCHIVE=v${DIASPORA_VERSION}
+DOWNLOAD_URL=http://artifact.syncloud.org/3rdparty
 
 if [ -z "$1" ]; then
-    echo "usage: $0 arch [version]"
+    echo "usage: $0 version"
 fi
 
-ARCH=$1
-VERSION=$2
+ARCH=$(uname -m)
+VERSION=$1
 
-./coin_lib.sh
+rm -rf ${DIR}/lib
+mkdir ${DIR}/lib
 
+cd ${DIR}
+coin --to lib py https://pypi.python.org/packages/2.7/r/requests/requests-2.7.0-py2.py3-none-any.whl
+coin --to lib py https://pypi.python.org/packages/source/s/syncloud-lib/syncloud-lib-2.tar.gz
+coin --to lib py ${DOWNLOAD_URL}/PyYAML-x86_64.tar.gz
 cp -r ${DIR}/src lib/syncloud-diaspora-${VERSION}
 
 rm -rf build
 BUILD_DIR=${DIR}/build/${NAME}
 mkdir -p ${BUILD_DIR}
 
-DOWNLOAD_URL=http://build.syncloud.org:8111/guestAuth/repository/download
-
-coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_ruby_${ARCH}/lastSuccessful/ruby-${ARCH}.tar.gz
-coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_nginx_${ARCH}/lastSuccessful/nginx-${ARCH}.tar.gz
-coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_postgresql_${ARCH}/lastSuccessful/postgresql-${ARCH}.tar.gz
-coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_redis_${ARCH}/lastSuccessful/redis-${ARCH}.tar.gz
-coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_nodejs_${ARCH}/lastSuccessful/nodejs-${ARCH}.tar.gz
-coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/thirdparty_ImageMagick_${ARCH}/lastSuccessful/ImageMagick-${ARCH}.tar.gz
+coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/ruby-${ARCH}.tar.gz
+coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/nginx-${ARCH}.tar.gz
+coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/postgresql-${ARCH}.tar.gz
+coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/redis-${ARCH}.tar.gz
+coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/nodejs-${ARCH}.tar.gz
+coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/ImageMagick-${ARCH}.tar.gz
 
 cp -r bin ${BUILD_DIR}
 cp -r config ${BUILD_DIR}
 cp -r lib ${BUILD_DIR}
 
 cd ${BUILD_DIR}
-
-#mv ${BUILD_DIR}/owncloud/config ${BUILD_DIR}/owncloud/config.orig
 
 mkdir META
 echo ${NAME} >> META/app
@@ -67,7 +66,7 @@ export PATH=${BUILD_DIR}/ruby/bin:${BUILD_DIR}/nodejs/bin:$PATH
 export GEM_HOME=${BUILD_DIR}/ruby
 
 DIASPORA_RUBY_CACHE=${DIR}/.ruby.cache
-if [ ! -z "$TEAMCITY_VERSION" ]; then
+if [ ! -z "$CI" ]; then
   echo "running under TeamCity, cleaning ruby dependencies cache"
   rm -rf ${DIASPORA_RUBY_CACHE}
 fi
@@ -83,7 +82,7 @@ export RAILS_ENV=production
 bin/bundle install --deployment --without test development --with postgresql
 rm -rf ${DIASPORA_RUBY_CACHE}
 
-if [ -z "$TEAMCITY_VERSION" ]; then
+if [ -z "$CI" ]; then
    cp -r ${BUILD_DIR}/ruby ${DIASPORA_RUBY_CACHE}
 fi
 

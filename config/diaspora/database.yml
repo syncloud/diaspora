@@ -11,7 +11,7 @@
 postgres: &postgres
   adapter: postgresql
   host: /opt/data/diaspora/postgresql
-  port: 5432
+  port: 5434
   username: diaspora
   password: diaspora
   encoding: unicode

@@ -1,0 +1,68 @@
+platform: linux/${drone_arch}
+
+clone:
+  git:
+    image: syncloud/drone-git-${drone_arch}
+    depth: 50
+
+pipeline:
+  version:
+    image: syncloud/diaspora-build-deps-${arch}
+    commands:
+      - echo $(date +%y%m%d) > version
+      
+  build:
+    image: syncloud/diaspora-build-deps-${arch}
+    commands:
+      - VERSION=$(cat version)
+      - ./build.sh $VERSION
+
+  integration:
+    image: syncloud/diaspora-build-deps-${arch}
+    commands:
+      - VERSION=$(cat version)
+      - ./integration/test-docker.sh teamcity@syncloud.it password teamcity $VERSION master ${installer} device
+
+  upload:
+    image: syncloud/diaspora-build-deps-${arch}
+    secrets: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY]
+    commands:
+      - VERSION=$(cat version)
+      - ./upload.sh $DRONE_BRANCH $VERSION
+    when:
+      matrix:
+        installer: sam
+
+  ci-artifact:
+    image: syncloud/diaspora-build-deps-${arch}
+    secrets: [ARTIFACT_SSH_KEY]
+    commands:
+      - ./upload-artifact.sh integration/log $DRONE_BUILD_NUMBER-${installer}-${arch}
+      - ./upload-artifact.sh integration/screenshot $DRONE_BUILD_NUMBER-${installer}-${arch}
+    when:
+      status: [ failure, success ] 
+
+services:
+  device:
+    image: syncloud/systemd-${arch}
+    privileged: true
+    volumes:
+      - /var/run/dbus:/var/run/dbus
+ 
+matrix:
+  include:
+    - drone_arch: arm
+      arch: armhf
+      installer: sam
+      
+    - drone_arch: amd64
+      arch: amd64
+      installer: sam
+
+#    - drone_arch: arm
+#      arch: armhf
+#      installer: snapd
+
+#    - drone_arch: amd64
+#      arch: amd64
+#      installer: snapd
