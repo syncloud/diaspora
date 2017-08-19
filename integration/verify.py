@@ -21,22 +21,22 @@ LOGS_SSH_PASSWORD = DEFAULT_DEVICE_PASSWORD
 
 @pytest.fixture(scope="session")
 def module_setup(request, device_host):
-    print('setup')
     request.addfinalizer(lambda: module_teardown(device_host))
 
 
 def module_teardown(device_host):
-    print('tear down')
     platform_log_dir = join(LOG_DIR, 'platform_log')
     os.mkdir(platform_log_dir)
-    run_scp('root@{0}:/opt/data/platform/log/* {1}'.format(device_host, platform_log_dir), password=LOGS_SSH_PASSWORD)
+    run_scp('root@{0}:/opt/data/platform/log/* {1}'.format(device_host, platform_log_dir), password=LOGS_SSH_PASSWORD, throw=False)
+    run_scp('root@{0}:/var/log/sam.log {1}'.format(device_host, platform_log_dir), password=LOGS_SSH_PASSWORD, throw=False)
+
     app_log_dir = join(LOG_DIR, 'diaspora_log')
     os.mkdir(app_log_dir)
-    run_scp('root@{0}:/opt/data/diaspora/log/*.log {1}'.format(device_host, app_log_dir), password=LOGS_SSH_PASSWORD)
+    run_scp('root@{0}:/opt/data/diaspora/log/*.log {1}'.format(device_host, app_log_dir), password=LOGS_SSH_PASSWORD, throw=False)
     run_scp('root@{0}:/opt/app/diaspora/diaspora/log/*.log {1}'.format(device_host, app_log_dir),
-            password=LOGS_SSH_PASSWORD)
+            password=LOGS_SSH_PASSWORD, throw=False)
 
-    run_scp('root@{0}:/var/log/sam.log {1}'.format(device_host, platform_log_dir), password=LOGS_SSH_PASSWORD)
+    run_scp('root@{0}:/var/log/sam.log {1}'.format(device_host, platform_log_dir), password=LOGS_SSH_PASSWORD, throw=False)
 
     print('systemd logs')
     run_ssh(device_host, 'journalctl | tail -200', password=LOGS_SSH_PASSWORD)
@@ -47,6 +47,11 @@ def syncloud_session(device_host):
     session = requests.session()
     session.post('http://{0}/rest/login'.format(device_host), data={'name': DEVICE_USER, 'password': DEVICE_PASSWORD})
     return session
+
+
+def test_start(module_setup):
+    shutil.rmtree(LOG_DIR, ignore_errors=True)
+    os.mkdir(LOG_DIR)
 
 
 @pytest.fixture(scope='function')
