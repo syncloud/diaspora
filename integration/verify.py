@@ -81,10 +81,6 @@ def test_start(module_setup):
     os.mkdir(LOG_DIR)
 
 
-def test_running_platform_web(device_host):
-    print(check_output('nc -zv -w 1 {0} 80'.format(device_host), shell=True))
-
-
 def test_activate_device(auth, device_host):
     email, password, domain = auth
 
