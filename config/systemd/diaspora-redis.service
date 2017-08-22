@@ -6,9 +6,9 @@ After=network.target
 User=diaspora
 Group=diaspora
 Type=simple
-ExecStart=/opt/app/diaspora/redis/bin/redis-server /opt/app/diaspora/config/redis/redis.conf
+ExecStart={{ app_dir }}/redis/bin/redis-server {{ app_dir }}/config/redis/redis.conf
 ExecStop=/bin/kill -15 $MAINPID
-PIDFile=/opt/data/diaspora/redis/redis.pid
+PIDFile={{ app_data_dir }}/redis/redis.pid
 Restart=always
 
 [Install]

@@ -7,12 +7,12 @@ After=diaspora-redis.service network.target
 User=diaspora
 Group=diaspora
 SyslogIdentifier=diaspora-sidekiq
-WorkingDirectory=/opt/app/diaspora/diaspora
+WorkingDirectory={{ app_dir }}/diaspora
 Environment=RAILS_ENV=production
-Environment=GEM_HOME=/opt/app/diaspora/ruby
+Environment=GEM_HOME={{ app_dir }}/ruby
 Environment=DB=postgres
-Environment=PATH=/opt/app/diaspora/ruby/bin:/opt/app/diaspora/nodejs/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-Environment=LD_LIBRARY_PATH=/opt/app/diaspora/postgresql/lib
+Environment=PATH={{ app_dir }}/ruby/bin:{{ app_dir }}/nodejs/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+Environment=LD_LIBRARY_PATH={{ app_dir }}/postgresql/lib
 
 Restart=always
 CPUAccounting=true
@@ -21,7 +21,7 @@ BlockIOAccounting=true
 CapabilityBoundingSet=
 PrivateTmp=true
 
-ExecStart=/opt/app/diaspora/ruby/bin/bundle exec "sidekiq -e production -L /opt/data/diaspora/log/sidekiq.log >> /opt/data/diaspora/log/sidekiq.log 2>&1"
+ExecStart={{ app_dir }}/ruby/bin/bundle exec "sidekiq -e production -L {{ app_data_dir }}/log/sidekiq.log >> {{ app_data_dir }}/log/sidekiq.log 2>&1"
 
 [Install]
 WantedBy=multi-user.target

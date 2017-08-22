@@ -1,16 +1,10 @@
 from syncloud_app import logger
 from subprocess import check_output
-from diaspora.config import Config
 
 
-def execute(sql, database=None):
+def execute(sql, config, database):
 
     log = logger.get_logger('diaspora_postgres')
-    config = Config()
-
-    if not database:
-        database = config.db_name()
-
     log.info("executing: {0}".format(sql))
     log.info(check_output('{0} -U {1} -h {2} -p {3} -d {4} -c "{5}"'.format(
         config.psql(), config.db_user(), config.db_socket(), config.db_port(), database, sql),

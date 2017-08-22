@@ -47,16 +47,19 @@ mkdir META
 echo ${NAME} >> META/app
 echo ${VERSION} >> META/version
 
-cp ${DIR}/config/postgresql/postgresql.conf ${BUILD_DIR}/postgresql/share/postgresql.conf.sample
+#cp ${DIR}/config/postgresql/postgresql.conf ${BUILD_DIR}/postgresql/share/postgresql.conf.sample
 
 echo "getting latest diaspora source"
 wget --progress=dot:giga https://github.com/diaspora/diaspora/archive/v${DIASPORA_VERSION}.tar.gz 2>&1 -O ${BUILD_DIR}/v${DIASPORA_VERSION}.tar.gz
 tar xzf v${DIASPORA_VERSION}.tar.gz
 rm v${DIASPORA_VERSION}.tar.gz
 mv ${BUILD_DIR}/diaspora-${DIASPORA_VERSION} ${BUILD_DIR}/diaspora
+
+cp -r ${DIR}/config ${BUILD_DIR}/config.templates
+
 cd diaspora
-cp ${DIR}/config/diaspora/database.yml config/database.yml
-cp ${DIR}/config/diaspora/diaspora.yml config/diaspora.yml
+#cp ${DIR}/config/diaspora/database.yml config/database.yml
+#cp ${DIR}/config/diaspora/diaspora.yml config/diaspora.yml
 
 sed -i "s/.*config.force_ssl =.*/  config.force_ssl = false/g" config/environments/production.rb
 
@@ -90,7 +93,14 @@ find ${BUILD_DIR}/diaspora/vendor/bundle/ruby/ -type l
 find ${BUILD_DIR}/diaspora/vendor/bundle/ruby/ -type l -exec readlink {} \;
 find ${BUILD_DIR}/diaspora/vendor/bundle/ruby/ -type l -exec sh -c 'cp --remove-destination $(readlink {}) {}' \; || true
 
+cp ${DIR}/config/diaspora/diaspora-dummy.yml config/diaspora.yml
+cp ${DIR}/config/diaspora/database-dummy.yml config/database.yml
 bin/rake assets:precompile
+rm config/diaspora.yml
+rm config/database.yml
+
+ln -s ../../config/diaspora/diaspora.yml config/diaspora.yml
+ln -s ../../config/diaspora/database.yml config/database.yml
 
 echo "zipping"
 tar cpzf ${DIR}/${NAME}-${VERSION}-${ARCH}.tar.gz -C ${DIR}/build/ ${NAME}

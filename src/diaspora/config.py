@@ -15,9 +15,6 @@ class Config:
         self.parser.read(filename)
         self.filename = filename
 
-    def port(self):
-        return self.parser.getint('diaspora', 'port')
-
     def unicorn_port(self):
         return self.parser.getint('diaspora', 'unicorn_port')
 
@@ -41,9 +38,6 @@ class Config:
 
     def bin_dir(self):
         return self.parser.get('diaspora', 'bin_dir')
-
-    def root_path(self):
-        return self.parser.get('diaspora', 'root_path')
 
     def psql(self):
         return self.parser.get('diaspora', 'psql')
@@ -104,7 +98,7 @@ class UserConfig:
         if not self.parser.has_section('diaspora'):
             self.parser.add_section('diaspora')
 
-    def is_installed(self):
+    def is_activated(self):
         return self.parser.getboolean('diaspora', 'activated')
 
     def set_activated(self, value):

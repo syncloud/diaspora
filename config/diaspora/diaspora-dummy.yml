@@ -1,0 +1,52 @@
+configuration:
+  environment:
+    url: "http://localhost"
+    certificate_authorities: '/etc/ssl/certs/ca-certificates.crt'
+    redis: 'unix:///nonexistent/redis/redis.sock'
+    require_ssl: false
+    sidekiq: ## Section
+      log: "/nonexistent/log/sidekiq.log"
+    s3: ## Section
+    assets: ## Section
+      host: http://localhost
+    logging: ## Section
+      logrotate: ## Section
+      debug: ## Section
+  server: ## Section
+    listen: '0.0.0.0:1084'
+    pid: '{{ app_data_dir }}/diaspora.pid'
+    stderr_log: '/nonexistent/log/unicorn-stderr.log'
+    stdout_log: '/nonexistent/log/unicorn-stdout.log'
+  chat: ## Section
+    server: ## Section
+      c2s: ## Section
+      s2s: ## Section
+      bosh: ## Section
+      log: ## Section
+  privacy: ## Section
+    piwik: ## Section
+    statistics: ## Section
+    camo: ## Section
+  settings: ## Section
+    welcome_message: ##Section
+    invitations: ## Section
+    paypal_donations: ## Section
+    community_spotlight: ## Section
+    captcha: ## Section
+      enable: false
+    terms: ## Section
+    maintenance: ## Section
+      remove_old_users: ## Section
+  services: ## Section
+    facebook: ## Section
+    twitter: ## Section
+    tumblr: ## Section
+    wordpress: ## Section
+  mail: ## Section
+    smtp: ## Section
+    sendmail: ## Section
+  admins: ## Section
+production: ## Section
+  environment: ## Section
+development: ## Section
+  environment: ## Section

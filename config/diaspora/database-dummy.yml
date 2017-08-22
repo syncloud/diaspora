@@ -1,0 +1,30 @@
+
+postgres: &postgres
+  adapter: postgresql
+  host: localhost
+  port: 0
+  username: diaspora
+  password: diaspora
+  encoding: unicode
+common: &common
+  <<: *postgres
+postgres_travis: &postgres_travis
+  adapter: postgresql
+  username: postgres
+combined: &combined
+  <<: *common
+development:
+  <<: *combined
+  database: diaspora_development
+production:
+  <<: *combined
+  database: diaspora_production
+test:
+  <<: *combined
+  database: "diaspora_test"
+integration1:
+  <<: *combined
+  database: diaspora_integration1
+integration2:
+  <<: *combined
+  database: diaspora_integration2
