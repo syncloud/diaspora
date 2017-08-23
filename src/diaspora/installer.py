@@ -138,6 +138,7 @@ class DiasporaInstaller:
         environ['DB'] = config.db()
         environ['GEM_HOME'] = config.gem_home()
         environ['PATH'] = config.path()
+        environ['LD_LIBRARY_PATH'] = config.ld_library_path()
 
     def update_domain(self, config):
         self.update_configuraiton(config)

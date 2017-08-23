@@ -17,6 +17,11 @@ fi
 ARCH=$(uname -m)
 VERSION=$1
 
+if [ -n "$DRONE" ]; then
+    echo "running under drone, removing coin cache"
+    rm -rf ${DIR}/.coin.cache
+fi
+
 rm -rf ${DIR}/lib
 mkdir ${DIR}/lib
 
@@ -69,8 +74,8 @@ export PATH=${BUILD_DIR}/ruby/bin:${BUILD_DIR}/nodejs/bin:$PATH
 export GEM_HOME=${BUILD_DIR}/ruby
 
 DIASPORA_RUBY_CACHE=${DIR}/.ruby.cache
-if [ ! -z "$CI" ]; then
-  echo "running under TeamCity, cleaning ruby dependencies cache"
+if [ ! -z "$DRONE" ]; then
+  echo "running under build serer, cleaning ruby dependencies cache"
   rm -rf ${DIASPORA_RUBY_CACHE}
 fi
 
@@ -80,12 +85,15 @@ if [ -d "$DIASPORA_RUBY_CACHE" ]; then
     cp -r ${DIASPORA_RUBY_CACHE} ${BUILD_DIR}/ruby
 fi
 
-#${BUILD_DIR}/ruby/bin/gem install bundler
+cp ${DIR}/config/diaspora/diaspora-dummy.yml config/diaspora.yml
+cp ${DIR}/config/diaspora/database-dummy.yml config/database.yml
+
+${BUILD_DIR}/ruby/bin/gem install bundler
 export RAILS_ENV=production
-bin/bundle install --deployment --without test development --with postgresql
+${BUILD_DIR}/ruby/bin/bundle install --deployment --without test development --with postgresql
 rm -rf ${DIASPORA_RUBY_CACHE}
 
-if [ -z "$CI" ]; then
+if [ -z "$DRONE" ]; then
    cp -r ${BUILD_DIR}/ruby ${DIASPORA_RUBY_CACHE}
 fi
 
@@ -93,9 +101,10 @@ find ${BUILD_DIR}/diaspora/vendor/bundle/ruby/ -type l
 find ${BUILD_DIR}/diaspora/vendor/bundle/ruby/ -type l -exec readlink {} \;
 find ${BUILD_DIR}/diaspora/vendor/bundle/ruby/ -type l -exec sh -c 'cp --remove-destination $(readlink {}) {}' \; || true
 
-cp ${DIR}/config/diaspora/diaspora-dummy.yml config/diaspora.yml
-cp ${DIR}/config/diaspora/database-dummy.yml config/database.yml
-bin/rake assets:precompile
+cp --remove-destination /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libpq.so* ${BUILD_DIR}/diaspora/ruby/lib
+cp --remove-destination /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libgmp*.so* ${BUILD_DIR}/diaspora/ruby/lib
+
+${BUILD_DIR}/ruby/bin/rake assets:precompile
 rm config/diaspora.yml
 rm config/database.yml
 
