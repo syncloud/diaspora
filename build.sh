@@ -80,7 +80,7 @@ if [ -d "$DIASPORA_RUBY_CACHE" ]; then
     cp -r ${DIASPORA_RUBY_CACHE} ${BUILD_DIR}/ruby
 fi
 
-${BUILD_DIR}/ruby/bin/gem install bundler
+#${BUILD_DIR}/ruby/bin/gem install bundler
 export RAILS_ENV=production
 bin/bundle install --deployment --without test development --with postgresql
 rm -rf ${DIASPORA_RUBY_CACHE}
