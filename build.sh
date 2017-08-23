@@ -72,6 +72,7 @@ echo "installing libraries"
 
 export PATH=${BUILD_DIR}/ruby/bin:${BUILD_DIR}/nodejs/bin:$PATH
 export GEM_HOME=${BUILD_DIR}/ruby
+export LD_LIBRARY_PATH=${BUILD_DIR}/ruby/lib
 
 DIASPORA_RUBY_CACHE=${DIR}/.ruby.cache
 if [ ! -z "$DRONE" ]; then
