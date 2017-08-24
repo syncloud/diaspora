@@ -92,7 +92,7 @@ cp ${DIR}/config/diaspora/database-dummy.yml config/database.yml
 ${BUILD_DIR}/ruby/bin/gem install bundler
 export RAILS_ENV=production
 ${BUILD_DIR}/ruby/bin/bundle install --deployment --without test development --with postgresql
-${BUILD_DIR}/ruby/bin/bundle update rake
+${BUILD_DIR}/ruby/bin/bundle update rake -j 1
 rm -rf ${DIASPORA_RUBY_CACHE}
 
 if [ -z "$DRONE" ]; then
