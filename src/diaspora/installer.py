@@ -1,4 +1,4 @@
-from os import environ
+from os import environ, symlink
 from os.path import isdir, join
 import shutil
 from subprocess import check_output, STDOUT
@@ -34,7 +34,7 @@ def database_init(logger, app_dir, database_path, user_name):
     logger.info("creating database files")
     if not isdir(database_path):
         psql_initdb = join(app_dir, 'postgresql/bin/initdb')
-        logger.info(check_output(['sudo', '-H', '-u', user_name, psql_initdb, database_path], stderr=STDOUT))
+        logger.info(check_output(['sudo', '-H', '-u', user_name, psql_initdb, '-E', 'UTF8', database_path], stderr=STDOUT))
         postgresql_conf_to = join(database_path, 'postgresql.conf')
         postgresql_conf_from = join(app_dir, 'config', 'postgresql', 'postgresql.conf')
         shutil.copy(postgresql_conf_from, postgresql_conf_to)
@@ -89,11 +89,11 @@ class DiasporaInstaller:
         if is_first_time:
             database_init(self.log, self.app_dir, database_path, USER_NAME)
 
-        self.log.info(check_output(['ls', '-ls', '{0}'.format(database_path)], stderr=STDOUT))
-
         self.app.add_service(SYSTEMD_POSTGRESQL)
 
         config = Config()
+        symlink(join(config_path, 'diaspora', 'diaspora.yml'), join(self.app_dir, 'diaspora', 'config', 'diaspora.yml'))
+        symlink(join(config_path, 'diaspora', 'database.yml'), join(self.app_dir, 'diaspora', 'config', 'database.yml'))
         self.update_configuraiton(config)
 
         if is_first_time:

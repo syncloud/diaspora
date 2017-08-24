@@ -42,9 +42,11 @@ coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/redis-${ARCH}.tar.gz
 coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/nodejs-${ARCH}.tar.gz
 coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/ImageMagick-${ARCH}.tar.gz
 
-cp -r bin ${BUILD_DIR}
-cp -r config ${BUILD_DIR}
-cp -r lib ${BUILD_DIR}
+cp -r ${DIR}/bin ${BUILD_DIR}
+cp -r ${DIR}/config ${BUILD_DIR}/config.templates
+cp -r ${DIR}/lib ${BUILD_DIR}
+
+cp -f ${DIR}/ruby ${BUILD_DIR}/ruby/bin/
 
 cd ${BUILD_DIR}
 
@@ -52,19 +54,14 @@ mkdir META
 echo ${NAME} >> META/app
 echo ${VERSION} >> META/version
 
-#cp ${DIR}/config/postgresql/postgresql.conf ${BUILD_DIR}/postgresql/share/postgresql.conf.sample
-
 echo "getting latest diaspora source"
 wget --progress=dot:giga https://github.com/diaspora/diaspora/archive/v${DIASPORA_VERSION}.tar.gz 2>&1 -O ${BUILD_DIR}/v${DIASPORA_VERSION}.tar.gz
 tar xzf v${DIASPORA_VERSION}.tar.gz
 rm v${DIASPORA_VERSION}.tar.gz
 mv ${BUILD_DIR}/diaspora-${DIASPORA_VERSION} ${BUILD_DIR}/diaspora
 
-cp -r ${DIR}/config ${BUILD_DIR}/config.templates
 
 cd diaspora
-#cp ${DIR}/config/diaspora/database.yml config/database.yml
-#cp ${DIR}/config/diaspora/diaspora.yml config/diaspora.yml
 
 sed -i "s/.*config.force_ssl =.*/  config.force_ssl = false/g" config/environments/production.rb
 
@@ -90,10 +87,9 @@ cp ${DIR}/config/diaspora/diaspora-dummy.yml config/diaspora.yml
 cp ${DIR}/config/diaspora/database-dummy.yml config/database.yml
 
 ${BUILD_DIR}/ruby/bin/gem install bundler
-${BUILD_DIR}/ruby/bin/bundle update rake -j 1
 
 export RAILS_ENV=production
-${BUILD_DIR}/ruby/bin/bundle install --deployment --without test development --with postgresql
+${BUILD_DIR}/diaspora/bin/bundle install --deployment --without test development --with postgresql
 rm -rf ${DIASPORA_RUBY_CACHE}
 
 if [ -z "$DRONE" ]; then
@@ -107,12 +103,9 @@ find ${BUILD_DIR}/diaspora/vendor/bundle/ruby/ -type l -exec sh -c 'cp --remove-
 cp --remove-destination /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libpq.so* ${BUILD_DIR}/ruby/lib
 cp --remove-destination /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libgmp*.so* ${BUILD_DIR}/ruby/lib
 
-${BUILD_DIR}/ruby/bin/rake assets:precompile
+${BUILD_DIR}/diaspora/bin/rake assets:precompile
 rm config/diaspora.yml
 rm config/database.yml
-
-ln -s ../../config/diaspora/diaspora.yml config/diaspora.yml
-ln -s ../../config/diaspora/database.yml config/database.yml
 
 echo "zipping"
 tar cpzf ${DIR}/${NAME}-${VERSION}-${ARCH}.tar.gz -C ${DIR}/build/ ${NAME}
