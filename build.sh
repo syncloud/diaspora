@@ -46,8 +46,6 @@ cp -r ${DIR}/bin ${BUILD_DIR}
 cp -r ${DIR}/config ${BUILD_DIR}/config.templates
 cp -r ${DIR}/lib ${BUILD_DIR}
 
-cp -f ${DIR}/ruby ${BUILD_DIR}/ruby/bin/
-
 cd ${BUILD_DIR}
 
 mkdir META
