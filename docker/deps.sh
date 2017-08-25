@@ -1,7 +1,7 @@
 #!/bin/bash -xe
 
 apt-get update
-apt-get install -y libgmp3-dev git build-essential libpq-dev sshpass curl netcat xvfb wget unzip libfontconfig libgtk-3-0 libasound2 libdbus-glib-1-2 cmake python pkg-config
+apt-get install -y libgmp3-dev git build-essential libpq-dev sshpass curl netcat xvfb wget unzip libfontconfig libgtk-3-0 libasound2 libdbus-glib-1-2 cmake python pkg-config zlib1g-dev
 
 wget https://bootstrap.pypa.io/get-pip.py
 python get-pip.py
