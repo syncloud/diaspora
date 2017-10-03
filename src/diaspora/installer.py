@@ -23,7 +23,6 @@ SYSTEMD_UNICORN = 'diaspora-unicorn'
 APP_NAME = 'diaspora'
 USER_NAME = 'diaspora'
 
-WEB_PORT = 1083
 PSQL_PORT = 5434
 DB_NAME = 'diaspora'
 DB_USER = 'diaspora'
@@ -72,7 +71,7 @@ class DiasporaInstaller:
         }
 
         templates_path = join(self.app_dir, 'config.templates')
-        config_path = join(self.app_dir, 'config')
+        config_path = join(app_data_dir, 'config')
         gen.generate_files(templates_path, config_path, variables)
 
         fs.makepath(join(app_data_dir, 'config'))
@@ -84,20 +83,20 @@ class DiasporaInstaller:
 
         self.log.info("setup systemd")
 
-        user_config = UserConfig()
+        user_config = UserConfig(app_data_dir)
         is_first_time = not user_config.is_activated()
         if is_first_time:
             database_init(self.log, self.app_dir, database_path, USER_NAME)
 
         self.app.add_service(SYSTEMD_POSTGRESQL)
 
-        config = Config()
+        config = Config(app_data_dir)
         symlink(join(config_path, 'diaspora', 'diaspora.yml'), join(self.app_dir, 'diaspora', 'config', 'diaspora.yml'))
         symlink(join(config_path, 'diaspora', 'database.yml'), join(self.app_dir, 'diaspora', 'config', 'database.yml'))
         self.update_configuraiton(config)
 
         if is_first_time:
-            self.initialize(config)
+            self.initialize(app_data_dir, config)
 
         self.log.info(fs.chownpath(self.app_dir, USER_NAME, recursive=True))
 
@@ -108,11 +107,8 @@ class DiasporaInstaller:
 
         self.app.init_storage(USER_NAME)
 
-        self.app.register_web(WEB_PORT)
 
     def remove(self):
-
-        self.app.unregister_web()
 
         self.app.remove_service(SYSTEMD_NGINX_NAME)
         self.app.remove_service(SYSTEMD_UNICORN)
@@ -123,7 +119,7 @@ class DiasporaInstaller:
         if isdir(self.app_dir):
             shutil.rmtree(self.app_dir)
 
-    def initialize(self, config):
+    def initialize(self, app_data_dir, config):
 
         self.log.info("initialization")
         postgres.execute("ALTER USER {0} WITH PASSWORD '{0}';".format(APP_NAME), config, "postgres")
@@ -131,7 +127,7 @@ class DiasporaInstaller:
         self.environment(config)
         self.log.info(check_output(config.rake_db_cmd(), shell=True, cwd=config.diaspora_dir()))
 
-        UserConfig().set_activated(True)
+        UserConfig(app_data_dir).set_activated(True)
 
     def environment(self, config):
         environ['RAILS_ENV'] = config.rails_env()

@@ -1,17 +1,12 @@
 from ConfigParser import ConfigParser
 from os.path import isfile, join
 
-default_config_path = '/opt/app/diaspora/config'
-default_config_file = join(default_config_path, 'diaspora.cfg')
-
-default_user_config_path = '/opt/data/diaspora/config'
-default_user_config_file = join(default_user_config_path, 'user_diaspora.cfg')
-
 
 class Config:
 
-    def __init__(self, filename=default_config_file):
+    def __init__(self, data_dir):
         self.parser = ConfigParser()
+        filename = default_config_file = join(data_dir, 'config', 'diaspora.cfg')
         self.parser.read(filename)
         self.filename = filename
 
@@ -84,8 +79,9 @@ class Config:
 
 class UserConfig:
 
-    def __init__(self, filename=default_user_config_file):
+    def __init__(self, data_dir):
         self.parser = ConfigParser()
+        filename = join(data_dir, 'config', 'user_diaspora.cfg')
         self.parser.read(filename)
         self.filename = filename
         if not isfile(self.filename):

@@ -18,6 +18,55 @@ DEVICE_PASSWORD = 'password'
 DEFAULT_DEVICE_PASSWORD = 'syncloud'
 LOGS_SSH_PASSWORD = DEFAULT_DEVICE_PASSWORD
 
+SAM_PLATFORM_DATA_DIR='/opt/data/platform'
+SNAPD_PLATFORM_DATA_DIR='/var/snap/platform/common'
+DATA_DIR=''
+
+SAM_DATA_DIR='/opt/data/diaspora'
+SNAPD_DATA_DIR='/var/snap/diaspora/common'
+DATA_DIR=''
+
+SAM_APP_DIR='/opt/app/diaspora'
+SNAPD_APP_DIR='/snap/diaspora/current'
+APP_DIR=''
+
+@pytest.fixture(scope="session")
+def platform_data_dir(installer):
+    if installer == 'sam':
+        return SAM_PLATFORM_DATA_DIR
+    else:
+        return SNAPD_PLATFORM_DATA_DIR
+        
+@pytest.fixture(scope="session")
+def data_dir(installer):
+    if installer == 'sam':
+        return SAM_DATA_DIR
+    else:
+        return SNAPD_DATA_DIR
+
+
+@pytest.fixture(scope="session")
+def app_dir(installer):
+    if installer == 'sam':
+        return SAM_APP_DIR
+    else:
+        return SNAPD_APP_DIR
+
+
+@pytest.fixture(scope="session")
+def service_prefix(installer):
+    if installer == 'sam':
+        return ''
+    else:
+        return 'snap.'
+
+
+@pytest.fixture(scope="session")
+def ssh_env_vars(installer):
+    if installer == 'sam':
+        return ''
+    if installer == 'snapd':
+        return 'SNAP_COMMON={0} '.format(SNAPD_DATA_DIR)
 
 @pytest.fixture(scope="session")
 def module_setup(request, device_host):
@@ -27,16 +76,16 @@ def module_setup(request, device_host):
 def module_teardown(device_host):
     platform_log_dir = join(LOG_DIR, 'platform_log')
     os.mkdir(platform_log_dir)
-    run_scp('root@{0}:/opt/data/platform/log/* {1}'.format(device_host, platform_log_dir), password=LOGS_SSH_PASSWORD, throw=False)
+    run_ssh(device_host, 'ls -la {0}'.format(data_dir), password=LOGS_SSH_PASSWORD, throw=False)
+   
+    run_scp('root@{0}:{1}/log/* {2}'.format(device_host, platform_data_dir, platform_log_dir), password=LOGS_SSH_PASSWORD, throw=False) 
     run_scp('root@{0}:/var/log/sam.log {1}'.format(device_host, platform_log_dir), password=LOGS_SSH_PASSWORD, throw=False)
 
     app_log_dir = join(LOG_DIR, 'diaspora_log')
     os.mkdir(app_log_dir)
-    run_scp('root@{0}:/opt/data/diaspora/log/*.log {1}'.format(device_host, app_log_dir), password=LOGS_SSH_PASSWORD, throw=False)
-    run_scp('root@{0}:/opt/app/diaspora/diaspora/log/*.log {1}'.format(device_host, app_log_dir),
-            password=LOGS_SSH_PASSWORD, throw=False)
-
-    run_scp('root@{0}:/var/log/sam.log {1}'.format(device_host, platform_log_dir), password=LOGS_SSH_PASSWORD, throw=False)
+    run_scp('root@{0}:{1}/log/*.log {2}'.format(device_host, data_dir, app_log_dir), password=LOGS_SSH_PASSWORD, throw=False)
+    #run_scp('root@{0}:/opt/app/diaspora/diaspora/log/*.log {1}'.format(device_host, app_log_dir),
+    #        password=LOGS_SSH_PASSWORD, throw=False)
 
     print('systemd logs')
     run_ssh(device_host, 'journalctl | tail -200', password=LOGS_SSH_PASSWORD)

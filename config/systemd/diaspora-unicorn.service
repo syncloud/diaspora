@@ -18,6 +18,7 @@ PrivateTmp=true
 NoNewPrivileges=true
 Type=forking
 TimeoutStartSec=200
+Environment=SNAP_COMMON={{ app_data_dir })
 ExecStart={{ app_dir }}/bin/unicorn.py
 ExecStartPost={{ app_dir }}/bin/unicorn_wait.py
 
