@@ -29,7 +29,7 @@ DB_USER = 'diaspora'
 DB_PASS = 'diaspora'
 
 
-def database_init(logger, app_dir, database_path, user_name):
+def database_init(logger, app_dir, app_data_dir, database_path, user_name):
     logger.info("creating database files")
     if not isdir(database_path):
         psql_initdb = join(app_dir, 'postgresql/bin/initdb')
@@ -86,7 +86,7 @@ class DiasporaInstaller:
         user_config = UserConfig(app_data_dir)
         is_first_time = not user_config.is_activated()
         if is_first_time:
-            database_init(self.log, self.app_dir, database_path, USER_NAME)
+            database_init(self.log, self.app_dir, app_data_dir, database_path, USER_NAME)
 
         self.app.add_service(SYSTEMD_POSTGRESQL)
 
