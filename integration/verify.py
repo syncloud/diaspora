@@ -133,9 +133,6 @@ def test_start(module_setup):
 def test_activate_device(auth, device_host):
     email, password, domain = auth
 
-    run_ssh(device_host, '/opt/app/sam/bin/sam update --release stable', password=DEFAULT_DEVICE_PASSWORD)
-    run_ssh(device_host, '/opt/app/sam/bin/sam --debug upgrade platform', password=DEFAULT_DEVICE_PASSWORD)
-
     response = requests.post('http://{0}:81/rest/activate'.format(device_host),
                              data={'main_domain': 'syncloud.info', 'redirect_email': email,
                                    'redirect_password': password, 'user_domain': domain,
