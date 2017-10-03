@@ -35,7 +35,7 @@ def database_init(logger, app_dir, database_path, user_name):
         psql_initdb = join(app_dir, 'postgresql/bin/initdb')
         logger.info(check_output(['sudo', '-H', '-u', user_name, psql_initdb, '-E', 'UTF8', database_path], stderr=STDOUT))
         postgresql_conf_to = join(database_path, 'postgresql.conf')
-        postgresql_conf_from = join(app_dir, 'config', 'postgresql', 'postgresql.conf')
+        postgresql_conf_from = join(app_data_dir, 'config', 'postgresql', 'postgresql.conf')
         shutil.copy(postgresql_conf_from, postgresql_conf_to)
     else:
         logger.info('Database path "{0}" already exists'.format(database_path))
