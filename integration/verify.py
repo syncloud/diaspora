@@ -73,7 +73,7 @@ def module_setup(request, device_host):
     request.addfinalizer(lambda: module_teardown(device_host))
 
 
-def module_teardown(device_host):
+def module_teardown(device_host, data_dir):
     platform_log_dir = join(LOG_DIR, 'platform_log')
     os.mkdir(platform_log_dir)
     run_ssh(device_host, 'ls -la {0}'.format(data_dir), password=LOGS_SSH_PASSWORD, throw=False)
