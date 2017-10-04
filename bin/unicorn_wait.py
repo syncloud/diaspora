@@ -1,6 +1,6 @@
 #!/opt/app/platform/python/bin/python
 
-from os import listdir
+from os import listdir, environ
 from os.path import dirname, join, abspath, isdir
 import time
 import sys
@@ -15,7 +15,7 @@ from diaspora.config import Config
 
 
 def wait_for_unicorn(delay=2, retries=20):
-    config = Config()
+    config = Config(environ["SNAP_COMMON"])
     retry = 0
     while retry < retries:
         unicorn_url = 'http://localhost:{0}'.format(config.unicorn_port())
