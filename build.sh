@@ -98,8 +98,31 @@ find ${BUILD_DIR}/diaspora/vendor/bundle/ruby/ -type l
 find ${BUILD_DIR}/diaspora/vendor/bundle/ruby/ -type l -exec readlink {} \;
 find ${BUILD_DIR}/diaspora/vendor/bundle/ruby/ -type l -exec sh -c 'cp --remove-destination $(readlink {}) {}' \; || true
 
-cp --remove-destination /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libpq.so* ${BUILD_DIR}/ruby/lib
-cp --remove-destination /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libgmp*.so* ${BUILD_DIR}/ruby/lib
+ls -la ${BUILD_DIR}/ruby/lib
+
+cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libpq.so* ${BUILD_DIR}/ruby/lib
+cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libgmp*.so* ${BUILD_DIR}/ruby/lib
+cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libgssapi_krb5.so* ${BUILD_DIR}/ruby/lib
+cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libldap_r-2.4.so* ${BUILD_DIR}/ruby/lib
+cp /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libpthread.so* ${BUILD_DIR}/ruby/lib
+cp /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libc.so* ${BUILD_DIR}/ruby/lib
+cp /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libdl.so* ${BUILD_DIR}/ruby/lib
+cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libkrb5.so* ${BUILD_DIR}/ruby/lib
+cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libk5crypto.so* ${BUILD_DIR}/ruby/lib
+cp /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libcom_err.so* ${BUILD_DIR}/ruby/lib
+cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libkrb5support.so* ${BUILD_DIR}/ruby/lib
+cp /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libkeyutils.so* ${BUILD_DIR}/ruby/lib
+cp /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libresolv.so* ${BUILD_DIR}/ruby/lib
+cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/liblber-2.4.so* ${BUILD_DIR}/ruby/lib
+cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libsasl2.so* ${BUILD_DIR}/ruby/lib
+cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libgnutls.so* ${BUILD_DIR}/ruby/lib
+cp /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libz.so* ${BUILD_DIR}/ruby/lib
+cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libp11-kit.so* ${BUILD_DIR}/ruby/lib
+cp /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libidn.so* ${BUILD_DIR}/ruby/lib
+cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libtasn1.so* ${BUILD_DIR}/ruby/lib
+cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libnettle.so* ${BUILD_DIR}/ruby/lib
+cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libhogweed.so* ${BUILD_DIR}/ruby/lib
+cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libffi.so* ${BUILD_DIR}/ruby/lib
 
 ls -la ${BUILD_DIR}/ruby/lib
 
