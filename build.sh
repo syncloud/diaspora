@@ -101,6 +101,10 @@ find ${BUILD_DIR}/diaspora/vendor/bundle/ruby/ -type l -exec sh -c 'cp --remove-
 cp --remove-destination /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libpq.so* ${BUILD_DIR}/ruby/lib
 cp --remove-destination /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libgmp*.so* ${BUILD_DIR}/ruby/lib
 
+ls -la ${BUILD_DIR}/ruby/lib
+
+ldd ${BUILD_DIR}/ruby/lib/libpq.so
+
 ${BUILD_DIR}/diaspora/bin/rake assets:precompile
 rm config/diaspora.yml
 rm config/database.yml
