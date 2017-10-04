@@ -69,8 +69,8 @@ def ssh_env_vars(installer):
         return 'SNAP_COMMON={0} '.format(SNAPD_DATA_DIR)
 
 @pytest.fixture(scope="session")
-def module_setup(request, device_host):
-    request.addfinalizer(lambda: module_teardown(device_host))
+def module_setup(request, device_host, data_dir):
+    request.addfinalizer(lambda: module_teardown(device_host, data_dir))
 
 
 def module_teardown(device_host, data_dir):
