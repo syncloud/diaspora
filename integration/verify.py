@@ -69,11 +69,11 @@ def ssh_env_vars(installer):
         return 'SNAP_COMMON={0} '.format(SNAPD_DATA_DIR)
 
 @pytest.fixture(scope="session")
-def module_setup(request, device_host, data_dir):
-    request.addfinalizer(lambda: module_teardown(device_host, data_dir))
+def module_setup(request, device_host, data_dir, platform_data_dir):
+    request.addfinalizer(lambda: module_teardown(device_host, data_dir, platform_data_dir))
 
 
-def module_teardown(device_host, data_dir):
+def module_teardown(device_host, data_dir, platform_data_dir):
     platform_log_dir = join(LOG_DIR, 'platform_log')
     os.mkdir(platform_log_dir)
     run_ssh(device_host, 'ls -la {0}'.format(data_dir), password=LOGS_SSH_PASSWORD, throw=False)
