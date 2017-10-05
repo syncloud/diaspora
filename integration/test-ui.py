@@ -47,5 +47,6 @@ def test_login(driver, user_domain):
     WebDriverWait(driver, 10).until(lambda d: d.execute_script('return document.readyState') == 'complete')
     
     driver.get_screenshot_as_file(join(screenshot_dir, 'login.png'))
+    print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
     
