@@ -5,7 +5,7 @@ After=diaspora-unicorn.service
 
 [Service]
 User=diaspora
-Type=forking
+Type=simple
 PIDFile={{ app_data_dir }}/nginx/nginx.pid
 ExecStartPre={{ app_dir }}/nginx/sbin/nginx -t -c {{ app_data_dir }}/config/nginx.conf -p {{ app_dir }}/nginx
 ExecStart={{ app_dir }}/nginx/sbin/nginx -c {{ app_data_dir }}/config/nginx.conf -p {{ app_dir }}/nginx
