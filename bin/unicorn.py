@@ -12,7 +12,7 @@ map(sys.path.append, libs)
 
 from diaspora.config import Config
 
-config = Config()
+config = Config(environ['SNAP_COMMON'])
 
 environ['RAILS_ENV'] = config.rails_env()
 environ['DB'] = config.db()

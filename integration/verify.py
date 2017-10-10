@@ -18,25 +18,74 @@ DEVICE_PASSWORD = 'password'
 DEFAULT_DEVICE_PASSWORD = 'syncloud'
 LOGS_SSH_PASSWORD = DEFAULT_DEVICE_PASSWORD
 
+SAM_PLATFORM_DATA_DIR='/opt/data/platform'
+SNAPD_PLATFORM_DATA_DIR='/var/snap/platform/common'
+DATA_DIR=''
+
+SAM_DATA_DIR='/opt/data/diaspora'
+SNAPD_DATA_DIR='/var/snap/diaspora/common'
+DATA_DIR=''
+
+SAM_APP_DIR='/opt/app/diaspora'
+SNAPD_APP_DIR='/snap/diaspora/current'
+APP_DIR=''
 
 @pytest.fixture(scope="session")
-def module_setup(request, device_host):
-    print('setup')
-    request.addfinalizer(lambda: module_teardown(device_host))
+def platform_data_dir(installer):
+    if installer == 'sam':
+        return SAM_PLATFORM_DATA_DIR
+    else:
+        return SNAPD_PLATFORM_DATA_DIR
+        
+@pytest.fixture(scope="session")
+def data_dir(installer):
+    if installer == 'sam':
+        return SAM_DATA_DIR
+    else:
+        return SNAPD_DATA_DIR
 
 
-def module_teardown(device_host):
-    print('tear down')
+@pytest.fixture(scope="session")
+def app_dir(installer):
+    if installer == 'sam':
+        return SAM_APP_DIR
+    else:
+        return SNAPD_APP_DIR
+
+
+@pytest.fixture(scope="session")
+def service_prefix(installer):
+    if installer == 'sam':
+        return ''
+    else:
+        return 'snap.'
+
+
+@pytest.fixture(scope="session")
+def ssh_env_vars(installer):
+    if installer == 'sam':
+        return ''
+    if installer == 'snapd':
+        return 'SNAP_COMMON={0} '.format(SNAPD_DATA_DIR)
+
+@pytest.fixture(scope="session")
+def module_setup(request, device_host, data_dir, platform_data_dir):
+    request.addfinalizer(lambda: module_teardown(device_host, data_dir, platform_data_dir))
+
+
+def module_teardown(device_host, data_dir, platform_data_dir):
     platform_log_dir = join(LOG_DIR, 'platform_log')
     os.mkdir(platform_log_dir)
-    run_scp('root@{0}:/opt/data/platform/log/* {1}'.format(device_host, platform_log_dir), password=LOGS_SSH_PASSWORD)
+    run_ssh(device_host, 'ls -la {0}'.format(data_dir), password=LOGS_SSH_PASSWORD, throw=False)
+   
+    run_scp('root@{0}:{1}/log/* {2}'.format(device_host, platform_data_dir, platform_log_dir), password=LOGS_SSH_PASSWORD, throw=False) 
+    run_scp('root@{0}:/var/log/sam.log {1}'.format(device_host, platform_log_dir), password=LOGS_SSH_PASSWORD, throw=False)
+
     app_log_dir = join(LOG_DIR, 'diaspora_log')
     os.mkdir(app_log_dir)
-    run_scp('root@{0}:/opt/data/diaspora/log/*.log {1}'.format(device_host, app_log_dir), password=LOGS_SSH_PASSWORD)
-    run_scp('root@{0}:/opt/app/diaspora/diaspora/log/*.log {1}'.format(device_host, app_log_dir),
-            password=LOGS_SSH_PASSWORD)
-
-    run_scp('root@{0}:/var/log/sam.log {1}'.format(device_host, platform_log_dir), password=LOGS_SSH_PASSWORD)
+    run_scp('root@{0}:{1}/log/*.log {2}'.format(device_host, data_dir, app_log_dir), password=LOGS_SSH_PASSWORD, throw=False)
+    #run_scp('root@{0}:/opt/app/diaspora/diaspora/log/*.log {1}'.format(device_host, app_log_dir),
+    #        password=LOGS_SSH_PASSWORD, throw=False)
 
     print('systemd logs')
     run_ssh(device_host, 'journalctl | tail -200', password=LOGS_SSH_PASSWORD)
@@ -47,6 +96,11 @@ def syncloud_session(device_host):
     session = requests.session()
     session.post('http://{0}/rest/login'.format(device_host), data={'name': DEVICE_USER, 'password': DEVICE_PASSWORD})
     return session
+
+
+def test_start(module_setup):
+    shutil.rmtree(LOG_DIR, ignore_errors=True)
+    os.mkdir(LOG_DIR)
 
 
 @pytest.fixture(scope='function')
@@ -76,15 +130,8 @@ def test_start(module_setup):
     os.mkdir(LOG_DIR)
 
 
-def test_running_platform_web(device_host):
-    print(check_output('nc -zv -w 1 {0} 80'.format(device_host), shell=True))
-
-
 def test_activate_device(auth, device_host):
     email, password, domain = auth
-
-    run_ssh(device_host, '/opt/app/sam/bin/sam update --release stable', password=DEFAULT_DEVICE_PASSWORD)
-    run_ssh(device_host, '/opt/app/sam/bin/sam --debug upgrade platform', password=DEFAULT_DEVICE_PASSWORD)
 
     response = requests.post('http://{0}:81/rest/activate'.format(device_host),
                              data={'main_domain': 'syncloud.info', 'redirect_email': email,

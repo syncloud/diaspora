@@ -6,7 +6,7 @@ export TMPDIR=/tmp
 export TMP=/tmp
 
 NAME=diaspora
-DIASPORA_VERSION=0.6.6.0
+DIASPORA_VERSION=0.7.0.1
 DIASPORA_ARCHIVE=v${DIASPORA_VERSION}
 DOWNLOAD_URL=http://artifact.syncloud.org/3rdparty
 
@@ -16,6 +16,11 @@ fi
 
 ARCH=$(uname -m)
 VERSION=$1
+
+if [ -n "$DRONE" ]; then
+    echo "running under drone, removing coin cache"
+    rm -rf ${DIR}/.coin.cache
+fi
 
 rm -rf ${DIR}/lib
 mkdir ${DIR}/lib
@@ -37,9 +42,9 @@ coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/redis-${ARCH}.tar.gz
 coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/nodejs-${ARCH}.tar.gz
 coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/ImageMagick-${ARCH}.tar.gz
 
-cp -r bin ${BUILD_DIR}
-cp -r config ${BUILD_DIR}
-cp -r lib ${BUILD_DIR}
+cp -r ${DIR}/bin ${BUILD_DIR}
+cp -r ${DIR}/config ${BUILD_DIR}/config.templates
+cp -r ${DIR}/lib ${BUILD_DIR}
 
 cd ${BUILD_DIR}
 
@@ -47,16 +52,14 @@ mkdir META
 echo ${NAME} >> META/app
 echo ${VERSION} >> META/version
 
-cp ${DIR}/config/postgresql/postgresql.conf ${BUILD_DIR}/postgresql/share/postgresql.conf.sample
-
 echo "getting latest diaspora source"
 wget --progress=dot:giga https://github.com/diaspora/diaspora/archive/v${DIASPORA_VERSION}.tar.gz 2>&1 -O ${BUILD_DIR}/v${DIASPORA_VERSION}.tar.gz
 tar xzf v${DIASPORA_VERSION}.tar.gz
 rm v${DIASPORA_VERSION}.tar.gz
 mv ${BUILD_DIR}/diaspora-${DIASPORA_VERSION} ${BUILD_DIR}/diaspora
+
+
 cd diaspora
-cp ${DIR}/config/diaspora/database.yml config/database.yml
-cp ${DIR}/config/diaspora/diaspora.yml config/diaspora.yml
 
 sed -i "s/.*config.force_ssl =.*/  config.force_ssl = false/g" config/environments/production.rb
 
@@ -64,10 +67,11 @@ echo "installing libraries"
 
 export PATH=${BUILD_DIR}/ruby/bin:${BUILD_DIR}/nodejs/bin:$PATH
 export GEM_HOME=${BUILD_DIR}/ruby
+export LD_LIBRARY_PATH=${BUILD_DIR}/ruby/lib
 
 DIASPORA_RUBY_CACHE=${DIR}/.ruby.cache
-if [ ! -z "$CI" ]; then
-  echo "running under TeamCity, cleaning ruby dependencies cache"
+if [ ! -z "$DRONE" ]; then
+  echo "running under build serer, cleaning ruby dependencies cache"
   rm -rf ${DIASPORA_RUBY_CACHE}
 fi
 
@@ -77,12 +81,16 @@ if [ -d "$DIASPORA_RUBY_CACHE" ]; then
     cp -r ${DIASPORA_RUBY_CACHE} ${BUILD_DIR}/ruby
 fi
 
+cp ${DIR}/config/diaspora/diaspora-dummy.yml config/diaspora.yml
+cp ${DIR}/config/diaspora/database-dummy.yml config/database.yml
+
 ${BUILD_DIR}/ruby/bin/gem install bundler
+
 export RAILS_ENV=production
-bin/bundle install --deployment --without test development --with postgresql
+${BUILD_DIR}/diaspora/bin/bundle install --deployment --without test development --with postgresql
 rm -rf ${DIASPORA_RUBY_CACHE}
 
-if [ -z "$CI" ]; then
+if [ -z "$DRONE" ]; then
    cp -r ${BUILD_DIR}/ruby ${DIASPORA_RUBY_CACHE}
 fi
 
@@ -90,7 +98,39 @@ find ${BUILD_DIR}/diaspora/vendor/bundle/ruby/ -type l
 find ${BUILD_DIR}/diaspora/vendor/bundle/ruby/ -type l -exec readlink {} \;
 find ${BUILD_DIR}/diaspora/vendor/bundle/ruby/ -type l -exec sh -c 'cp --remove-destination $(readlink {}) {}' \; || true
 
-bin/rake assets:precompile
+ls -la ${BUILD_DIR}/ruby/lib
+
+cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libpq.so* ${BUILD_DIR}/ruby/lib
+cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libgmp*.so* ${BUILD_DIR}/ruby/lib
+cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libgssapi_krb5.so* ${BUILD_DIR}/ruby/lib
+cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libldap_r-2.4.so* ${BUILD_DIR}/ruby/lib
+cp /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libpthread.so* ${BUILD_DIR}/ruby/lib
+cp /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libc.so* ${BUILD_DIR}/ruby/lib
+cp /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libdl.so* ${BUILD_DIR}/ruby/lib
+cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libkrb5.so* ${BUILD_DIR}/ruby/lib
+cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libk5crypto.so* ${BUILD_DIR}/ruby/lib
+cp /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libcom_err.so* ${BUILD_DIR}/ruby/lib
+cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libkrb5support.so* ${BUILD_DIR}/ruby/lib
+cp /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libkeyutils.so* ${BUILD_DIR}/ruby/lib
+cp /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libresolv.so* ${BUILD_DIR}/ruby/lib
+cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/liblber-2.4.so* ${BUILD_DIR}/ruby/lib
+cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libsasl2.so* ${BUILD_DIR}/ruby/lib
+cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libgnutls.so* ${BUILD_DIR}/ruby/lib
+cp /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libz.so* ${BUILD_DIR}/ruby/lib
+cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libp11-kit.so* ${BUILD_DIR}/ruby/lib
+cp /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libidn.so* ${BUILD_DIR}/ruby/lib
+cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libtasn1.so* ${BUILD_DIR}/ruby/lib
+cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libnettle.so* ${BUILD_DIR}/ruby/lib
+cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libhogweed.so* ${BUILD_DIR}/ruby/lib
+cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libffi.so* ${BUILD_DIR}/ruby/lib
+
+ls -la ${BUILD_DIR}/ruby/lib
+
+ldd ${BUILD_DIR}/ruby/lib/libpq.so
+
+${BUILD_DIR}/diaspora/bin/rake assets:precompile
+rm config/diaspora.yml
+rm config/database.yml
 
 echo "zipping"
 tar cpzf ${DIR}/${NAME}-${VERSION}-${ARCH}.tar.gz -C ${DIR}/build/ ${NAME}

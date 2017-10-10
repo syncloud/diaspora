@@ -1,22 +1,14 @@
 from ConfigParser import ConfigParser
 from os.path import isfile, join
 
-default_config_path = '/opt/app/diaspora/config'
-default_config_file = join(default_config_path, 'diaspora.cfg')
-
-default_user_config_path = '/opt/data/diaspora/config'
-default_user_config_file = join(default_user_config_path, 'user_diaspora.cfg')
-
 
 class Config:
 
-    def __init__(self, filename=default_config_file):
+    def __init__(self, data_dir):
         self.parser = ConfigParser()
+        filename = default_config_file = join(data_dir, 'config', 'diaspora.cfg')
         self.parser.read(filename)
         self.filename = filename
-
-    def port(self):
-        return self.parser.getint('diaspora', 'port')
 
     def unicorn_port(self):
         return self.parser.getint('diaspora', 'unicorn_port')
@@ -41,9 +33,6 @@ class Config:
 
     def bin_dir(self):
         return self.parser.get('diaspora', 'bin_dir')
-
-    def root_path(self):
-        return self.parser.get('diaspora', 'root_path')
 
     def psql(self):
         return self.parser.get('diaspora', 'psql')
@@ -90,8 +79,9 @@ class Config:
 
 class UserConfig:
 
-    def __init__(self, filename=default_user_config_file):
+    def __init__(self, data_dir):
         self.parser = ConfigParser()
+        filename = join(data_dir, 'config', 'user_diaspora.cfg')
         self.parser.read(filename)
         self.filename = filename
         if not isfile(self.filename):
@@ -104,7 +94,7 @@ class UserConfig:
         if not self.parser.has_section('diaspora'):
             self.parser.add_section('diaspora')
 
-    def is_installed(self):
+    def is_activated(self):
         return self.parser.getboolean('diaspora', 'activated')
 
     def set_activated(self, value):

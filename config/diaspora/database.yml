@@ -10,8 +10,8 @@
 
 postgres: &postgres
   adapter: postgresql
-  host: /opt/data/diaspora/postgresql
-  port: 5434
+  host: {{ db_psql_path }}
+  port: {{ db_psql_port }}
   username: diaspora
   password: diaspora
   encoding: unicode

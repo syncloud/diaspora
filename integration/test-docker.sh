@@ -25,11 +25,9 @@ else
 fi
 
 if [ $INSTALLER == "snapd" ]; then
-    ARCHIVE=${APP}_${VERSION}_${SAM_ARCH}.snap
-    INSTALLER_VERSION=170523
+    ARCHIVE=${APP}_${VERSION}_${SNAP_ARCH}.snap
 else
     ARCHIVE=${APP}-${VERSION}-${ARCH}.tar.gz
-    INSTALLER_VERSION=89
 fi
 APP_ARCHIVE_PATH=$(realpath "$ARCHIVE")
 
@@ -64,7 +62,7 @@ set -e
 
 sshpass -p syncloud scp -o StrictHostKeyChecking=no install-${INSTALLER}.sh root@${DEVICE_HOST}:/installer.sh
 
-sshpass -p syncloud ssh -o StrictHostKeyChecking=no root@${DEVICE_HOST} /installer.sh ${INSTALLER_VERSION} ${RELEASE}
+sshpass -p syncloud ssh -o StrictHostKeyChecking=no root@${DEVICE_HOST} /installer.sh ${RELEASE}
 
 pip2 install -r ${DIR}/../src/dev_requirements.txt
 
@@ -75,5 +73,7 @@ curl https://raw.githubusercontent.com/mguillem/JSErrorCollector/master/dist/JSE
 #fix dns
 device_ip=$(getent hosts ${DEVICE_HOST} | awk '{ print $1 }')
 echo "$device_ip $APP.$DOMAIN.syncloud.info" >> /etc/hosts
+
+cat /etc/hosts
 
 xvfb-run -l --server-args="-screen 0, 1024x4096x24" py.test -x -s ${TEST_SUITE} --email=$1 --password=$2 --domain=$DOMAIN --release=$RELEASE --app-archive-path=${APP_ARCHIVE_PATH} --installer=${INSTALLER} --device-host=${DEVICE_HOST}
