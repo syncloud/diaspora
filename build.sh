@@ -64,7 +64,7 @@ cd diaspora
 sed -i "s/.*config.force_ssl =.*/  config.force_ssl = false/g" config/environments/production.rb
 
 echo "installing libraries"
-
+apt -y install binutils-gold
 export PATH=${BUILD_DIR}/ruby/bin:${BUILD_DIR}/nodejs/bin:$PATH
 export GEM_HOME=${BUILD_DIR}/ruby
 export LD_LIBRARY_PATH=${BUILD_DIR}/ruby/lib
