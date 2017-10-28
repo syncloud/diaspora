@@ -65,6 +65,13 @@ sed -i "s/.*config.force_ssl =.*/  config.force_ssl = false/g" config/environmen
 
 echo "installing libraries"
 apt -y install binutils-gold
+update-alternatives --install "/usr/bin/ld" "ld" "/usr/bin/ld.gold" 20
+update-alternatives --install "/usr/bin/ld" "ld" "/usr/bin/ld.bfd" 10
+
+update-alternatives --config ld
+
+ld --version
+
 export PATH=${BUILD_DIR}/ruby/bin:${BUILD_DIR}/nodejs/bin:$PATH
 export GEM_HOME=${BUILD_DIR}/ruby
 export LD_LIBRARY_PATH=${BUILD_DIR}/ruby/lib
