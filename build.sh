@@ -64,6 +64,13 @@ cd diaspora
 sed -i "s/.*config.force_ssl =.*/  config.force_ssl = false/g" config/environments/production.rb
 
 echo "installing libraries"
+apt -y install binutils-gold
+update-alternatives --install "/usr/bin/ld" "ld" "/usr/bin/ld.gold" 20
+update-alternatives --install "/usr/bin/ld" "ld" "/usr/bin/ld.bfd" 10
+
+update-alternatives --config ld
+
+ld --version
 
 export PATH=${BUILD_DIR}/ruby/bin:${BUILD_DIR}/nodejs/bin:$PATH
 export GEM_HOME=${BUILD_DIR}/ruby
@@ -115,10 +122,8 @@ cp /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libkeyutils.so* ${BUILD_DIR}/r
 cp /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libresolv.so* ${BUILD_DIR}/ruby/lib
 cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/liblber-2.4.so* ${BUILD_DIR}/ruby/lib
 cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libsasl2.so* ${BUILD_DIR}/ruby/lib
-cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libgnutls.so* ${BUILD_DIR}/ruby/lib
 cp /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libz.so* ${BUILD_DIR}/ruby/lib
 cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libp11-kit.so* ${BUILD_DIR}/ruby/lib
-cp /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libidn.so* ${BUILD_DIR}/ruby/lib
 cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libtasn1.so* ${BUILD_DIR}/ruby/lib
 cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libnettle.so* ${BUILD_DIR}/ruby/lib
 cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libhogweed.so* ${BUILD_DIR}/ruby/lib
