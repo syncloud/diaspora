@@ -8,7 +8,10 @@ import pytest
 import requests
 from requests.adapters import HTTPAdapter
 
-from integration.util.ssh import run_scp, run_ssh
+from syncloudlib.integration.installer import local_install, wait_for_sam, wait_for_rest, local_remove, \
+    get_data_dir, get_app_dir, get_service_prefix, get_ssh_env_vars
+from syncloudlib.integration.loop import loop_device_cleanup
+from syncloudlib.integration.ssh import run_scp, run_ssh
 
 DIR = dirname(__file__)
 LOG_DIR = join(DIR, 'log')
@@ -18,62 +21,32 @@ DEVICE_PASSWORD = 'password'
 DEFAULT_DEVICE_PASSWORD = 'syncloud'
 LOGS_SSH_PASSWORD = DEFAULT_DEVICE_PASSWORD
 
-SAM_PLATFORM_DATA_DIR='/opt/data/platform'
-SNAPD_PLATFORM_DATA_DIR='/var/snap/platform/common'
-DATA_DIR=''
-
-SAM_DATA_DIR='/opt/data/diaspora'
-SNAPD_DATA_DIR='/var/snap/diaspora/common'
-DATA_DIR=''
-
-SAM_APP_DIR='/opt/app/diaspora'
-SNAPD_APP_DIR='/snap/diaspora/current'
-APP_DIR=''
-
 @pytest.fixture(scope="session")
 def platform_data_dir(installer):
-    if installer == 'sam':
-        return SAM_PLATFORM_DATA_DIR
-    else:
-        return SNAPD_PLATFORM_DATA_DIR
-        
+    return get_data_dir(installer, 'platform')
+
+    
 @pytest.fixture(scope="session")
 def data_dir(installer):
-    if installer == 'sam':
-        return SAM_DATA_DIR
-    else:
-        return SNAPD_DATA_DIR
+    return get_data_dir(installer, 'rocketchat')
 
 
 @pytest.fixture(scope="session")
 def app_dir(installer):
-    if installer == 'sam':
-        return SAM_APP_DIR
-    else:
-        return SNAPD_APP_DIR
-
+    return get_app_dir(installer, 'rocketchat')
+    
 
 @pytest.fixture(scope="session")
 def service_prefix(installer):
-    if installer == 'sam':
-        return ''
-    else:
-        return 'snap.'
+    return get_service_prefix(installer)
 
 
 @pytest.fixture(scope="session")
-def ssh_env_vars(installer):
-    if installer == 'sam':
-        return ''
-    if installer == 'snapd':
-        return 'SNAP_COMMON={0} '.format(SNAPD_DATA_DIR)
-
-@pytest.fixture(scope="session")
-def module_setup(request, device_host, data_dir, platform_data_dir):
-    request.addfinalizer(lambda: module_teardown(device_host, data_dir, platform_data_dir))
+def module_setup(request, device_host, data_dir, platform_data_dir, app_dir):
+    request.addfinalizer(lambda: module_teardown(device_host, data_dir, platform_data_dir, app_dir))
 
 
-def module_teardown(device_host, data_dir, platform_data_dir):
+def module_teardown(device_host, data_dir, platform_data_dir, app_dir):
     platform_log_dir = join(LOG_DIR, 'platform_log')
     os.mkdir(platform_log_dir)
     run_ssh(device_host, 'ls -la {0}'.format(data_dir), password=LOGS_SSH_PASSWORD, throw=False)
@@ -94,7 +67,7 @@ def module_teardown(device_host, data_dir, platform_data_dir):
 @pytest.fixture(scope='function')
 def syncloud_session(device_host):
     session = requests.session()
-    session.post('http://{0}/rest/login'.format(device_host), data={'name': DEVICE_USER, 'password': DEVICE_PASSWORD})
+    session.post('https://{0}/rest/login'.format(device_host), data={'name': DEVICE_USER, 'password': DEVICE_PASSWORD}, verify=False)
     return session
 
 
@@ -148,22 +121,22 @@ def test_running_platform_web_after_activation(device_host):
 
 def test_platform_rest_after_activation(device_host):
     session = requests.session()
-    url = 'http://{0}'.format(device_host)
+    url = 'https://{0}'.format(device_host)
     session.mount(url, HTTPAdapter(max_retries=5))
-    response = session.get(url, timeout=60)
+    response = session.get(url, timeout=60, verify=False)
     assert response.status_code == 200
 
 
 def test_enable_https(syncloud_session, device_host):
 
-    response = syncloud_session.get('http://{0}/rest/access/set_access'.format(device_host),
+    response = syncloud_session.get('https://{0}/rest/access/set_access'.format(device_host), verify=False,
                                       params={'is_https': 'true', 'upnp_enabled': 'false', 'external_access': 'false', 'public_ip': 0, 'public_port': 0 })
     assert '"success": true' in response.text
     assert response.status_code == 200
 
 
-def test_install(app_archive_path, device_host):
-    __local_install(app_archive_path, device_host)
+def test_install(app_archive_path, device_host, installer, user_domain):
+    local_install(device_host, DEVICE_PASSWORD, app_archive_path, installer)
 
 
 def test_create_user(auth, user_domain, device_host):
@@ -223,9 +196,6 @@ def test_create_user(auth, user_domain, device_host):
 #
 #     assert session.get('http://localhost/diaspora/core/img/filetypes/text.png').status_code == 200
 
-# def test_admin(device_host):
-#     response = session.get('http://{0}/diaspora/index.php/settings/admin'.format(device_host), allow_redirects=False)
-#     assert response.status_code == 200, response.text
 
 # def test_remove(device_host):
 #     session.post('http://{0}/server/rest/login'.format(device_host),
@@ -236,9 +206,3 @@ def test_create_user(auth, user_domain, device_host):
 
 # def test_reinstall(app_archive_path, device_host):
 #     __local_install(app_archive_path, device_host)
-
-
-def __local_install(app_archive_path, device_host):
-    run_scp('{0} root@{1}:/app.tar.gz'.format(app_archive_path, device_host), password=DEVICE_PASSWORD)
-    run_ssh(device_host, '/opt/app/sam/bin/sam --debug install /app.tar.gz', password=DEVICE_PASSWORD)
-    time.sleep(3)

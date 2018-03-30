@@ -10,12 +10,14 @@ DIASPORA_VERSION=0.7.3.1
 DIASPORA_ARCHIVE=v${DIASPORA_VERSION}
 DOWNLOAD_URL=http://artifact.syncloud.org/3rdparty
 
-if [ -z "$1" ]; then
-    echo "usage: $0 version"
+if [[ -z "$2" ]]; then
+    echo "usage $0 version installer"
+    exit 1
 fi
 
 ARCH=$(uname -m)
 VERSION=$1
+INSTALLER=$2
 
 if [ -n "$DRONE" ]; then
     echo "running under drone, removing coin cache"
@@ -27,7 +29,7 @@ mkdir ${DIR}/lib
 
 cd ${DIR}
 coin --to lib py https://pypi.python.org/packages/2.7/r/requests/requests-2.7.0-py2.py3-none-any.whl
-coin --to lib py https://pypi.python.org/packages/source/s/syncloud-lib/syncloud-lib-2.tar.gz
+coin --to lib py https://pypi.python.org/packages/ec/6b/b3fcd16215e3742c67a740fbb313e78f38741da5e40ee97681c9f9472aa5/syncloud-lib-27.tar.gz#md5=fa82721a7da75f570cd4ba8b4ce7a779
 coin --to lib py ${DOWNLOAD_URL}/PyYAML-x86_64.tar.gz
 cp -r ${DIR}/src lib/syncloud-diaspora-${VERSION}
 
