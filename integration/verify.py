@@ -127,14 +127,6 @@ def test_platform_rest_after_activation(device_host):
     assert response.status_code == 200
 
 
-def test_enable_https(syncloud_session, device_host):
-
-    response = syncloud_session.get('https://{0}/rest/access/set_access'.format(device_host), verify=False,
-                                      params={'is_https': 'true', 'upnp_enabled': 'false', 'external_access': 'false', 'public_ip': 0, 'public_port': 0 })
-    assert '"success": true' in response.text
-    assert response.status_code == 200
-
-
 def test_install(app_archive_path, device_host, installer, user_domain):
     local_install(device_host, DEVICE_PASSWORD, app_archive_path, installer)
 
