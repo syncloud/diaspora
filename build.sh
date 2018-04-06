@@ -31,7 +31,6 @@ cd ${DIR}
 coin --to lib py https://pypi.python.org/packages/2.7/r/requests/requests-2.7.0-py2.py3-none-any.whl
 coin --to lib py https://pypi.python.org/packages/ec/6b/b3fcd16215e3742c67a740fbb313e78f38741da5e40ee97681c9f9472aa5/syncloud-lib-27.tar.gz#md5=fa82721a7da75f570cd4ba8b4ce7a779
 coin --to lib py ${DOWNLOAD_URL}/PyYAML-x86_64.tar.gz
-cp -r ${DIR}/src lib/syncloud-diaspora-${VERSION}
 
 rm -rf build
 BUILD_DIR=${DIR}/build/${NAME}
@@ -47,6 +46,7 @@ coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/ImageMagick-${ARCH}.tar.gz
 cp -r ${DIR}/bin ${BUILD_DIR}
 cp -r ${DIR}/config ${BUILD_DIR}/config.templates
 cp -r ${DIR}/lib ${BUILD_DIR}
+cp -r ${DIR}/hooks ${BUILD_DIR}
 
 cd ${BUILD_DIR}
 
