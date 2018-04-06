@@ -63,7 +63,7 @@ mv ${BUILD_DIR}/diaspora-${DIASPORA_VERSION} ${BUILD_DIR}/diaspora
 
 cd diaspora
 
-sed -i "s/.*config.force_ssl =.*/  config.force_ssl = false/g" config/environments/production.rb
+#sed -i "s/.*config.force_ssl =.*/  config.force_ssl = false/g" config/environments/production.rb
 
 echo "installing libraries"
 apt -y install binutils-gold
@@ -139,5 +139,26 @@ ${BUILD_DIR}/diaspora/bin/rake assets:precompile
 rm config/diaspora.yml
 rm config/database.yml
 
-echo "zipping"
-tar cpzf ${DIR}/${NAME}-${VERSION}-${ARCH}.tar.gz -C ${DIR}/build/ ${NAME}
+if [ $INSTALLER == "sam" ]; then
+
+    echo "zipping"
+    rm -rf ${NAME}*.tar.gz
+    tar cpzf ${DIR}/${NAME}-${VERSION}-${ARCH}.tar.gz -C ${DIR}/build/ ${NAME}
+
+else
+
+    echo "snapping"
+    SNAP_DIR=${DIR}/build/snap
+    ARCH=$(dpkg-architecture -q DEB_HOST_ARCH)
+    rm -rf ${DIR}/*.snap
+    mkdir ${SNAP_DIR}
+    cp -r ${BUILD_DIR}/* ${SNAP_DIR}/
+    cp -r ${DIR}/snap/meta ${SNAP_DIR}/
+    cp ${DIR}/snap/snap.yaml ${SNAP_DIR}/meta/snap.yaml
+    echo "version: $VERSION" >> ${SNAP_DIR}/meta/snap.yaml
+    echo "architectures:" >> ${SNAP_DIR}/meta/snap.yaml
+    echo "- ${ARCH}" >> ${SNAP_DIR}/meta/snap.yaml
+
+    mksquashfs ${SNAP_DIR} ${DIR}/${NAME}_${VERSION}_${ARCH}.snap -noappend -comp xz -no-xattrs -all-root
+
+fi
