@@ -16,12 +16,7 @@ pipeline:
     commands:
       - VERSION=$(cat version)
       - ./build.sh $VERSION ${installer}
-
-  dev-deps:
-    image: syncloud/build-deps-${arch}
-    commands:
-      - pip2 install -r dev_requirements.txt
-      
+  
   integration:
     image: syncloud/build-deps-${arch}
     commands:

@@ -73,5 +73,5 @@ device_ip=$(getent hosts ${DEVICE_HOST} | awk '{ print $1 }')
 echo "$device_ip $APP.$DOMAIN.syncloud.info" >> /etc/hosts
 
 cat /etc/hosts
-
+pip2 install -r ${DIR}/dev_requirements.txt -
 xvfb-run -l --server-args="-screen 0, 1024x4096x24" py.test -x -s ${TEST_SUITE} --email=$1 --password=$2 --domain=$DOMAIN --release=$RELEASE --app-archive-path=${APP_ARCHIVE_PATH} --installer=${INSTALLER} --device-host=${DEVICE_HOST}
