@@ -53,16 +53,13 @@ def module_teardown(device_host, data_dir, platform_data_dir, app_dir):
    
     run_scp('root@{0}:{1}/log/* {2}'.format(device_host, platform_data_dir, platform_log_dir), password=LOGS_SSH_PASSWORD, throw=False) 
     run_scp('root@{0}:/var/log/sam.log {1}'.format(device_host, platform_log_dir), password=LOGS_SSH_PASSWORD, throw=False)
+   
+    run_ssh(device_host, 'journalctl > {0}/log/journalctl.log'.format(data_dir), password=LOGS_SSH_PASSWORD)
 
     app_log_dir = join(LOG_DIR, 'diaspora_log')
     os.mkdir(app_log_dir)
     run_scp('root@{0}:{1}/log/*.log {2}'.format(device_host, data_dir, app_log_dir), password=LOGS_SSH_PASSWORD, throw=False)
-    #run_scp('root@{0}:/opt/app/diaspora/diaspora/log/*.log {1}'.format(device_host, app_log_dir),
-    #        password=LOGS_SSH_PASSWORD, throw=False)
-
-    print('systemd logs')
-    run_ssh(device_host, 'journalctl | tail -200', password=LOGS_SSH_PASSWORD)
-
+    
 
 @pytest.fixture(scope='function')
 def syncloud_session(device_host):
