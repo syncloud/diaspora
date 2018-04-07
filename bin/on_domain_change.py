@@ -7,7 +7,7 @@
 # libs = [join(lib_path, item) for item in listdir(lib_path) if isdir(join(lib_path, item))]
 # map(sys.path.append, libs)
 #
-# from diaspora.installer import DiasporaInstaller
+# from installer import DiasporaInstaller
 #
 # Regenerate recompilation is too slow to react on domain change
 # DiasporaInstaller().update_domain()

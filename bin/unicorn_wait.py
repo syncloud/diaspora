@@ -11,7 +11,7 @@ libs = [join(lib_path, item) for item in listdir(lib_path) if isdir(join(lib_pat
 map(sys.path.append, libs)
 
 import requests
-from diaspora.config import Config
+from config import Config
 
 
 def wait_for_unicorn(delay=2, retries=20):
