@@ -19,9 +19,9 @@ from syncloud_platform.gaplib import fs, linux, gen
 
 from syncloud_platform.application import api
 
-from diaspora import postgres
-from diaspora.config import Config
-from diaspora.config import UserConfig
+import postgres
+from config import Config
+from config import UserConfig
 import yaml
 
 SYSTEMD_NGINX_NAME = 'diaspora-nginx'
