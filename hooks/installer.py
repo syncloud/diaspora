@@ -37,6 +37,8 @@ PSQL_PORT = 5434
 DB_NAME = 'diaspora'
 DB_USER = 'diaspora'
 DB_PASS = 'diaspora'
+UNICORN_PORT = 1084
+DB_TYPE = 'postgres'
 
 
 def database_init(logger, app_dir, app_data_dir, database_path, user_name):
@@ -69,6 +71,9 @@ class DiasporaInstaller:
 
         app_data_dir = self.app.get_data_dir()
         database_path = '{0}/database'.format(app_data_dir)
+        gem_home = '{0}/ruby'.format(self.app_dir)
+        path = '{0}/ruby/bin:{0}/nodejs/bin:{0}/ImageMagick/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'.format(self.app_dir)
+        ld_library_path = '{0}/ruby/lib:{0}/ImageMagick/lib:{0}/postgresql/lib'.format(self.app_dir)
 
         variables = {
             'app_dir': self.app_dir,
@@ -77,7 +82,13 @@ class DiasporaInstaller:
             'db_psql_port': PSQL_PORT,
             'db_name': DB_NAME,
             'db_user': DB_USER,
-            'db_password': DB_PASS
+            'db_password': DB_PASS,
+            'unicorn_port': UNICORN_PORT,
+            'rails_env': 'production',
+            'db_type': DB_TYPE,
+            'gem_home': gem_home,
+            'path': path,
+            'ld_library_path': ld_library_path
         }
 
         templates_path = join(self.app_dir, 'config.templates')
