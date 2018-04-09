@@ -1,2 +1,5 @@
 from installer import DiasporaInstaller
-DiasporaInstaller().install()
+installer = DiasporaInstaller()
+installer.install()
+installer.start()
+installer.configure()

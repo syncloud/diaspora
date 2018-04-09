@@ -18,6 +18,7 @@ from syncloud_app import logger
 from syncloud_platform.gaplib import fs, linux, gen
 
 from syncloud_platform.application import api
+from syncloudlib.application import paths, urls, storage, ports
 
 import postgres
 from config import Config
@@ -56,28 +57,31 @@ def database_init(logger, app_dir, app_data_dir, database_path, user_name):
 class DiasporaInstaller:
     def __init__(self):
         self.log = logger.get_logger('diaspora.installer')
-        self.app = api.get_app_setup(APP_NAME)
-        self.device_domain_name = self.app.device_domain_name()
-        self.app_domain_name = self.app.app_domain_name()
-        self.app_dir = self.app.get_install_dir()
-
+          
+        self.app_dir = paths.get_app_dir(APP_NAME)
+        self.app_data_dir = paths.get_data_dir(APP_NAME)
+        self.app_url = urls.get_app_url(APP_NAME)
+        self.app_domain_name = urls.get_app_domain_name(APP_NAME)
+        self.platform_app_dir = paths.get_app_dir('platform')
+        self.platform_data_dir = paths.get_data_dir('platform')
+        self.device_domain_name = urls.get_device_domain_name()
+   
     def install(self):
 
         linux.fix_locale()
 
         linux.useradd(USER_NAME)
 
-        self.log.info(fs.chownpath(self.app.get_install_dir(), USER_NAME, recursive=True))
+        self.log.info(fs.chownpath(self.get_dir, USER_NAME, recursive=True))
 
-        app_data_dir = self.app.get_data_dir()
-        database_path = '{0}/database'.format(app_data_dir)
+        database_path = '{0}/database'.format(self.app_data_dir)
         gem_home = '{0}/ruby'.format(self.app_dir)
         path = '{0}/ruby/bin:{0}/nodejs/bin:{0}/ImageMagick/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'.format(self.app_dir)
         ld_library_path = '{0}/ruby/lib:{0}/ImageMagick/lib:{0}/postgresql/lib'.format(self.app_dir)
 
         variables = {
             'app_dir': self.app_dir,
-            'app_data_dir': app_data_dir,
+            'app_data_dir': self.app_data_dir,
             'db_psql_path': database_path,
             'db_psql_port': PSQL_PORT,
             'db_name': DB_NAME,
@@ -88,11 +92,12 @@ class DiasporaInstaller:
             'db_type': DB_TYPE,
             'gem_home': gem_home,
             'path': path,
-            'ld_library_path': ld_library_path
+            'ld_library_path': ld_library_path,
+            'platform_app_dir': self.platform_app_dir
         }
 
         templates_path = join(self.app_dir, 'config.templates')
-        config_path = join(app_data_dir, 'config')
+        config_path = join(self.app_data_dir, 'config')
         gen.generate_files(templates_path, config_path, variables)
 
         fs.makepath(join(app_data_dir, 'config'))
@@ -100,42 +105,49 @@ class DiasporaInstaller:
         fs.makepath(join(app_data_dir, 'log'))
         fs.makepath(join(app_data_dir, 'nginx'))
 
-        fs.chownpath(app_data_dir, USER_NAME, recursive=True)
-
-        self.log.info("setup systemd")
-
-        user_config = UserConfig(app_data_dir)
-        is_first_time = not user_config.is_activated()
-        if is_first_time:
-            database_init(self.log, self.app_dir, app_data_dir, database_path, USER_NAME)
-
-        self.app.add_service(SYSTEMD_POSTGRESQL)
+        fs.chownpath(self.app_data_dir, USER_NAME, recursive=True)
+        fs.chownpath(self.app_dir, USER_NAME, recursive=True)
 
         config = Config(app_data_dir)
         symlink(join(config_path, 'diaspora', 'diaspora.yml'), join(self.app_dir, 'diaspora', 'config', 'diaspora.yml'))
         symlink(join(config_path, 'diaspora', 'database.yml'), join(self.app_dir, 'diaspora', 'config', 'database.yml'))
         self.update_configuraiton(config)
 
+        self.log.info("setup systemd")
+
+        user_config = UserConfig(self.app_data_dir)
+        is_first_time = not user_config.is_activated()
+        if is_first_time:
+            database_init(self.log, self.app_dir, self.app_data_dir, database_path, USER_NAME)
+
+
+    def database_port_start(self):
+        user_config = UserConfig(self.app_data_dir)
+        is_first_time = not user_config.is_activated()
         if is_first_time:
             self.initialize(app_data_dir, config)
 
-        self.log.info(fs.chownpath(self.app_dir, USER_NAME, recursive=True))
+    
+    def start(self):
+        app = api.get_app_setup(APP_NAME)
+ 
+        app.add_service(SYSTEMD_POSTGRESQL)
+        app.add_service(SYSTEMD_REDIS)
+        app.add_service(SYSTEMD_SIDEKIQ)
+        app.add_service(SYSTEMD_UNICORN)
+        app.add_service(SYSTEMD_NGINX_NAME)
 
-        self.app.add_service(SYSTEMD_REDIS)
-        self.app.add_service(SYSTEMD_SIDEKIQ)
-        self.app.add_service(SYSTEMD_UNICORN)
-        self.app.add_service(SYSTEMD_NGINX_NAME)
-
-        self.app.init_storage(USER_NAME)
-
+    def configure(self):
+        storage.init_storage(APP_NAME, USER_NAME)
 
     def remove(self):
-
-        self.app.remove_service(SYSTEMD_NGINX_NAME)
-        self.app.remove_service(SYSTEMD_UNICORN)
-        self.app.remove_service(SYSTEMD_SIDEKIQ)
-        self.app.remove_service(SYSTEMD_REDIS)
-        self.app.remove_service(SYSTEMD_POSTGRESQL)
+        app = api.get_app_setup(APP_NAME)
+ 
+        app.remove_service(SYSTEMD_NGINX_NAME)
+        app.remove_service(SYSTEMD_UNICORN)
+        app.remove_service(SYSTEMD_SIDEKIQ)
+        app.remove_service(SYSTEMD_REDIS)
+        app.remove_service(SYSTEMD_POSTGRESQL)
 
         if isdir(self.app_dir):
             shutil.rmtree(self.app_dir)
