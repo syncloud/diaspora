@@ -72,7 +72,7 @@ class DiasporaInstaller:
 
         linux.useradd(USER_NAME)
 
-        self.log.info(fs.chownpath(self.get_dir, USER_NAME, recursive=True))
+        self.log.info(fs.chownpath(self.app_dir, USER_NAME, recursive=True))
 
         database_path = '{0}/database'.format(self.app_data_dir)
         gem_home = '{0}/ruby'.format(self.app_dir)
