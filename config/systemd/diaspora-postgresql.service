@@ -5,6 +5,7 @@ After=network.target
 
 [Service]
 User=diaspora
+Environment=SNAP_COMMON={{ app_data_dir }}
 Type=forking
 SyslogIdentifier=diaspora-postgres
 PIDFile={{ app_data_dir }}/database/postmaster.pid
