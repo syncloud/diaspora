@@ -24,6 +24,8 @@ import postgres
 from config import Config
 from config import UserConfig
 import yaml
+import logging
+
 
 SYSTEMD_NGINX_NAME = 'diaspora-nginx'
 SYSTEMD_POSTGRESQL = 'diaspora-postgresql'
