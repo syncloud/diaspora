@@ -130,7 +130,7 @@ class DiasporaInstaller:
         if not UserConfig(self.app_data_dir).is_activated():
             database_init(self.log, self.app_dir, self.app_data_dir, self.database_path, USER_NAME)
 
-    def database_port_start(self):
+    def database_post_start(self):
         if not UserConfig(self.app_data_dir).is_activated():
             self.initialize()
 
