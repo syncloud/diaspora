@@ -65,7 +65,22 @@ class DiasporaInstaller:
         self.platform_app_dir = paths.get_app_dir('platform')
         self.platform_data_dir = paths.get_data_dir('platform')
         self.device_domain_name = urls.get_device_domain_name()
-   
+        self.rails_env = 'production'
+        self.gem_home = '{0}/ruby'.format(self.app_dir)
+        self.path = '{0}/ruby/bin:{0}/nodejs/bin:{0}/ImageMagick/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'.format(self.app_dir)
+        self.ld_library_path = '{0}/ruby/lib:{0}/ImageMagick/lib:{0}/postgresql/lib'.format(self.app_dir)
+        self.rake_db_cmd = '{0}/bin/update_db'.format(self.app_dir)
+        self.diaspora_dir = '{0}/diaspora'.format(self.app_dir)
+        self.psql_bin = '{0}/postgresql/bin/psql'.format(self.app_dir)
+        self.diaspora_config = '{0}/config/diaspora.yml'.format(self.diaspora_dir)
+        self.database_path = '{0}/database'.format(self.app_data_dir)
+        
+        environ['RAILS_ENV'] = self.rails_env
+        environ['DB'] = DB_TYPE
+        environ['GEM_HOME'] = self.gem_home
+        environ['PATH'] = self.path
+        environ['LD_LIBRARY_PATH'] = self.ld_library_path
+
     def install(self):
 
         linux.fix_locale()
@@ -74,25 +89,17 @@ class DiasporaInstaller:
 
         self.log.info(fs.chownpath(self.app_dir, USER_NAME, recursive=True))
 
-        database_path = '{0}/database'.format(self.app_data_dir)
-        gem_home = '{0}/ruby'.format(self.app_dir)
-        path = '{0}/ruby/bin:{0}/nodejs/bin:{0}/ImageMagick/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'.format(self.app_dir)
-        ld_library_path = '{0}/ruby/lib:{0}/ImageMagick/lib:{0}/postgresql/lib'.format(self.app_dir)
-
         variables = {
             'app_dir': self.app_dir,
             'app_data_dir': self.app_data_dir,
-            'db_psql_path': database_path,
             'db_psql_port': PSQL_PORT,
-            'db_name': DB_NAME,
-            'db_user': DB_USER,
             'db_password': DB_PASS,
             'unicorn_port': UNICORN_PORT,
-            'rails_env': 'production',
+            'rails_env': self.rails_env,
             'db_type': DB_TYPE,
-            'gem_home': gem_home,
-            'path': path,
-            'ld_library_path': ld_library_path,
+            'gem_home': self.gem_home,
+            'path': self.path,
+            'ld_library_path': self.ld_library_path,
             'platform_app_dir': self.platform_app_dir
         }
 
@@ -100,34 +107,35 @@ class DiasporaInstaller:
         config_path = join(self.app_data_dir, 'config')
         gen.generate_files(templates_path, config_path, variables)
 
-        fs.makepath(join(app_data_dir, 'config'))
-        fs.makepath(join(app_data_dir, 'redis'))
-        fs.makepath(join(app_data_dir, 'log'))
-        fs.makepath(join(app_data_dir, 'nginx'))
+        fs.makepath(join(self.app_data_dir, 'config'))
+        fs.makepath(join(self.app_data_dir, 'redis'))
+        fs.makepath(join(self.app_data_dir, 'log'))
+        fs.makepath(join(self.app_data_dir, 'nginx'))
 
         fs.chownpath(self.app_data_dir, USER_NAME, recursive=True)
         fs.chownpath(self.app_dir, USER_NAME, recursive=True)
 
-        config = Config(app_data_dir)
         symlink(join(config_path, 'diaspora', 'diaspora.yml'), join(self.app_dir, 'diaspora', 'config', 'diaspora.yml'))
         symlink(join(config_path, 'diaspora', 'database.yml'), join(self.app_dir, 'diaspora', 'config', 'database.yml'))
-        self.update_configuraiton(config)
+        self.update_configuraiton()
 
         self.log.info("setup systemd")
 
-        user_config = UserConfig(self.app_data_dir)
-        is_first_time = not user_config.is_activated()
-        if is_first_time:
-            database_init(self.log, self.app_dir, self.app_data_dir, database_path, USER_NAME)
-
+        if not UserConfig(self.app_data_dir).is_activated():
+            database_init(self.log, self.app_dir, self.app_data_dir, self.database_path, USER_NAME)
 
     def database_port_start(self):
-        user_config = UserConfig(self.app_data_dir)
-        is_first_time = not user_config.is_activated()
-        if is_first_time:
-            self.initialize(app_data_dir, config)
+        if not UserConfig(self.app_data_dir).is_activated():
+            self.initialize()
 
-    
+    def initialize(self):
+
+        self.log.info("initialization")
+        postgres.execute("ALTER USER {0} WITH PASSWORD '{0}';".format(APP_NAME), self.psql_bin, DB_USER, self.database_path, PSQL_PORT, "postgres")
+        self.log.info(check_output(self.rake_db_cmd, shell=True, cwd=self.diaspora_dir))
+
+        UserConfig(self.app_data_dir).set_activated(True)
+
     def start(self):
         app = api.get_app_setup(APP_NAME)
  
@@ -151,32 +159,15 @@ class DiasporaInstaller:
 
         if isdir(self.app_dir):
             shutil.rmtree(self.app_dir)
+        
+    def update_domain(self):
+        self.update_configuraiton()
 
-    def initialize(self, app_data_dir, config):
+    def update_configuraiton(self):
 
-        self.log.info("initialization")
-        postgres.execute("ALTER USER {0} WITH PASSWORD '{0}';".format(APP_NAME), config, "postgres")
+        diaspora_config = yaml.load(open(self.diaspora_config))
 
-        self.environment(config)
-        self.log.info(check_output(config.rake_db_cmd(), shell=True, cwd=config.diaspora_dir()))
+        diaspora_config['configuration']['environment']['url'] = self.app_url
+        diaspora_config['configuration']['environment']['assets']['host'] = self.app_url
 
-        UserConfig(app_data_dir).set_activated(True)
-
-    def environment(self, config):
-        environ['RAILS_ENV'] = config.rails_env()
-        environ['DB'] = config.db()
-        environ['GEM_HOME'] = config.gem_home()
-        environ['PATH'] = config.path()
-        environ['LD_LIBRARY_PATH'] = config.ld_library_path()
-
-    def update_domain(self, config):
-        self.update_configuraiton(config)
-
-    def update_configuraiton(self, config):
-        url = self.app.app_url()
-        diaspora_config = yaml.load(open(config.diaspora_config()))
-
-        diaspora_config['configuration']['environment']['url'] = url
-        diaspora_config['configuration']['environment']['assets']['host'] = url
-
-        yaml.dump(diaspora_config, open(config.diaspora_config(), 'w'))
+        yaml.dump(diaspora_config, open(self.diaspora_config, 'w'))
