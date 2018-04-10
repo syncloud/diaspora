@@ -42,6 +42,9 @@ UNICORN_PORT = 1084
 DB_TYPE = 'postgres'
 
 
+logger.init(logging.DEBUG, console=True, line_format='%(message)s')
+
+
 def database_init(logger, app_dir, app_data_dir, database_path, user_name):
     logger.info("creating database files")
     if not isdir(database_path):
@@ -56,7 +59,7 @@ def database_init(logger, app_dir, app_data_dir, database_path, user_name):
 
 class DiasporaInstaller:
     def __init__(self):
-        self.log = logger.get_logger('diaspora.installer')
+        self.log = logger.get_logger('diaspora')
           
         self.app_dir = paths.get_app_dir(APP_NAME)
         self.app_data_dir = paths.get_data_dir(APP_NAME)
