@@ -14,6 +14,7 @@ ExecStartPost={{ app_dir }}/bin/service.postgresql.sh post-start
 ExecReload={{ app_dir }}/postgresql/bin/pg_ctl -s -D {{ app_data_dir }}/database reload
 ExecStop={{ app_dir }}/postgresql/bin/pg_ctl -s -D {{ app_data_dir }}/database stop -m fast
 Restart=always
+TimeoutStartSec=600
 
 # Due to PostgreSQL's use of shared memory, OOM killer is often overzealous in
 # killing Postgres

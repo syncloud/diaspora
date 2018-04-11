@@ -20,6 +20,8 @@ DEVICE_USER = 'user'
 DEVICE_PASSWORD = 'password'
 DEFAULT_DEVICE_PASSWORD = 'syncloud'
 LOGS_SSH_PASSWORD = DEFAULT_DEVICE_PASSWORD
+TMP_DIR = '/tmp/syncloud'
+
 
 @pytest.fixture(scope="session")
 def platform_data_dir(installer):
@@ -53,12 +55,14 @@ def module_teardown(device_host, data_dir, platform_data_dir, app_dir):
    
     run_scp('root@{0}:{1}/log/* {2}'.format(device_host, platform_data_dir, platform_log_dir), password=LOGS_SSH_PASSWORD, throw=False) 
     run_scp('root@{0}:/var/log/sam.log {1}'.format(device_host, platform_log_dir), password=LOGS_SSH_PASSWORD, throw=False)
-   
-    run_ssh(device_host, 'journalctl > {0}/log/journalctl.log'.format(data_dir), password=LOGS_SSH_PASSWORD, throw=False)
+    run_ssh(device_host, 'mkdir {0}'.format(TMP_DIR), password=LOGS_SSH_PASSWORD)
+
+    run_ssh(device_host, 'journalctl > {0}/journalctl.log'.format(TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
 
     app_log_dir = join(LOG_DIR, 'diaspora_log')
     os.mkdir(app_log_dir)
     run_scp('root@{0}:{1}/log/*.log {2}'.format(device_host, data_dir, app_log_dir), password=LOGS_SSH_PASSWORD, throw=False)
+    run_scp('root@{0}:{1}/*.log {2}'.format(device_host, TMP_DIR, app_log_dir), password=LOGS_SSH_PASSWORD, throw=False)
     
 
 @pytest.fixture(scope='function')
