@@ -11,7 +11,7 @@ fi
 
 case $1 in
 start)
-    cd ${DIR}
+    cd ${DIR}/diaspora
     exec ${DIR}/ruby/bin/bundle exec "unicorn_rails -c config/unicorn.rb -E $RAILS_ENV -D"
     ;;
 post-start)
