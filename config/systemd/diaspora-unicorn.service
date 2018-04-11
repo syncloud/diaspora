@@ -9,6 +9,7 @@ Group=diaspora
 SyslogIdentifier=diaspora-unicorn
 PIDFile={{ app_data_dir }}/diaspora.pid
 Restart=always
+TimeoutStartSec=600
 
 CPUAccounting=true
 MemoryAccounting=true
