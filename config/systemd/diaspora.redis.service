@@ -5,6 +5,7 @@ After=network.target
 [Service]
 User=diaspora
 Group=diaspora
+Environment=SNAP_COMMON={{ app_data_dir }}
 Type=simple
 ExecStart={{ app_dir }}/bin/service.redis.sh start
 ExecStop=/bin/kill -15 $MAINPID
