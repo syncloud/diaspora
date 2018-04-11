@@ -140,8 +140,6 @@ class DiasporaInstaller:
         postgres.execute("ALTER USER {0} WITH PASSWORD '{0}';".format(APP_NAME), self.psql_bin, DB_USER, self.database_path, PSQL_PORT, "postgres")
         self.log.info(check_output(self.rake_db_cmd, shell=True, cwd=self.diaspora_dir))
 
-        UserConfig(self.app_data_dir).set_activated(True)
-
     def start(self):
         app = api.get_app_setup(APP_NAME)
  
@@ -153,6 +151,7 @@ class DiasporaInstaller:
 
     def configure(self):
         storage.init_storage(APP_NAME, USER_NAME)
+        UserConfig(self.app_data_dir).set_activated(True)
 
     def remove(self):
         app = api.get_app_setup(APP_NAME)
