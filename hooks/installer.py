@@ -27,11 +27,11 @@ import yaml
 import logging
 
 
-SYSTEMD_NGINX_NAME = 'diaspora-nginx'
-SYSTEMD_POSTGRESQL = 'diaspora-postgresql'
-SYSTEMD_REDIS = 'diaspora-redis'
-SYSTEMD_SIDEKIQ = 'diaspora-sidekiq'
-SYSTEMD_UNICORN = 'diaspora-unicorn'
+SYSTEMD_NGINX_NAME = 'diaspora.nginx'
+SYSTEMD_POSTGRESQL = 'diaspora.postgresql'
+SYSTEMD_REDIS = 'diaspora.redis'
+SYSTEMD_SIDEKIQ = 'diaspora.sidekiq'
+SYSTEMD_UNICORN = 'diaspora.unicorn'
 
 APP_NAME = 'diaspora'
 USER_NAME = 'diaspora'

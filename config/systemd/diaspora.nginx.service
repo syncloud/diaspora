@@ -1,7 +1,7 @@
 [Unit]
 Description=Diaspora Nginx
-Requires=diaspora-unicorn.service
-After=diaspora-unicorn.service
+Requires=diaspora.unicorn.service
+After=diaspora.unicorn.service
 
 [Service]
 User=diaspora

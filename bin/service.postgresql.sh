@@ -16,6 +16,9 @@ start)
 post-start)
     ${PLATFORM_PYTHON} ${DIR}/hooks/postgresql-post-start.py
     ;;
+reload)
+    exec ${DIR}/postgresql/bin/pg_ctl -s -D ${SNAP_COMMON}/database reload
+    ;;
 stop)
     exec ${DIR}/postgresql/bin/pg_ctl -s -D ${SNAP_COMMON}/database stop -m fast
     ;;
