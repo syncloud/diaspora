@@ -1,5 +1,5 @@
---- a/config/load_config.rb
-+++ b/config/load_config.rb
+--- config/load_config.rb
++++ config/load_config.rb
 @@ -14,7 +14,7 @@ end
 
  require Rails.root.join "lib", "configuration_methods"
