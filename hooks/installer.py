@@ -91,8 +91,9 @@ class DiasporaInstaller:
         linux.fix_locale()
 
         linux.useradd(USER_NAME)
-
-        self.log.info(fs.chownpath(self.app_dir, USER_NAME, recursive=True))
+        
+        if 'SNAP' not in environ:
+            self.log.info(fs.chownpath(self.app_dir, USER_NAME, recursive=True))
 
         variables = {
             'app_dir': self.app_dir,
