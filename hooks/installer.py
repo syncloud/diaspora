@@ -120,8 +120,6 @@ class DiasporaInstaller:
         if 'SNAP' not in environ:
             self.log.info(fs.chownpath(self.app_dir, USER_NAME, recursive=True))
 
-        symlink(join(config_path, 'diaspora', 'diaspora.yml'), join(self.app_dir, 'diaspora', 'config', 'diaspora.yml'))
-        symlink(join(config_path, 'diaspora', 'database.yml'), join(self.app_dir, 'diaspora', 'config', 'database.yml'))
         self.update_configuraiton()
 
         self.log.info("setup systemd")

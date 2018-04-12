@@ -63,7 +63,7 @@ mv ${BUILD_DIR}/diaspora-${DIASPORA_VERSION} ${BUILD_DIR}/diaspora
 
 cd diaspora
 
-#sed -i "s/.*config.force_ssl =.*/  config.force_ssl = false/g" config/environments/production.rb
+patch -p0 < ${DIR}/patches/config.patch
 
 echo "installing libraries"
 apt -y install binutils-gold
