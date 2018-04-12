@@ -92,9 +92,6 @@ class DiasporaInstaller:
 
         linux.useradd(USER_NAME)
         
-        if 'SNAP' not in environ:
-            self.log.info(fs.chownpath(self.app_dir, USER_NAME, recursive=True))
-
         variables = {
             'app_dir': self.app_dir,
             'app_data_dir': self.app_data_dir,
@@ -120,7 +117,8 @@ class DiasporaInstaller:
         fs.makepath(join(self.app_data_dir, 'nginx'))
 
         fs.chownpath(self.app_data_dir, USER_NAME, recursive=True)
-        fs.chownpath(self.app_dir, USER_NAME, recursive=True)
+        if 'SNAP' not in environ:
+            self.log.info(fs.chownpath(self.app_dir, USER_NAME, recursive=True))
 
         symlink(join(config_path, 'diaspora', 'diaspora.yml'), join(self.app_dir, 'diaspora', 'config', 'diaspora.yml'))
         symlink(join(config_path, 'diaspora', 'database.yml'), join(self.app_dir, 'diaspora', 'config', 'database.yml'))
