@@ -1,7 +1,7 @@
 [Unit]
 Description=Diaspora Unicorn Server
-Requires=diaspora-redis.service
-After=diaspora-redis.service network.target
+Requires=diaspora.redis.service
+After=diaspora.redis.service network.target
 
 [Service]
 User=diaspora
