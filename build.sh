@@ -64,6 +64,7 @@ mv ${BUILD_DIR}/diaspora-${DIASPORA_VERSION} ${BUILD_DIR}/diaspora
 cd diaspora
 
 patch -p0 < ${DIR}/patches/config.patch
+patch -p0 < ${DIR}/patches/database.patch
 
 echo "installing libraries"
 apt -y install binutils-gold

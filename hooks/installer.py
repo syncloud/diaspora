@@ -85,6 +85,7 @@ class DiasporaInstaller:
         environ['GEM_HOME'] = self.gem_home
         environ['PATH'] = self.path
         environ['LD_LIBRARY_PATH'] = self.ld_library_path
+        environ['DIASPORA_CONFIG_DIR'] = '{0}/config/diaspora'.format(self.app_data_dir)
 
     def install(self):
 
@@ -135,7 +136,7 @@ class DiasporaInstaller:
 
         self.log.info("initialization")
         postgres.execute("ALTER USER {0} WITH PASSWORD '{0}';".format(APP_NAME), self.psql_bin, DB_USER, self.database_path, PSQL_PORT, "postgres")
-        self.log.info(check_output(self.rake_db_cmd, shell=True, cwd=self.diaspora_dir))
+        self.log.info(check_output("{0}/diaspora/bin/rake db:create db:migrate 2>&1".format(self.app_dir), shell=True, cwd=self.diaspora_dir))
 
     def start(self):
         app = api.get_app_setup(APP_NAME)
