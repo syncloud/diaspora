@@ -139,8 +139,8 @@ class DiasporaInstaller:
         try:
             output = check_output("{0}/diaspora/bin/rake db:create db:migrate 2>&1".format(self.app_dir), shell=True, cwd=self.diaspora_dir)
             self.log.info(output)
-        ezcept CalledProcessError, e:
-            self.log.info(e.oitput)
+        except CalledProcessError, e:
+            self.log.info(e.output)
             raise e
         
     def start(self):
