@@ -136,8 +136,13 @@ class DiasporaInstaller:
 
         self.log.info("initialization")
         postgres.execute("ALTER USER {0} WITH PASSWORD '{0}';".format(APP_NAME), self.psql_bin, DB_USER, self.database_path, PSQL_PORT, "postgres")
-        self.log.info(check_output("{0}/diaspora/bin/rake db:create db:migrate 2>&1".format(self.app_dir), shell=True, cwd=self.diaspora_dir))
-
+        try:
+            output = check_output("{0}/diaspora/bin/rake db:create db:migrate 2>&1".format(self.app_dir), shell=True, cwd=self.diaspora_dir)
+            self.log.info(output)
+        ezcept CalledProcessError, e:
+            self.log.info(e.oitput)
+            raise e
+        
     def start(self):
         app = api.get_app_setup(APP_NAME)
  
