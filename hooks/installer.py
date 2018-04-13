@@ -77,7 +77,7 @@ class DiasporaInstaller:
         self.rake_db_cmd = '{0}/bin/update_db'.format(self.app_dir)
         self.diaspora_dir = '{0}/diaspora'.format(self.app_dir)
         self.psql_bin = '{0}/postgresql/bin/psql'.format(self.app_dir)
-        self.diaspora_config = '{0}/config/diaspora.yml'.format(self.diaspora_dir)
+        self.diaspora_config = '{0}/config/diaspora/diaspora.yml'.format(self.app_data_dir)
         self.database_path = '{0}/database'.format(self.app_data_dir)
         
         environ['RAILS_ENV'] = self.rails_env
