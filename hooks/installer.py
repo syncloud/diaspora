@@ -79,6 +79,7 @@ class DiasporaInstaller:
         self.psql_bin = '{0}/postgresql/bin/psql'.format(self.app_dir)
         self.diaspora_config = '{0}/config/diaspora/diaspora.yml'.format(self.app_data_dir)
         self.database_path = '{0}/database'.format(self.app_data_dir)
+        self.database_url = "postgresql://diaspora:diaspora@/diaspora?host={0},port={1},encoding=unicode".format(self.database_path, PSQL_PORT)
         
         environ['RAILS_ENV'] = self.rails_env
         environ['DB'] = DB_TYPE
@@ -86,6 +87,7 @@ class DiasporaInstaller:
         environ['PATH'] = self.path
         environ['LD_LIBRARY_PATH'] = self.ld_library_path
         environ['DIASPORA_CONFIG_DIR'] = '{0}/config/diaspora'.format(self.app_data_dir)
+        environ['DATABASE_URL'] = self.database_url
 
     def install(self):
 
