@@ -11,7 +11,7 @@ map(lambda l: sys.path.insert(0, l), libs)
 from os import environ, symlink
 from os.path import isdir, join
 import shutil
-from subprocess import check_output, STDOUT
+from subprocess import check_output, STDOUT, CalledProcessError
 
 from syncloud_app import logger
 
