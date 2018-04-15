@@ -21,7 +21,7 @@ DEVICE_PASSWORD = 'password'
 DEFAULT_DEVICE_PASSWORD = 'syncloud'
 LOGS_SSH_PASSWORD = DEFAULT_DEVICE_PASSWORD
 TMP_DIR = '/tmp/syncloud'
-
+APP = "diaspora"
 
 @pytest.fixture(scope="session")
 def platform_data_dir(installer):
@@ -30,12 +30,12 @@ def platform_data_dir(installer):
     
 @pytest.fixture(scope="session")
 def data_dir(installer):
-    return get_data_dir(installer, 'rocketchat')
+    return get_data_dir(installer, APP)
 
 
 @pytest.fixture(scope="session")
 def app_dir(installer):
-    return get_app_dir(installer, 'rocketchat')
+    return get_app_dir(installer, APP)
     
 
 @pytest.fixture(scope="session")
