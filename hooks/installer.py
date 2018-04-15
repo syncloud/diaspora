@@ -94,7 +94,8 @@ class DiasporaInstaller:
 
         linux.fix_locale()
 
-        linux.useradd(USER_NAME)
+        home_folder = join('/home', USER_NAME)
+        linux.useradd(USER_NAME, home_folder=home_folder)
         
         variables = {
             'app_dir': self.app_dir,
