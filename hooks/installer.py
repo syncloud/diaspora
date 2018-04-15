@@ -108,7 +108,8 @@ class DiasporaInstaller:
             'gem_home': self.gem_home,
             'path': self.path,
             'ld_library_path': self.ld_library_path,
-            'platform_app_dir': self.platform_app_dir
+            'platform_app_dir': self.platform_app_dir,
+            'database_url': self.database_url
         }
 
         templates_path = join(self.app_dir, 'config.templates')
