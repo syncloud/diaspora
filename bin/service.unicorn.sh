@@ -11,8 +11,8 @@ fi
 
 case $1 in
 start)
-    cd ${DIR}/diaspora
-    exec ${DIR}/ruby/bin/bundle exec "unicorn_rails -c config/unicorn.rb -E $RAILS_ENV -D"
+    cd {{ app_data_dir }}
+    exec ${DIR}/ruby/bin/bundle exec "unicorn_rails -c ${DIR}/config/unicorn.rb -E $RAILS_ENV -D"
     ;;
 post-start)
     timeout 600 /bin/bash -c 'until echo > /dev/tcp/localhost/'$UNICORN_PORT'; do sleep 2; done'
