@@ -11,7 +11,7 @@ fi
 
 case $1 in
 start)
-    cd {{ app_data_dir }}
+    cd $SNAP_COMMON
     exec ${DIR}/ruby/bin/bundle exec "unicorn_rails -c ${DIR}/config/unicorn.rb -E $RAILS_ENV -D"
     ;;
 post-start)
