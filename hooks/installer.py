@@ -81,6 +81,7 @@ class DiasporaInstaller:
         self.database_path = '{0}/database'.format(self.app_data_dir)
         self.database_path_escaped = self.database_path.replace("/", "%2F")
         self.database_url = "postgresql://diaspora:diaspora@{0}:{1}/diaspora?encoding=unicode".format(self.database_path_escaped, PSQL_PORT)
+        self.diaspora_gemfile = '{0}/Gemfile'.format(self.diaspora_dir)
         
         environ['RAILS_ENV'] = self.rails_env
         environ['DB'] = DB_TYPE
@@ -89,7 +90,7 @@ class DiasporaInstaller:
         environ['LD_LIBRARY_PATH'] = self.ld_library_path
         environ['DIASPORA_CONFIG_DIR'] = '{0}/config/diaspora'.format(self.app_data_dir)
         environ['DATABASE_URL'] = self.database_url
-        environ['BUNDLE_GEMFILE'] = self.diaspora_dir
+        environ['BUNDLE_GEMFILE'] = self.diaspora_gemfile
 
     def install(self):
 
@@ -112,7 +113,7 @@ class DiasporaInstaller:
             'ld_library_path': self.ld_library_path,
             'platform_app_dir': self.platform_app_dir,
             'database_url': self.database_url,
-            'diaspora_dir': self.diaspora_dir
+            'diaspora_gemfile': self.diaspora_gemfile
         }
 
         templates_path = join(self.app_dir, 'config.templates')
