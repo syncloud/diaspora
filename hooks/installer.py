@@ -89,6 +89,7 @@ class DiasporaInstaller:
         environ['LD_LIBRARY_PATH'] = self.ld_library_path
         environ['DIASPORA_CONFIG_DIR'] = '{0}/config/diaspora'.format(self.app_data_dir)
         environ['DATABASE_URL'] = self.database_url
+        environ['BUNDLE_GEMFILE'] = self.diaspora_dir
 
     def install(self):
 
@@ -110,7 +111,8 @@ class DiasporaInstaller:
             'path': self.path,
             'ld_library_path': self.ld_library_path,
             'platform_app_dir': self.platform_app_dir,
-            'database_url': self.database_url
+            'database_url': self.database_url,
+            'diaspora_dir': self.diaspora_dir
         }
 
         templates_path = join(self.app_dir, 'config.templates')
