@@ -144,8 +144,9 @@ class DiasporaInstaller:
 
         self.log.info("initialization")
         postgres.execute("ALTER USER {0} WITH PASSWORD '{0}';".format(APP_NAME), self.psql_bin, DB_USER, self.database_path, PSQL_PORT, "postgres")
+        env = dict(environ, RAILS_LOG_TO_STDOUT='true')
         try:
-            output = check_output("{0}/diaspora/bin/rake db:create db:migrate 2>&1".format(self.app_dir), shell=True, cwd=self.diaspora_dir)
+            output = check_output("{0}/diaspora/bin/rake db:create db:migrate 2>&1".format(self.app_dir), shell=True, cwd=self.diaspora_dir, env=env)
             self.log.info(output)
         except CalledProcessError, e:
             self.log.info(e.output)
