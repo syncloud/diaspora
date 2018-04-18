@@ -95,6 +95,7 @@ fi
 
 cp ${DIR}/config/diaspora/diaspora-dummy.yml config/diaspora.yml
 cp ${DIR}/config/diaspora/database-dummy.yml config/database.yml
+cp ${DIR}/config/diaspora/production.rb config/environments/
 
 ${BUILD_DIR}/ruby/bin/gem install bundler
 
