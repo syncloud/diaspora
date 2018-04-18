@@ -4,7 +4,7 @@
    versionist (= 1.7.0)
    webmock (= 3.3.0)
    will_paginate (= 3.1.6)
-+  SyslogLogger (= 2.0)
++  sysLogger (= 1.6.5)
 
  BUNDLED WITH
     1.16.1

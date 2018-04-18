@@ -98,7 +98,7 @@ cp ${DIR}/config/diaspora/database-dummy.yml config/database.yml
 cp ${DIR}/config/diaspora/production.rb config/environments/
 
 echo "" >> Gemfile
-echo "gem 'SyslogLogger', '= 2.0'" >> Gemfile
+echo "gem 'syslogger', '=  1.6.5'" >> Gemfile
 
 ${BUILD_DIR}/ruby/bin/gem install bundler
 
