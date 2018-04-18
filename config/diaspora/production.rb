@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'syslog/logger'
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
@@ -85,7 +86,6 @@ Rails.application.configure do
   # config.log_formatter = ::Logger::Formatter.new
 
   # Use a different logger for distributed setups.
-  require 'syslog/logger'
   config.logger = ActiveSupport::TaggedLogging.new(Syslog::Logger.new 'diaspora')
 
   if ENV["RAILS_LOG_TO_STDOUT"].present?
