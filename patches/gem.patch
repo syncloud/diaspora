@@ -1,10 +1,10 @@
 --- Gemfile.lock
 +++ Gemfile.lock
-@@ -919,6 +919,7 @@ DEPENDENCIES
-   versionist (= 1.7.0)
-   webmock (= 3.3.0)
-   will_paginate (= 3.1.6)
-+  syslogger (= 1.6.5)
+@@ -770,6 +770,7 @@ GEM
+     xpath (3.0.0)
+       nokogiri (~> 1.8)
+     yard (0.9.12)
++    syslogger (1.6.5)
 
- BUNDLED WITH
-    1.16.1
+ PLATFORMS
+   ruby
