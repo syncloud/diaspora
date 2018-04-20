@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-#require 'syslogger'
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
@@ -61,10 +60,10 @@ Rails.application.configure do
   # config.log_tags = [ :request_id ]
 
   # Set the logging destination(s)
-  # config.log_to = %w[file]
+  config.log_to = %w[file]
 
   # Show the logging configuration on STDOUT
-  config.show_log_configuration = true
+  config.show_log_configuration = false
 
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store
@@ -86,13 +85,14 @@ Rails.application.configure do
   # config.log_formatter = ::Logger::Formatter.new
 
   # Use a different logger for distributed setups.
-  # config.logger = ActiveSupport::TaggedLogging.new(Syslogger.new('diaspora', Syslog::LOG_PID, Syslog::LOG_LOCAL0))
+  # require 'syslog/logger'
+  # config.logger = ActiveSupport::TaggedLogging.new(Syslog::Logger.new 'app-name')
 
-  #if ENV["RAILS_LOG_TO_STDOUT"].present?
-  logger           = ActiveSupport::Logger.new(STDOUT)
-  logger.formatter = config.log_formatter
-  config.logger    = ActiveSupport::TaggedLogging.new(logger)
-  #end
+  # if ENV["RAILS_LOG_TO_STDOUT"].present?
+  #  logger           = ActiveSupport::Logger.new(STDOUT)
+  #  logger.formatter = config.log_formatter
+  #  config.logger    = ActiveSupport::TaggedLogging.new(logger)
+  # end
 
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
