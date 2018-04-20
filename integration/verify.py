@@ -65,6 +65,7 @@ def module_teardown(device_host, data_dir, platform_data_dir, app_dir):
     run_scp('root@{0}:/var/log/*syslog* {1}'.format(device_host, app_log_dir), password=LOGS_SSH_PASSWORD, throw=False) 
     run_scp('root@{0}:{1}/log/*.log {2}'.format(device_host, data_dir, app_log_dir), password=LOGS_SSH_PASSWORD, throw=False)
     run_scp('root@{0}:{1}/*.log {2}'.format(device_host, TMP_DIR, app_log_dir), password=LOGS_SSH_PASSWORD, throw=False)
+    run_scp('root@{0}:{1}/diaspora/log/*.log {2}'.format(device_host, app_dir, app_log_dir), password=LOGS_SSH_PASSWORD, throw=False)
     
 
 @pytest.fixture(scope='function')
