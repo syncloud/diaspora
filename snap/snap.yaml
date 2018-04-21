@@ -3,7 +3,6 @@ apps:
     user: diaspora
     command: bin/service.postgresql.sh start
     stop-command: bin/service.postgresql.sh stop
-    post-start-command: bin/service.postgresql.sh post-start
     daemon: forking
     start-timeout: 600s
     plugs:
@@ -31,6 +30,7 @@ apps:
     before: [unicorn]
   unicorn:
     user: diaspora
+    pre-start-command: bin/service.unicorn.sh pre-start
     command: bin/service.unicorn.sh start
     daemon: forking
     start-timeout: 600s
