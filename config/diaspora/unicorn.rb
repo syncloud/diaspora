@@ -11,7 +11,7 @@ worker_processes AppConfig.server.unicorn_worker.to_i
 timeout AppConfig.server.unicorn_timeout.to_i
 #stderr_path AppConfig.server.stderr_log.get if AppConfig.server.stderr_log?
 #stdout_path AppConfig.server.stdout_log.get if AppConfig.server.stdout_log?
-logger ActiveSupport::TaggedLogging.new(Syslogger.new('diaspora-unicorn', Syslog::LOG_PID, Syslog::LOG_LOCAL0))
+logger Syslogger.new('diaspora-unicorn', Syslog::LOG_PID, Syslog::LOG_LOCAL0)
 preload_app true
 @sidekiq_pid = nil
 
