@@ -10,7 +10,6 @@ Type=forking
 SyslogIdentifier=diaspora-postgres
 PIDFile={{ app_data_dir }}/database/postmaster.pid
 ExecStart={{ app_dir }}/bin/service.postgresql.sh start
-ExecStartPost={{ app_dir }}/bin/service.postgresql.sh post-start
 ExecReload={{ app_dir }}/bin/service.postgresql.sh reload
 ExecStop={{ app_dir }}/bin/service.postgresql.sh stop
 Restart=always

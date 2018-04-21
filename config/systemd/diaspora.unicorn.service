@@ -20,6 +20,7 @@ NoNewPrivileges=true
 Type=forking
 TimeoutStartSec=600
 Environment=SNAP_COMMON={{ app_data_dir }}
+ExecStartPre={{ app_dir }}/bin/service.unicorn.sh pre-start
 ExecStart={{ app_dir }}/bin/service.unicorn.sh start
 ExecStartPost={{ app_dir }}/bin/service.unicorn.sh post-start
 
