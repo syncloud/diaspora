@@ -64,6 +64,7 @@ def module_teardown(device_host, data_dir, platform_data_dir, app_dir):
     run_ssh(device_host, 'ls -la {0}/log/ > {1}/data.log.ls.log'.format(data_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
     run_ssh(device_host, 'ls -la {0}/diaspora/ > {1}/data.diaspora.ls.log'.format(data_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
     run_ssh(device_host, 'ls -la {0}/diaspora/log/ > {1}/data.diaspora.log.ls.log'.format(data_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
+    run_ssh(device_host, 'ls -la {0}/database/ > {1}/data.database.ls.log'.format(data_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
     
     app_log_dir = join(LOG_DIR, 'diaspora_log')
     os.mkdir(app_log_dir)
