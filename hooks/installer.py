@@ -79,6 +79,7 @@ class DiasporaInstaller:
         self.psql_bin = '{0}/postgresql/bin/psql'.format(self.app_dir)
         self.diaspora_config = '{0}/config/diaspora/diaspora.yml'.format(self.app_data_dir)
         self.database_path = '{0}/database'.format(self.app_data_dir)
+        self.database_socket '{0}/.s.PGSQL.{1}'.format(self.database_path, PSQL_PORT)
         self.database_path_escaped = self.database_path.replace("/", "%2F")
         self.database_url = "postgresql://diaspora:diaspora@{0}:{1}/diaspora?encoding=unicode".format(self.database_path_escaped, PSQL_PORT)
         self.diaspora_gemfile = '{0}/Gemfile'.format(self.diaspora_dir)
@@ -113,7 +114,8 @@ class DiasporaInstaller:
             'ld_library_path': self.ld_library_path,
             'platform_app_dir': self.platform_app_dir,
             'database_url': self.database_url,
-            'diaspora_gemfile': self.diaspora_gemfile
+            'diaspora_gemfile': self.diaspora_gemfile,
+            'database_socket': self.database_socket
         }
 
         templates_path = join(self.app_dir, 'config.templates')
