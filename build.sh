@@ -102,6 +102,9 @@ cp ${DIR}/config/diaspora/logging.rb config/
 echo "" >> Gemfile
 echo "gem 'syslogger', '1.6.5'" >> Gemfile
 
+mkdir log
+touch log/production.log
+
 ${BUILD_DIR}/ruby/bin/gem install bundler
 
 export RAILS_ENV=production
