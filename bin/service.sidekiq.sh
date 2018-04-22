@@ -12,7 +12,7 @@ fi
 case $1 in
 start)
     cd ${DIR}/diaspora
-    exec ${DIR}/ruby/bin/bundle exec "sidekiq -e production -L $SNAP_COMMON/log/sidekiq.log >> $SNAP_COMMON/log/sidekiq.log 2>&1"
+    exec ${DIR}/ruby/bin/bundle exec "sidekiq -e production 2>&1"
     ;;
 *)
     echo "not valid command"

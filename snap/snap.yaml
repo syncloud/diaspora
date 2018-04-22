@@ -18,16 +18,18 @@ apps:
     - network
     - network-bind
     restart-condition: always
-#    before: [sidekiq]
+    start-timeout: 600s
+    before: [sidekiq]
     
-#  sidekiq:
-#    user: diaspora
-#    command: bin/service.sidekiq.sh start
-#    daemon: simple
-#    plugs:
-#    - network
-#    - network-bind
-#    restart-condition: always
+  sidekiq:
+    user: diaspora
+    command: bin/service.sidekiq.sh start
+    daemon: simple
+    plugs:
+    - network
+    - network-bind
+    restart-condition: always
+    start-timeout: 600s
 #    before: [unicorn]
 
 #  unicorn:
@@ -51,6 +53,7 @@ apps:
 #    - network
 #    - network-bind
 #    restart-condition: always
+#    start-timeout: 600s
 #    stop-command: bin/service.nginx.sh stop
 #    reload-command: bin/service.nginx.sh reload
 
