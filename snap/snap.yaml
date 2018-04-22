@@ -18,27 +18,29 @@ apps:
     - network
     - network-bind
     restart-condition: always
-    before: [sidekiq]
-  sidekiq:
-    user: diaspora
-    command: bin/service.sidekiq.sh start
-    daemon: simple
-    plugs:
-    - network
-    - network-bind
-    restart-condition: always
-    before: [unicorn]
-  unicorn:
-    user: diaspora
-    pre-start-command: bin/service.unicorn.sh pre-start
-    command: bin/service.unicorn.sh start
-    post-start-command: bin/service.unicorn.sh post-start
-    daemon: simple
-    start-timeout: 600s
-    plugs:
-    - network
-    - network-bind
-    restart-condition: always
+#    before: [sidekiq]
+    
+#  sidekiq:
+#    user: diaspora
+#    command: bin/service.sidekiq.sh start
+#    daemon: simple
+#    plugs:
+#    - network
+#    - network-bind
+#    restart-condition: always
+#    before: [unicorn]
+
+#  unicorn:
+#    user: diaspora
+#    pre-start-command: bin/service.unicorn.sh pre-start
+#    command: bin/service.unicorn.sh start
+#    post-start-command: bin/service.unicorn.sh post-start
+#    daemon: simple
+#    start-timeout: 600s
+#    plugs:
+#    - network
+#    - network-bind
+#    restart-condition: always
 #    before: [nginx]
 
 #  nginx:
