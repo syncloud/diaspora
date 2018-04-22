@@ -5,18 +5,18 @@ After=diaspora.redis.service network.target
 
 [Service]
 User=diaspora
-Group=diaspora
-SyslogIdentifier=diaspora-unicorn
-PIDFile={{ app_data_dir }}/diaspora.pid
+;Group=diaspora
+;SyslogIdentifier=diaspora-unicorn
+;PIDFile={{ app_data_dir }}/diaspora.pid
 Restart=always
 TimeoutStartSec=600
 
-CPUAccounting=true
-MemoryAccounting=true
-BlockIOAccounting=true
-CapabilityBoundingSet=
-PrivateTmp=true
-NoNewPrivileges=true
+;CPUAccounting=true
+;MemoryAccounting=true
+;BlockIOAccounting=true
+;CapabilityBoundingSet=
+;PrivateTmp=true
+;NoNewPrivileges=true
 Type=forking
 TimeoutStartSec=600
 Environment=SNAP_COMMON={{ app_data_dir }}
