@@ -17,8 +17,8 @@ TimeoutStartSec=600
 ;CapabilityBoundingSet=
 ;PrivateTmp=true
 ;NoNewPrivileges=true
-Type=forking
-TimeoutStartSec=600
+Type=simple
+;TimeoutStartSec=600
 Environment=SNAP_COMMON={{ app_data_dir }}
 ExecStartPre={{ app_dir }}/bin/service.unicorn.sh pre-start
 ExecStart={{ app_dir }}/bin/service.unicorn.sh start

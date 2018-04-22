@@ -33,7 +33,7 @@ apps:
     pre-start-command: bin/service.unicorn.sh pre-start
     command: bin/service.unicorn.sh start
     post-start-command: bin/service.unicorn.sh post-start
-    daemon: forking
+    daemon: simple
     start-timeout: 600s
     plugs:
     - network

@@ -16,7 +16,7 @@ pre-start)
     ;;
 start)
     cd $DIR/diaspora
-    exec ${DIR}/ruby/bin/bundle exec "unicorn -c config/unicorn.rb -E $RAILS_ENV -d -D"
+    exec ${DIR}/ruby/bin/bundle exec "unicorn -c config/unicorn.rb -E $RAILS_ENV -d"
     ;;
 post-start)
     timeout 600 /bin/bash -c 'until echo > /dev/tcp/localhost/'$UNICORN_PORT'; do sleep 2; done'
