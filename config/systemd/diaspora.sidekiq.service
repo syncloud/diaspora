@@ -6,6 +6,7 @@ After=diaspora.redis.service network.target
 [Service]
 User=diaspora
 Group=diaspora
+Type=simple
 Environment=SNAP_COMMON={{ app_data_dir }}
 SyslogIdentifier=diaspora-sidekiq
 Restart=always

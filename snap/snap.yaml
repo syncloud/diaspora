@@ -30,19 +30,19 @@ apps:
     - network-bind
     restart-condition: always
     start-timeout: 600s
-#    before: [unicorn]
+    before: [unicorn]
 
-#  unicorn:
-#    user: diaspora
-#    pre-start-command: bin/service.unicorn.sh pre-start
-#    command: bin/service.unicorn.sh start
-#    post-start-command: bin/service.unicorn.sh post-start
-#    daemon: simple
-#    start-timeout: 600s
-#    plugs:
-#    - network
-#    - network-bind
-#    restart-condition: always
+  unicorn:
+    user: diaspora
+    pre-start-command: bin/service.unicorn.sh pre-start
+    command: bin/service.unicorn.sh start
+    post-start-command: bin/service.unicorn.sh post-start
+    daemon: simple
+    start-timeout: 600s
+    plugs:
+    - network
+    - network-bind
+    restart-condition: always
 #    before: [nginx]
 
 #  nginx:
