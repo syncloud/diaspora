@@ -98,6 +98,7 @@ cp ${DIR}/config/diaspora/database-dummy.yml config/database.yml
 cp ${DIR}/config/diaspora/production.rb config/environments/
 cp ${DIR}/config/diaspora/unicorn.rb config/
 cp ${DIR}/config/diaspora/logging.rb config/
+cp ${DIR}/config/diaspora/id_token_config.rb lib/api/openid_connect/
 
 echo "" >> Gemfile
 echo "gem 'syslogger', '1.6.5'" >> Gemfile
