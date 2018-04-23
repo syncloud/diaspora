@@ -43,19 +43,19 @@ apps:
     - network
     - network-bind
     restart-condition: always
-#    before: [nginx]
+    before: [nginx]
 
-#  nginx:
-#    user: diaspora
-#    command: bin/service.nginx.sh start
-#    daemon: forking
-#    plugs:
-#    - network
-#    - network-bind
-#    restart-condition: always
-#    start-timeout: 600s
-#    stop-command: bin/service.nginx.sh stop
-#    reload-command: bin/service.nginx.sh reload
+  nginx:
+    user: diaspora
+    command: bin/service.nginx.sh start
+    daemon: forking
+    plugs:
+    - network
+    - network-bind
+    restart-condition: always
+    start-timeout: 600s
+    stop-command: bin/service.nginx.sh stop
+    reload-command: bin/service.nginx.sh reload
 
 confinement: strict
 description: Diaspora
