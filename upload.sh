@@ -29,4 +29,3 @@ if [ "${branch}" == "master" ] || [ "${branch}" == "stable" ] ; then
   ${SAMCMD} release $branch $branch --override ${app}=${build_number}
 
 fi
-
