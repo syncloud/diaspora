@@ -1,11 +1,13 @@
+diff --git config/load_config.rb config/load_config.rb
+index aa9c37f..e0fbeb6 100644
 --- config/load_config.rb
 +++ config/load_config.rb
 @@ -14,7 +14,7 @@ end
-
+ 
  require Rails.root.join "lib", "configuration_methods"
-
+ 
 -config_dir = Rails.root.join("config").to_s
 +config_dir = ENV["DIASPORA_CONFIG_DIR"] || Rails.root.join("config").to_s
-
+ 
  AppConfig ||= Configurate::Settings.create do
    add_provider Configurate::Provider::Dynamic
