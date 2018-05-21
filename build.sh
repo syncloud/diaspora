@@ -6,7 +6,7 @@ export TMPDIR=/tmp
 export TMP=/tmp
 
 NAME=diaspora
-DIASPORA_VERSION=0.7.3.1
+DIASPORA_VERSION=0.7.5.0
 DIASPORA_ARCHIVE=v${DIASPORA_VERSION}
 DOWNLOAD_URL=http://artifact.syncloud.org/3rdparty
 
