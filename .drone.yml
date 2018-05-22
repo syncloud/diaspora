@@ -15,8 +15,8 @@ pipeline:
     image: syncloud/build-deps-${arch}
     commands:
       - VERSION=$(cat version)
-      - ./build.sh $VERSION
-
+      - ./build.sh $VERSION ${installer}
+  
   integration:
     image: syncloud/build-deps-${arch}
     commands:
@@ -28,7 +28,7 @@ pipeline:
     secrets: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY]
     commands:
       - VERSION=$(cat version)
-      - ./upload.sh $DRONE_BRANCH $VERSION
+      - ./upload.sh $DRONE_BRANCH $VERSION ${installer}
 
   ci-artifact:
     image: syncloud/build-deps-${arch}
@@ -51,5 +51,5 @@ matrix:
     - arm
     - amd64
   installer:
+    - snapd
     - sam
-#    - snapd

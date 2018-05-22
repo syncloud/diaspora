@@ -5,10 +5,11 @@ After=network.target
 [Service]
 User=diaspora
 Group=diaspora
+Environment=SNAP_COMMON={{ app_data_dir }}
 Type=simple
-ExecStart={{ app_dir }}/redis/bin/redis-server {{ app_data_dir }}/config/redis/redis.conf
+ExecStart={{ app_dir }}/bin/service.redis.sh start
 ExecStop=/bin/kill -15 $MAINPID
-PIDFile={{ app_data_dir }}/redis/redis.pid
+;PIDFile={{ app_data_dir }}/redis/redis.pid
 Restart=always
 
 [Install]

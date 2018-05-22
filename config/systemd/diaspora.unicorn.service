@@ -1,0 +1,28 @@
+[Unit]
+Description=Diaspora Unicorn Server
+Requires=diaspora.redis.service
+After=diaspora.redis.service network.target
+
+[Service]
+User=diaspora
+;Group=diaspora
+;SyslogIdentifier=diaspora-unicorn
+;PIDFile={{ app_data_dir }}/diaspora.pid
+Restart=always
+TimeoutStartSec=600
+
+;CPUAccounting=true
+;MemoryAccounting=true
+;BlockIOAccounting=true
+;CapabilityBoundingSet=
+;PrivateTmp=true
+;NoNewPrivileges=true
+Type=simple
+;TimeoutStartSec=600
+Environment=SNAP_COMMON={{ app_data_dir }}
+ExecStartPre={{ app_dir }}/bin/service.unicorn.sh pre-start
+ExecStart={{ app_dir }}/bin/service.unicorn.sh start
+ExecStartPost={{ app_dir }}/bin/service.unicorn.sh post-start
+
+[Install]
+WantedBy=multi-user.target

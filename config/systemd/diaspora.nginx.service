@@ -1,0 +1,17 @@
+[Unit]
+Description=Diaspora Nginx
+Requires=diaspora.unicorn.service
+After=diaspora.unicorn.service
+
+[Service]
+User=diaspora
+Type=simple
+Environment=SNAP_COMMON={{ app_data_dir }}
+PIDFile={{ app_data_dir }}/nginx/nginx.pid
+ExecStartPre={{ app_dir }}/bin/service.nginx.sh pre-start
+ExecStart={{ app_dir }}/bin/service.nginx.sh start
+ExecStartPost={{ app_dir }}/bin/service.nginx.sh post-start
+ExecStop={{ app_dir }}/bin/service.nginx.sh stop
+
+[Install]
+WantedBy=multi-user.target

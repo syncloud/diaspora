@@ -1,0 +1,14 @@
+diff --git config/bundler_helper.rb config/bundler_helper.rb
+index 6ca9d6b..d72f67e 100644
+--- config/bundler_helper.rb
++++ config/bundler_helper.rb
+@@ -18,7 +18,8 @@ module BundlerHelper
+   end
+ 
+   private_class_method def self.parse_value_from_file(file, *keys)
+-    path = File.join(__dir__, file)
++    dir = ENV["DIASPORA_CONFIG_DIR"] || __dir__
++    path = File.join(dir, file)
+     return YAML.load_file(path).dig(*keys) if File.file?(path)
+ 
+     puts "Configuration file #{path} not found, ensure it's present" # rubocop:disable Rails/Output

@@ -1,22 +1,64 @@
 apps:
-  nginx:
-    command: bin/service.nginx.sh start
+  postgresql:
+    user: diaspora
+    command: bin/service.postgresql.sh start
+    stop-command: bin/service.postgresql.sh stop
     daemon: forking
+    start-timeout: 600s
     plugs:
     - network
     - network-bind
     restart-condition: always
+    before: [redis]
+  redis:
+    user: diaspora
+    command: bin/service.redis.sh start
+    daemon: simple
+    plugs:
+    - network
+    - network-bind
+    restart-condition: always
+    start-timeout: 600s
+    before: [sidekiq]
+    
+  sidekiq:
+    user: diaspora
+    command: bin/service.sidekiq.sh start
+    daemon: simple
+    plugs:
+    - network
+    - network-bind
+    restart-condition: always
+    start-timeout: 600s
+    before: [unicorn]
+
+  unicorn:
+    user: diaspora
+    pre-start-command: bin/service.unicorn.sh pre-start
+    command: bin/service.unicorn.sh start
+    post-start-command: bin/service.unicorn.sh post-start
+    daemon: simple
+    start-timeout: 600s
+    plugs:
+    - network
+    - network-bind
+    restart-condition: always
+    before: [nginx]
+
+  nginx:
+    user: diaspora
+    command: bin/service.nginx.sh start
+    daemon: simple
+    plugs:
+    - network
+    - network-bind
+    restart-condition: always
+    start-timeout: 600s
     stop-command: bin/service.nginx.sh stop
     reload-command: bin/service.nginx.sh reload
-  uwsgi:
-    command: bin/service.uwsgi.sh files
-    daemon: notify
-    plugs:
-    - network
-    - network-bind
-    restart-condition: always
+
 confinement: strict
-description: Nextcloud
+description: Diaspora
 grade: stable
-name: nextcloud
-summary: Nextcloud
+name: diaspora
+summary: Diaspora
