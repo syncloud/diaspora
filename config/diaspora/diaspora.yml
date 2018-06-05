@@ -131,7 +131,7 @@ configuration: ## Section
       #upload: false
 
       ## Specify an asset host. Ensure it does not have a trailing slash (/).
-      host: http://localhost
+      host:
 
     ## Pubsub server (default='https://pubsubhubbub.appspot.com/').
     ## Diaspora is only tested against the default pubsub server.
