@@ -41,6 +41,7 @@ def driver():
     #print driver.capabilities['version']
     return driver
 
+
 def test_login(driver, user_domain):
 
     driver.get("https://{0}".format(user_domain))
@@ -49,11 +50,25 @@ def test_login(driver, user_domain):
     driver.get_screenshot_as_file(join(screenshot_dir, 'login.png'))
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
+
 def test_signup(driver, user_domain):
 
     driver.get("https://{0}/users/sign_up".format(user_domain))
     time.sleep(10)
     
+    driver.get_screenshot_as_file(join(screenshot_dir, 'signup_empty.png'))
+    print(driver.page_source.encode("utf-8"))
+    user_email = driver.find_element_by_id("user_email")
+    user_email.send_keys('user@example.com')
+    user_username = driver.find_element_by_id("user_username")
+    user_username.send_keys('username')
+    user_password = driver.find_element_by_id("user_password")
+    user_password.send_keys('password')
+    user_password_confirmation = driver.find_element_by_id('user_password_confirmation')
+    user_password_confirmation.send_keys('password')
+    user_password_confirmation.send_keys(Keys.RETURN)
     driver.get_screenshot_as_file(join(screenshot_dir, 'signup.png'))
-    print(driver.page_source)
+    time.sleep(10)
+    driver.get_screenshot_as_file(join(screenshot_dir, 'signup_done.png'))
+
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
