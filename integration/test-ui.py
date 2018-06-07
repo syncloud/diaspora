@@ -47,7 +47,7 @@ def test_login(driver, user_domain):
     driver.get("https://{0}".format(user_domain))
     time.sleep(10)
     
-    screenshots(screenshot_dir, 'login')
+    screenshots(driver, screenshot_dir, 'login')
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
 
@@ -56,7 +56,7 @@ def test_signup(driver, user_domain):
     driver.get("https://{0}/users/sign_up".format(user_domain))
     time.sleep(10)
     
-    screenshots(screenshot_dir, 'signup_empty')
+    screenshots(driver, screenshot_dir, 'signup_empty')
     print(driver.page_source.encode("utf-8"))
     user_email = driver.find_element_by_id("user_email")
     user_email.send_keys('user@example.com')
@@ -68,7 +68,7 @@ def test_signup(driver, user_domain):
     user_password_confirmation.send_keys('password')
     user_password_confirmation.send_keys(Keys.RETURN)
     user_password_confirmation.submit()
-    screenshots(screenshot_dir, 'signup')
+    screenshots(driver, screenshot_dir, 'signup')
     time.sleep(10)
     screenshots(driver, screenshot_dir, 'signup_done')
 
