@@ -80,10 +80,16 @@ def test_stream(driver, user_domain):
     driver.get("https://{0}/stream".format(user_domain))
     time.sleep(10)
     
-    screenshots(driver, screenshot_dir, 'strram')
+    screenshots(driver, screenshot_dir, 'stream')
     print(driver.page_source.encode("utf-8"))
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
-
+   
+    status_message_text = driver.find_element_by_id("status_message_text")
+    status_message_text.send_keys('test message')
+    status_message_text.submit()
+    time.sleep(10)
+    screenshots(driver, screenshot_dir, 'post')
+    
 
 def screenshots(driver, dir, name):
     desktop_w = 1280
