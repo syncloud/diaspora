@@ -47,7 +47,7 @@ def test_login(driver, user_domain):
     driver.get("https://{0}".format(user_domain))
     time.sleep(10)
     
-    driver.get_screenshot_as_file(join(screenshot_dir, 'login.png'))
+    screenshots(screenshot_dir, 'login'))
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
 
@@ -56,7 +56,7 @@ def test_signup(driver, user_domain):
     driver.get("https://{0}/users/sign_up".format(user_domain))
     time.sleep(10)
     
-    driver.get_screenshot_as_file(join(screenshot_dir, 'signup_empty.png'))
+    screenshots(screenshot_dir, 'signup_empty')
     print(driver.page_source.encode("utf-8"))
     user_email = driver.find_element_by_id("user_email")
     user_email.send_keys('user@example.com')
@@ -67,8 +67,27 @@ def test_signup(driver, user_domain):
     user_password_confirmation = driver.find_element_by_id('user_password_confirmation')
     user_password_confirmation.send_keys('password')
     user_password_confirmation.send_keys(Keys.RETURN)
-    driver.get_screenshot_as_file(join(screenshot_dir, 'signup.png'))
+    user_password_confirmation.submit()
+    screenshots(screenshot_dir, 'signup')
     time.sleep(10)
-    driver.get_screenshot_as_file(join(screenshot_dir, 'signup_done.png'))
+    screenshots(driver, screenshot_dir, 'signup_done')
 
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
+
+def screenshots(driver, dir, name):
+    desktop_w = 1280
+    desktop_h = 2000
+    driver.set_window_position(0, 0)
+    driver.set_window_size(desktop_w, desktop_h)
+
+    driver.get_screenshot_as_file(join(dir, '{}.png'.format(name)))
+
+    mobile_w = 400
+    mobile_h = 2000
+    driver.set_window_position(0, 0)
+    driver.set_window_size(mobile_w, mobile_h)
+    driver.get_screenshot_as_file(join(dir, '{}-mobile.png'.format(name)))
+    
+    driver.set_window_position(0, 0)
+    driver.set_window_size(desktop_w, desktop_h)
+
