@@ -47,7 +47,7 @@ def test_login(driver, user_domain):
     driver.get("https://{0}".format(user_domain))
     time.sleep(10)
     
-    screenshots(screenshot_dir, 'login'))
+    screenshots(screenshot_dir, 'login')
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
 
