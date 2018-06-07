@@ -69,7 +69,7 @@ def test_signup(driver, user_domain):
     user_password_confirmation.send_keys(Keys.RETURN)
     user_password_confirmation.submit()
     screenshots(driver, screenshot_dir, 'signup')
-    time.sleep(10)
+    time.sleep(100)
     screenshots(driver, screenshot_dir, 'signup_done')
 
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
