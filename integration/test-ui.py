@@ -74,6 +74,17 @@ def test_signup(driver, user_domain):
 
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
+
+def test_stream(driver, user_domain):
+
+    driver.get("https://{0}/stream".format(user_domain))
+    time.sleep(10)
+    
+    screenshots(driver, screenshot_dir, 'strram')
+    print(driver.page_source.encode("utf-8"))
+    print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
+
+
 def screenshots(driver, dir, name):
     desktop_w = 1280
     desktop_h = 2000
