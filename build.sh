@@ -152,9 +152,10 @@ ldd ${BUILD_DIR}/ruby/lib/libpq.so
 
 ${BUILD_DIR}/diaspora/bin/rake assets:precompile
 
-grep "http://localhost" -Rl public/assets/*.css || true
-#grep -rl "http://localhost" public/assets/* | xargs sed -i 's#http://localhost/assets#assets#g'
-#grep "http://localhost" -Rl public/assets/*
+ls -la public/assets
+grep -rl "http://localhost" public/assets || true
+grep -rl "http://localhost" public/assets | xargs sed -i 's#http://localhost/assets#assets#g' || true
+grep -rl "http://localhost" public/assets || true
 
 rm config/diaspora.yml
 rm config/database.yml

@@ -111,13 +111,13 @@ def screenshots(driver, dir, name):
     mobile_w = 400
     mobile_h = 2000
     mobile_user_agent = "Mozilla/5.0 (iPhone; U; CPU iPhone OS 3_0 like Mac OS X; en-us) AppleWebKit/528.18 (KHTML, like Gecko) Version/4.0 Mobile/7A341 Safari/528.16"
-    driver.firefox_profile().set_preference("general.useragent.override", mobile_user_agent)
+    driver.firefox_profile.set_preference("general.useragent.override", mobile_user_agent)
     driver.set_window_position(0, 0)
     driver.set_window_size(mobile_w, mobile_h)
     driver.get_screenshot_as_file(join(dir, '{}-mobile.png'.format(name)))
    
     desktop_user_agent = "Mozilla/5.0 (X11; Linux x86_64; rv:10.0) Gecko/20100101 Firefox/10.0"
-    driver.firefox_profile().set_preference("general.useragent.override", desktop_user_agent)
+    driver.firefox_profile.set_preference("general.useragent.override", desktop_user_agent)
     driver.set_window_position(0, 0)
     driver.set_window_size(desktop_w, desktop_h)
 
