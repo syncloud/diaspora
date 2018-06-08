@@ -18,8 +18,16 @@ DEVICE_PASSWORD = 'password'
 log_dir = join(LOG_DIR, 'app_log')
 screenshot_dir = join(DIR, 'screenshot')
 
+pytest.fixture(scope="module")
+def profile():
+    profile = webdriver.FirefoxProfile()
+    profile.add_extension('{0}/JSErrorCollector.xpi'.format(DIR))
+    profile.set_preference('app.update.auto', False)
+    profile.set_preference('app.update.enabled', False)
+    return profile
+
 @pytest.fixture(scope="module")
-def driver():
+def driver(profile):
 
     if exists(screenshot_dir):
         shutil.rmtree(screenshot_dir)
@@ -32,31 +40,27 @@ def driver():
 
     binary = FirefoxBinary(firefox_path)
 
-    profile = webdriver.FirefoxProfile()
-    profile.add_extension('{0}/JSErrorCollector.xpi'.format(DIR))
-    profile.set_preference('app.update.auto', False)
-    profile.set_preference('app.update.enabled', False)
     driver = webdriver.Firefox(profile, capabilities=caps, log_path="{0}/firefox.log".format(LOG_DIR), firefox_binary=binary, executable_path=join(DIR, 'geckodriver/geckodriver'))
     #driver.set_page_load_timeout(30)
     #print driver.capabilities['version']
     return driver
 
 
-def test_login(driver, user_domain):
+def test_login(driver, user_domain, profile):
 
     driver.get("https://{0}".format(user_domain))
     time.sleep(10)
     
-    screenshots(driver, screenshot_dir, 'login')
+    screenshots(driver, profile, screenshot_dir, 'login')
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
 
-def test_signup(driver, user_domain):
+def test_signup(driver, user_domain, profile):
 
     driver.get("https://{0}/users/sign_up".format(user_domain))
     time.sleep(10)
     
-    screenshots(driver, screenshot_dir, 'signup_empty')
+    screenshots(driver, profile, screenshot_dir, 'signup_empty')
     print(driver.page_source.encode("utf-8"))
     user_email = driver.find_element_by_id("user_email")
     user_email.send_keys('user@example.com')
@@ -68,30 +72,36 @@ def test_signup(driver, user_domain):
     user_password_confirmation.send_keys('password')
     user_password_confirmation.send_keys(Keys.RETURN)
     user_password_confirmation.submit()
-    screenshots(driver, screenshot_dir, 'signup')
+    screenshots(driver, profile, screenshot_dir, 'signup')
     time.sleep(100)
-    screenshots(driver, screenshot_dir, 'signup_done')
+    screenshots(driver, profile, screenshot_dir, 'signup_done')
 
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
 
-def test_stream(driver, user_domain):
+def test_stream(driver, profile, user_domain):
 
     driver.get("https://{0}/stream".format(user_domain))
     time.sleep(10)
     
-    screenshots(driver, screenshot_dir, 'stream')
+    screenshots(driver, profile, screenshot_dir, 'stream')
     print(driver.page_source.encode("utf-8"))
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
+
+def test_post(driver, profile, user_domain):
    
+    driver.get("https://{0}/stream".format(user_domain))
+    time.sleep(10)
     status_message_text = driver.find_element_by_id("status_message_text")
     status_message_text.send_keys('test message')
     status_message_text.submit()
     time.sleep(10)
-    screenshots(driver, screenshot_dir, 'post')
-    
+    screenshots(driver, profile, screenshot_dir, 'post')
+    print(driver.page_source.encode("utf-8"))
+    print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
-def screenshots(driver, dir, name):
+
+def screenshots(driver, profile, dir, name):
     desktop_w = 1280
     desktop_h = 2000
     driver.set_window_position(0, 0)
@@ -101,10 +111,14 @@ def screenshots(driver, dir, name):
 
     mobile_w = 400
     mobile_h = 2000
+    monile_user_agent = "Mozilla/5.0 (iPhone; U; CPU iPhone OS 3_0 like Mac OS X; en-us) AppleWebKit/528.18 (KHTML, like Gecko) Version/4.0 Mobile/7A341 Safari/528.16" 
+    profile.set_preference("general.useragent.override", mobile_user_agent) 
     driver.set_window_position(0, 0)
     driver.set_window_size(mobile_w, mobile_h)
     driver.get_screenshot_as_file(join(dir, '{}-mobile.png'.format(name)))
-    
+   
+    desktop_user_agent = "Mozilla/5.0 (X11; Linux x86_64; rv:10.0) Gecko/20100101 Firefox/10.0"
+    profile.set_preference("general.useragent.override", desktop_user_agent) 
     driver.set_window_position(0, 0)
     driver.set_window_size(desktop_w, desktop_h)
 
