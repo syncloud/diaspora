@@ -18,7 +18,7 @@ DEVICE_PASSWORD = 'password'
 log_dir = join(LOG_DIR, 'app_log')
 screenshot_dir = join(DIR, 'screenshot')
 
-pytest.fixture(scope="module")
+@pytest.fixture(scope="module")
 def profile():
     profile = webdriver.FirefoxProfile()
     profile.add_extension('{0}/JSErrorCollector.xpi'.format(DIR))
