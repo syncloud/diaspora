@@ -23,6 +23,8 @@ def profile():
     profile.add_extension('{0}/JSErrorCollector.xpi'.format(DIR))
     profile.set_preference('app.update.auto', False)
     profile.set_preference('app.update.enabled', False)
+    mobile_user_agent = "Mozilla/5.0 (iPhone; U; CPU iPhone OS 3_0 like Mac OS X; en-us) AppleWebKit/528.18 (KHTML, like Gecko) Version/4.0 Mobile/7A341 Safari/528.16"
+    profile.set_preference("general.useragent.override", mobile_user_agent)
     return profile
 
 
@@ -82,7 +84,11 @@ def test_stream(driver, user_domain):
     driver.get("https://{0}/stream".format(user_domain))
     time.sleep(10)
     
+    screenshots(driver, screenshot_dir, 'stream-with-helpers')
+    
+    driver.find_element_by_css_selector('.popover-title .close').click()
     screenshots(driver, screenshot_dir, 'stream')
+
     print(driver.page_source.encode("utf-8"))
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
