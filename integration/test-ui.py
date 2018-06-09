@@ -106,7 +106,7 @@ def test_stream(driver, user_domain):
     
     driver.find_element_by_css_selector('.popover-title .close').click()
     driver.find_element_by_css_selector('.popover-title .close').click()
-    driver.find_element_by_css_selector('.popover-title .close').click()
+    #driver.find_element_by_css_selector('.popover-title .close').click()
     
     screenshots(driver, screenshot_dir, 'stream')
 
