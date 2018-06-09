@@ -57,7 +57,7 @@ def mobile_driver():
     profile = new_profile("Mozilla/5.0 (iPhone; U; CPU iPhone OS 3_0 like Mac OS X; en-us) AppleWebKit/528.18 (KHTML, like Gecko) Version/4.0 Mobile/7A341 Safari/528.16")
     driver = new_driver(profile)
     driver.set_window_position(0, 0)
-    driver.set_window_size(400, 2000)
+    driver.set_window_size(400, 700)
     return driver
     
 
@@ -100,12 +100,15 @@ def test_signup(driver, mobile_driver, user_domain):
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
 
-def test_stream(driver, user_domain):
+def test_stream(driver, mobile_driver, user_domain):
 
-    driver.get("https://{0}/stream".format(user_domain))
+    url = "https://{0}/stream".format(user_domain)
+    driver.get(url)
+    mobile_driver.get(url)
     time.sleep(10)
     
-    screenshots(driver, screenshot_dir, 'stream-with-helpers')
+    screenshots(driver, screenshot_dir, 'stream-first-time')
+    screenshots(mobile_driver, screenshot_dir, 'stream-first-time-mobile')
     
     driver.find_element_by_css_selector('.popover-title .close').click()
     time.sleep(10)
@@ -114,20 +117,50 @@ def test_stream(driver, user_domain):
     driver.find_element_by_css_selector('.popover-title .close').click()
     
     screenshots(driver, screenshot_dir, 'stream')
+    screenshots(mobile_driver, screenshot_dir, 'stream-mobile')
 
     print(driver.page_source.encode("utf-8"))
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
 
-def test_post(driver, user_domain):
+def test_post(driver, mobile_driver, user_domain):
    
-    driver.get("https://{0}/stream".format(user_domain))
+    url = "https://{0}/stream".format(user_domain)
+    driver.get(url)
+    mobile_driver.get(url)
+    
     time.sleep(10)
     status_message_text = driver.find_element_by_id("status_message_text")
     status_message_text.send_keys('test message')
     status_message_text.submit()
     time.sleep(10)
+    
     screenshots(driver, screenshot_dir, 'post')
+    screenshots(mobile_driver, screenshot_dir, 'post-mobile')
+    
+    print(driver.page_source.encode("utf-8"))
+    print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
+
+
+def test_profile_picture(driver, mobile_driver, user_domain):
+   
+    url = "https://{0}/u/username".format(user_domain)
+    driver.get(url)
+    mobile_driver.get(url)    
+    time.sleep(10)
+        
+    screenshots(driver, screenshot_dir, 'profile')
+    screenshots(mobile_driver, screenshot_dir, 'profile-mobile')
+    
+    # upload new photo
+    time.sleep(10)
+
+    screenshots(driver, screenshot_dir, 'profile-new-picture')
+    
+    mobile_driver.get(url)    
+    time.sleep(10)
+    screenshots(mobile_driver, screenshot_dir, 'profile-new-picture-mobile')
+    
     print(driver.page_source.encode("utf-8"))
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
