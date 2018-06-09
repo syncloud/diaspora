@@ -87,6 +87,9 @@ def test_stream(driver, user_domain):
     screenshots(driver, screenshot_dir, 'stream-with-helpers')
     
     driver.find_element_by_css_selector('.popover-title .close').click()
+    driver.find_element_by_css_selector('.popover-title .close').click()
+    driver.find_element_by_css_selector('.popover-title .close').click()
+    
     screenshots(driver, screenshot_dir, 'stream')
 
     print(driver.page_source.encode("utf-8"))
