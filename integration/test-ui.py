@@ -17,19 +17,16 @@ log_dir = join(LOG_DIR, 'app_log')
 screenshot_dir = join(DIR, 'screenshot')
 
 
-@pytest.fixture(scope="module")
-def profile():
+def new_profile(user_agent):
     profile = webdriver.FirefoxProfile()
     profile.add_extension('{0}/JSErrorCollector.xpi'.format(DIR))
     profile.set_preference('app.update.auto', False)
     profile.set_preference('app.update.enabled', False)
-    mobile_user_agent = "Mozilla/5.0 (iPhone; U; CPU iPhone OS 3_0 like Mac OS X; en-us) AppleWebKit/528.18 (KHTML, like Gecko) Version/4.0 Mobile/7A341 Safari/528.16"
-    #profile.set_preference("general.useragent.override", mobile_user_agent)
+    profile.set_preference("general.useragent.override", user_agent)
+
     return profile
 
-
-@pytest.fixture(scope="module")
-def driver(profile):
+def new_driver(profile):
 
     if exists(screenshot_dir):
         shutil.rmtree(screenshot_dir)
@@ -46,12 +43,33 @@ def driver(profile):
                              firefox_binary=binary, executable_path=join(DIR, 'geckodriver/geckodriver'))
 
 
-def test_login(driver, user_domain):
+@pytest.fixture(scope="module")
+def driver():
+    profile = new_profile("Mozilla/5.0 (iPhone; U; CPU iPhone OS 3_0 like Mac OS X; en-us) AppleWebKit/528.18 (KHTML, like Gecko) Version/4.0 Mobile/7A341 Safari/528.16")
+    driver = new_driver(profile)
+    driver.set_window_position(0, 0)
+    driver.set_window_size(1280, 2000)
+    return driver
+    
+    
+@pytest.fixture(scope="module")
+def mobile_driver():    
+    profile =  new_profile("Mozilla/5.0 (X11; Linux x86_64; rv:10.0) Gecko/20100101 Firefox/10.0")
+    driver = new_driver(profile)
+    driver.set_window_position(0, 0)
+    driver.set_window_size(400, 2000)
+    return driver
+    
 
-    driver.get("https://{0}".format(user_domain))
+def test_login(driver, mobile_driver, user_domain):
+    url = "https://{0}".format(user_domain)
+    driver.get(url)
+    mobile_driver.get(url)
     time.sleep(10)
     
     screenshots(driver, screenshot_dir, 'login')
+    screenshots(mobile_driver, screenshot_dir, 'login-mobile')
+    
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
 
@@ -110,23 +128,6 @@ def test_post(driver, user_domain):
 
 
 def screenshots(driver, dir, name):
-    desktop_w = 1280
-    desktop_h = 2000
-    driver.set_window_position(0, 0)
-    driver.set_window_size(desktop_w, desktop_h)
-
     driver.get_screenshot_as_file(join(dir, '{}.png'.format(name)))
 
-    mobile_w = 400
-    mobile_h = 2000
-    mobile_user_agent = "Mozilla/5.0 (iPhone; U; CPU iPhone OS 3_0 like Mac OS X; en-us) AppleWebKit/528.18 (KHTML, like Gecko) Version/4.0 Mobile/7A341 Safari/528.16"
-    driver.firefox_profile.set_preference("general.useragent.override", mobile_user_agent)
-    driver.set_window_position(0, 0)
-    driver.set_window_size(mobile_w, mobile_h)
-    driver.get_screenshot_as_file(join(dir, '{}-mobile.png'.format(name)))
-   
-    desktop_user_agent = "Mozilla/5.0 (X11; Linux x86_64; rv:10.0) Gecko/20100101 Firefox/10.0"
-    driver.firefox_profile.set_preference("general.useragent.override", desktop_user_agent)
-    driver.set_window_position(0, 0)
-    driver.set_window_size(desktop_w, desktop_h)
-
+ 
