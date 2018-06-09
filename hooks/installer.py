@@ -126,6 +126,7 @@ class DiasporaInstaller:
         fs.makepath(join(self.app_data_dir, 'redis'))
         fs.makepath(join(self.app_data_dir, 'log'))
         fs.makepath(join(self.app_data_dir, 'nginx'))
+        fs.makepath(join(self.app_data_dir, 'tmp'))
 
         fs.chownpath(self.app_data_dir, USER_NAME, recursive=True)
         if 'SNAP' not in environ:
