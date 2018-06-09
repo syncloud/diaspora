@@ -73,12 +73,15 @@ def test_login(driver, mobile_driver, user_domain):
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
 
-def test_signup(driver, user_domain):
+def test_signup(driver, mobile_driver, user_domain):
 
-    driver.get("https://{0}/users/sign_up".format(user_domain))
+    url = "https://{0}/users/sign_up".format(user_domain)
+    driver.get(url)
+    mobile_driver.get(url)
     time.sleep(10)
     
-    screenshots(driver, screenshot_dir, 'signup_empty')
+    screenshots(driver, screenshot_dir, 'signup')
+    screenshots(mobile_driver, screenshot_dir, 'signup-mobile')
     print(driver.page_source.encode("utf-8"))
     user_email = driver.find_element_by_id("user_email")
     user_email.send_keys('user@example.com')
@@ -90,9 +93,9 @@ def test_signup(driver, user_domain):
     user_password_confirmation.send_keys('password')
     user_password_confirmation.send_keys(Keys.RETURN)
     user_password_confirmation.submit()
-    screenshots(driver, screenshot_dir, 'signup')
+    screenshots(driver, screenshot_dir, 'signup-credentials')
     time.sleep(100)
-    screenshots(driver, screenshot_dir, 'signup_done')
+    screenshots(driver, screenshot_dir, 'signup-done')
 
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
@@ -105,8 +108,10 @@ def test_stream(driver, user_domain):
     screenshots(driver, screenshot_dir, 'stream-with-helpers')
     
     driver.find_element_by_css_selector('.popover-title .close').click()
+    time.sleep(10)
     driver.find_element_by_css_selector('.popover-title .close').click()
-    #driver.find_element_by_css_selector('.popover-title .close').click()
+    time.sleep(10)
+    driver.find_element_by_css_selector('.popover-title .close').click()
     
     screenshots(driver, screenshot_dir, 'stream')
 
