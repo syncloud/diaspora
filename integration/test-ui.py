@@ -82,6 +82,16 @@ def test_signup(driver, mobile_driver, user_domain):
     screenshots(driver, 'signup')
     screenshots(mobile_driver, 'signup-mobile')
      
+    signup(driver)
+    login(mobile_driver)
+    
+    screenshots(driver, 'signup-credentials')
+    time.sleep(100)
+    
+    screenshots(driver, 'signup-done')
+
+
+def signup(driver):
     user_email = driver.find_element_by_id("user_email")
     user_email.send_keys('user@example.com')
     user_username = driver.find_element_by_id("user_username")
@@ -93,11 +103,13 @@ def test_signup(driver, mobile_driver, user_domain):
     user_password_confirmation.send_keys(Keys.RETURN)
     user_password_confirmation.submit()
     
-    screenshots(driver, 'signup-credentials')
-    time.sleep(100)
-    
-    screenshots(driver, 'signup-done')
 
+def login(driver):
+    user_username = driver.find_element_by_id("user_username")
+    user_username.send_keys('username')
+    user_password = driver.find_element_by_id("user_password")
+    user_password.send_keys('password')
+    user_password.submit()
     
 
 def test_stream(driver, mobile_driver, user_domain):
