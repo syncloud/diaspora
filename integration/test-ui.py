@@ -61,17 +61,16 @@ def mobile_driver():
     return driver
     
 
-def test_login(driver, mobile_driver, user_domain):
+def test_index(driver, mobile_driver, user_domain):
     url = "https://{0}".format(user_domain)
     driver.get(url)
     mobile_driver.get(url)
     time.sleep(10)
     
-    screenshots(driver, 'login')
-    screenshots(mobile_driver, 'login-mobile')
+    screenshots(driver, 'index')
+    screenshots(mobile_driver, 'index-mobile')
     
     
-
 def test_signup(driver, mobile_driver, user_domain):
 
     url = "https://{0}/users/sign_up".format(user_domain)
@@ -89,7 +88,7 @@ def test_signup(driver, mobile_driver, user_domain):
     time.sleep(100)
     
     screenshots(driver, 'signup-done')
-
+    screenshots(mobile_driver, 'login-mobile-done')
 
 def signup(driver):
     user_email = driver.find_element_by_id("user_email")
