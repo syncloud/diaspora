@@ -125,13 +125,13 @@ configuration: ## Section
       ## Serve static assets via the appserver (default=false).
       ## This is highly discouraged for production use. Let your reverse
       ## proxy/webserver do it by serving the files under public/ directly.
-      #serve: false
+      #serve: true
 
       ## Upload your assets to S3 (default=false).
       #upload: false
 
       ## Specify an asset host. Ensure it does not have a trailing slash (/).
-      host:
+      host: /
 
     ## Pubsub server (default='https://pubsubhubbub.appspot.com/').
     ## Diaspora is only tested against the default pubsub server.
