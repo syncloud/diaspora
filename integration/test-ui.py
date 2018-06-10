@@ -57,7 +57,7 @@ def mobile_driver():
     profile = new_profile("Mozilla/5.0 (iPhone; U; CPU iPhone OS 3_0 like Mac OS X; en-us) AppleWebKit/528.18 (KHTML, like Gecko) Version/4.0 Mobile/7A341 Safari/528.16")
     driver = new_driver(profile)
     driver.set_window_position(0, 0)
-    driver.set_window_size(400, 700)
+    driver.set_window_size(400, 2000)
     return driver
     
 
@@ -159,14 +159,17 @@ def test_profile_picture(driver, mobile_driver, user_domain):
     screenshots(driver, 'profile')
     screenshots(mobile_driver, 'profile-mobile')
     
-    # upload new photo
+    file = mobile_driver.find_element_by_css_selector('input[type="file"]')
+    file.send_keys(join(DIR, 'images', 'profile.png'))
+    file.submit()
+
     time.sleep(10)
 
-    screenshots(driver, 'profile-new-picture')
+    screenshots(mobile_driver, 'profile-mobile-new-picture')
     
-    mobile_driver.get(url)    
+    mobile.get(url)    
     time.sleep(10)
-    screenshots(mobile_driver, 'profile-new-picture-mobile')
+    screenshots(mobile, 'profile-new-picture')
     
 
 def screenshots(driver, name):
