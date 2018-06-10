@@ -70,8 +70,7 @@ def test_login(driver, mobile_driver, user_domain):
     screenshots(driver, 'login')
     screenshots(mobile_driver, 'login-mobile')
     
-    print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
-
+    
 
 def test_signup(driver, mobile_driver, user_domain):
 
@@ -99,8 +98,7 @@ def test_signup(driver, mobile_driver, user_domain):
     
     screenshots(driver, 'signup-done')
 
-    print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
-
+    
 
 def test_stream(driver, mobile_driver, user_domain):
 
@@ -121,9 +119,7 @@ def test_stream(driver, mobile_driver, user_domain):
     screenshots(driver, 'stream')
     screenshots(mobile_driver, 'stream-mobile')
 
-    print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
-
-
+    
 def test_post(driver, mobile_driver, user_domain):
    
     url = "https://{0}/stream".format(user_domain)
@@ -139,8 +135,6 @@ def test_post(driver, mobile_driver, user_domain):
     screenshots(driver, 'post')
     screenshots(mobile_driver, 'post-mobile')
     
-    print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
-
 
 def test_profile_picture(driver, mobile_driver, user_domain):
    
@@ -161,13 +155,16 @@ def test_profile_picture(driver, mobile_driver, user_domain):
     time.sleep(10)
     screenshots(mobile_driver, 'profile-new-picture-mobile')
     
-    print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
-
 
 def screenshots(driver, name):
+ 
     driver.get_screenshot_as_file(join(screenshot_dir, '{0}.png'.format(name)))
+  
     with open(join(screenshot_dir, '{0}.html'.format(name)), "w") as f:
         f.write(driver.page_source.encode("utf-8"))
- 
+   
+    with open(join(screenshot_dir, '{0}.js.log'.format(name)), "w") as f:
+        f.write(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
+
 
  
