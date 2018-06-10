@@ -67,8 +67,8 @@ def test_login(driver, mobile_driver, user_domain):
     mobile_driver.get(url)
     time.sleep(10)
     
-    screenshots(driver, screenshot_dir, 'login')
-    screenshots(mobile_driver, screenshot_dir, 'login-mobile')
+    screenshots(driver, 'login')
+    screenshots(mobile_driver, 'login-mobile')
     
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
@@ -80,9 +80,9 @@ def test_signup(driver, mobile_driver, user_domain):
     mobile_driver.get(url)
     time.sleep(10)
     
-    screenshots(driver, screenshot_dir, 'signup')
-    screenshots(mobile_driver, screenshot_dir, 'signup-mobile')
-    print(driver.page_source.encode("utf-8"))
+    screenshots(driver, 'signup')
+    screenshots(mobile_driver, 'signup-mobile')
+     
     user_email = driver.find_element_by_id("user_email")
     user_email.send_keys('user@example.com')
     user_username = driver.find_element_by_id("user_username")
@@ -93,9 +93,11 @@ def test_signup(driver, mobile_driver, user_domain):
     user_password_confirmation.send_keys('password')
     user_password_confirmation.send_keys(Keys.RETURN)
     user_password_confirmation.submit()
-    screenshots(driver, screenshot_dir, 'signup-credentials')
+    
+    screenshots(driver, 'signup-credentials')
     time.sleep(100)
-    screenshots(driver, screenshot_dir, 'signup-done')
+    
+    screenshots(driver, 'signup-done')
 
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
@@ -107,8 +109,8 @@ def test_stream(driver, mobile_driver, user_domain):
     mobile_driver.get(url)
     time.sleep(10)
     
-    screenshots(driver, screenshot_dir, 'stream-first-time')
-    screenshots(mobile_driver, screenshot_dir, 'stream-first-time-mobile')
+    screenshots(driver, 'stream-first-time')
+    screenshots(mobile_driver, 'stream-first-time-mobile')
     
     driver.find_element_by_css_selector('.popover-title .close').click()
     time.sleep(10)
@@ -116,10 +118,9 @@ def test_stream(driver, mobile_driver, user_domain):
     time.sleep(10)
     driver.find_element_by_css_selector('.popover-title .close').click()
     
-    screenshots(driver, screenshot_dir, 'stream')
-    screenshots(mobile_driver, screenshot_dir, 'stream-mobile')
+    screenshots(driver, 'stream')
+    screenshots(mobile_driver, 'stream-mobile')
 
-    print(driver.page_source.encode("utf-8"))
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
 
@@ -135,37 +136,38 @@ def test_post(driver, mobile_driver, user_domain):
     status_message_text.submit()
     time.sleep(10)
     
-    screenshots(driver, screenshot_dir, 'post')
-    screenshots(mobile_driver, screenshot_dir, 'post-mobile')
+    screenshots(driver, 'post')
+    screenshots(mobile_driver, 'post-mobile')
     
-    print(driver.page_source.encode("utf-8"))
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
 
 def test_profile_picture(driver, mobile_driver, user_domain):
    
-    url = "https://{0}/u/username".format(user_domain)
+    url = "https://{0}/profile/edit".format(user_domain)
     driver.get(url)
     mobile_driver.get(url)    
     time.sleep(10)
         
-    screenshots(driver, screenshot_dir, 'profile')
-    screenshots(mobile_driver, screenshot_dir, 'profile-mobile')
+    screenshots(driver, 'profile')
+    screenshots(mobile_driver, 'profile-mobile')
     
     # upload new photo
     time.sleep(10)
 
-    screenshots(driver, screenshot_dir, 'profile-new-picture')
+    screenshots(driver, 'profile-new-picture')
     
     mobile_driver.get(url)    
     time.sleep(10)
-    screenshots(mobile_driver, screenshot_dir, 'profile-new-picture-mobile')
+    screenshots(mobile_driver, 'profile-new-picture-mobile')
     
-    print(driver.page_source.encode("utf-8"))
     print(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []'))
 
 
-def screenshots(driver, dir, name):
-    driver.get_screenshot_as_file(join(dir, '{}.png'.format(name)))
+def screenshots(driver, name):
+    driver.get_screenshot_as_file(join(screenshot_dir, '{0}.png'.format(name)))
+    with open(join(screenshot_dir, '{0}.html'.format(name)), "w") as f:
+        f.write(driver.page_source.encode("utf-8"))
+ 
 
  
