@@ -186,9 +186,9 @@ def test_profile_picture(driver, mobile_driver, user_domain):
 
     screenshots(mobile_driver, 'profile-mobile-new-picture')
     
-    mobile.get(url)    
+    driver.get(url)    
     time.sleep(10)
-    screenshots(mobile, 'profile-new-picture')
+    screenshots(driver, 'profile-new-picture')
     
 
 def screenshots(driver, name):
