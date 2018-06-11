@@ -161,9 +161,12 @@ def test_profile_picture(driver, mobile_driver, user_domain):
     
     file = mobile_driver.find_element_by_css_selector('input[type="file"]')
     mobile_driver.execute_script("arguments[0].removeAttribute('style')", file)
-
+    screenshots(mobile_driver, 'profile-mobile-file-style')
+    
     file.send_keys(join(DIR, 'images', 'profile.png'))
-    file.submit()
+    screenshots(mobile_driver, 'profile-mobile-before-new-picture')
+    
+    #file.submit()
 
     time.sleep(10)
 
