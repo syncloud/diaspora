@@ -152,10 +152,7 @@ def test_post(driver, user_domain):
     time.sleep(10)
     
     screenshots(driver, 'post')
-    
-    mobile_driver.get(url)
-    screenshots(mobile_driver, 'post-mobile')
-
+ 
 
 def test_mobile_post(mobile_driver, user_domain):
    
