@@ -113,31 +113,37 @@ def test_mobile_signin(mobile_driver, user_domain):
     screenshots(mobile_driver, 'signin-mobile-done')
 
 
-def test_stream(driver, mobile_driver, user_domain):
+def test_stream(driver, user_domain):
 
     url = "https://{0}/stream".format(user_domain)
     driver.get(url)
-    mobile_driver.get(url)
     time.sleep(10)
     
     screenshots(driver, 'stream-first-time')
-    screenshots(mobile_driver, 'stream-first-time-mobile')
     
     driver.find_element_by_css_selector('.popover-title .close').click()
     time.sleep(10)
     driver.find_element_by_css_selector('.popover-title .close').click()
     time.sleep(10)
     driver.find_element_by_css_selector('.popover-title .close').click()
+    time.sleep(10)
     
     screenshots(driver, 'stream')
-    screenshots(mobile_driver, 'stream-mobile')
-
     
-def test_post(driver, mobile_driver, user_domain):
+
+def test_mobile_stream(mobile_driver, user_domain):
+
+    url = "https://{0}/stream".format(user_domain)
+    mobile_driver.get(url)
+    time.sleep(10)
+    
+    screenshots(mobile_driver, 'stream-first-time-mobile')
+    
+
+def test_post(driver, user_domain):
    
     url = "https://{0}/stream".format(user_domain)
     driver.get(url)
-    mobile_driver.get(url)
     
     time.sleep(10)
     status_message_text = driver.find_element_by_id("status_message_text")
@@ -146,8 +152,19 @@ def test_post(driver, mobile_driver, user_domain):
     time.sleep(10)
     
     screenshots(driver, 'post')
-    screenshots(mobile_driver, 'post-mobile')
     
+    mobile_driver.get(url)
+    screenshots(mobile_driver, 'post-mobile')
+
+
+def test_mobile_post(mobile_driver, user_domain):
+   
+    url = "https://{0}/stream".format(user_domain)
+    mobile_driver.get(url)
+    
+    time.sleep(10)
+    screenshots(mobile_driver, 'post-mobile')
+
 
 def test_profile_picture(driver, mobile_driver, user_domain):
    
