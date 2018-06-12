@@ -153,10 +153,12 @@ ls -la ${BUILD_DIR}/ruby/lib
 
 ldd ${BUILD_DIR}/ruby/lib/libpq.so
 
+grep -r "localhost" . || true
+
 ${BUILD_DIR}/diaspora/bin/rake assets:precompile
 
 ls -la public/assets
-grep -r "http://localhost" public/assets || true
+grep -r "localhost" . || true
 grep -r "Rails.root" . || true
 #grep -rl "http://localhost" public/assets | xargs sed -i 's#http://localhost/assets#assets#g' || true
 #grep -rl "http://localhost" public/assets || true
