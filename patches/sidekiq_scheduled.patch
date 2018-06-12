@@ -1,0 +1,14 @@
+diff --git config/initializers/sidekiq_scheduled.rb config/initializers/sidekiq_scheduled.rb
+index ac9140e..6c5d7d7 100644
+--- config/initializers/sidekiq_scheduled.rb
++++ config/initializers/sidekiq_scheduled.rb
+@@ -71,7 +71,8 @@ def regenerate_config(path)
+ end
+
+ if Sidekiq.server?
+-  schedule_file_path = Rails.root.join("config", "schedule.yml")
++  cinfig_dir = ENV["DIASPORA_CONFIG_DIR"] || Rails.root.join("config")
++  schedule_file_path = File.join(config_dir, "schedule.yml")
+   regenerate_config(schedule_file_path) unless valid_config?(schedule_file_path)
+
+   Sidekiq::Cron::Job.load_from_hash YAML.load_file(schedule_file_path)
