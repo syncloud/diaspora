@@ -188,6 +188,6 @@ class DiasporaInstaller:
         diaspora_config = yaml.load(open(self.diaspora_config))
 
         diaspora_config['configuration']['environment']['url'] = self.app_url
-        #diaspora_config['configuration']['environment']['assets']['host'] = self.app_url
+        diaspora_config['configuration']['environment']['assets']['host'] = self.app_url
 
         yaml.dump(diaspora_config, open(self.diaspora_config, 'w'))
