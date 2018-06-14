@@ -106,9 +106,6 @@ cp ${DIR}/config/diaspora/id_token_config.rb lib/api/openid_connect/
 echo "" >> Gemfile
 echo "gem 'syslogger', '1.6.5'" >> Gemfile
 
-mkdir log
-touch log/production.log
-
 ${BUILD_DIR}/ruby/bin/gem install bundler
 
 export RAILS_ENV=production
@@ -157,11 +154,7 @@ grep -r "localhost" . || true
 
 ${BUILD_DIR}/diaspora/bin/rake assets:precompile
 
-ls -la public/assets
-grep -r "localhost" . || true
 grep -r "Rails.root" . || true
-#grep -rl "http://localhost" public/assets | xargs sed -i 's#http://localhost/assets#assets#g' || true
-#grep -rl "http://localhost" public/assets || true
 
 rm config/diaspora.yml
 rm config/database.yml
