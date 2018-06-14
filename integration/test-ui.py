@@ -5,6 +5,7 @@ from os.path import dirname, join, exists
 
 import pytest
 from selenium import webdriver
+from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
@@ -200,7 +201,11 @@ def screenshots(driver, name):
         f.write(driver.page_source.encode("utf-8"))
    
     with open(join(screenshot_dir, '{0}.js.log'.format(name)), "w") as f:
-        f.write(str(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')))
+        try:
+            f.write(str(driver.execute_script('return window.JSErrorCollector_errors ? window.JSErrorCollector_errors.pump() : []')))
+        except WebDriverException, e:
+            print("unable to get js errors: {0}".format(e))
+
 
 
  
