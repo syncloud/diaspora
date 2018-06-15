@@ -1,0 +1,17 @@
+diff --git app/uploaders/processed_image.rb app/uploaders/processed_image.rb
+index a9cae62..fb25c85 100644
+--- app/uploaders/processed_image.rb
++++ app/uploaders/processed_image.rb
+@@ -8,7 +8,11 @@ class ProcessedImage < CarrierWave::Uploader::Base
+   include CarrierWave::MiniMagick
+ 
+   def store_dir
+-    "uploads/images"
++    "/data/diaspora/uploads/images"
++  end
++
++  def cache_dir
++    'data/diaspora/cache'
+   end
+ 
+   def extension_whitelist
