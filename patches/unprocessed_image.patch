@@ -7,7 +7,7 @@ index b662f3b..1f11b50 100644
    include CarrierWave::MiniMagick
  
 +  def store_dir
-+    '/data/diaspora/uploads'
++    '/data/diaspora/uploads/images'
 +  end
 +
 +  def cache_dir
