@@ -48,7 +48,7 @@ def module_setup(request, device_host, data_dir, platform_data_dir, app_dir):
     request.addfinalizer(lambda: module_teardown(device_host, data_dir, platform_data_dir, app_dir))
 
 
-def module_teardown(device_host, data_dir, platform_data_dir, app_dir):
+def module_teardown(device_host, data_dir, platform_data_dir, app_dir, service_prefix):
     platform_log_dir = join(LOG_DIR, 'platform_log')
     os.mkdir(platform_log_dir)
     run_ssh(device_host, 'ls -la {0}'.format(data_dir), password=LOGS_SSH_PASSWORD, throw=False)
@@ -66,7 +66,9 @@ def module_teardown(device_host, data_dir, platform_data_dir, app_dir):
     run_ssh(device_host, 'ls -la {0}/diaspora/ > {1}/data.diaspora.ls.log'.format(data_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
     run_ssh(device_host, 'ls -la {0}/diaspora/log/ > {1}/data.diaspora.log.ls.log'.format(data_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
     run_ssh(device_host, 'ls -la {0}/database/ > {1}/data.database.ls.log'.format(data_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
-    
+    run_ssh(device_host, 'journalctl -u {0}diaspora.unicorn --no-pager -n1000 > {1}/systemd.unicorn.log".format(service_prefix, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
+    run_ssh(device_host, 'journalctl -u {0}diaspora.sidekiq --no-pager -n1000 > {1}/systemd.unicorn.log".format(service_prefix, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
+   
     app_log_dir = join(LOG_DIR, 'diaspora_log')
     os.mkdir(app_log_dir)
     run_scp('root@{0}:/var/log/messages* {1}'.format(device_host, app_log_dir), password=LOGS_SSH_PASSWORD, throw=False)
