@@ -150,11 +150,13 @@ ls -la ${BUILD_DIR}/ruby/lib
 
 ldd ${BUILD_DIR}/ruby/lib/libpq.so
 
-grep -r "localhost" . || true
-
 ${BUILD_DIR}/diaspora/bin/rake assets:precompile
 
-grep -r "Rails.root" . || true
+set +e
+grep -r "Rails.root" .
+grep -r "uploads" .
+grep -r "tmp" .
+set -e
 
 rm config/diaspora.yml
 rm config/database.yml
