@@ -151,16 +151,10 @@ ldd ${BUILD_DIR}/ruby/lib/libpq.so
 
 ${BUILD_DIR}/diaspora/bin/rake assets:precompile
 
-set +e
-grep -r "Rails.root" . | grep -v "_spec.rb" | grep -v ".rake" | grep -v "/spec/"
-grep -r "uploads" . | grep -v "_spec.rb" | grep -v ".rake" | grep -v "/spec/"
-grep -r "tmp" . | grep -v "_spec.rb" | grep -v ".rake" | grep -v "/spec/"
-set -e
-
+ls -la
 rm config/diaspora.yml
 rm config/database.yml
-
-ls -la
+rm -rf tmp
 
 if [ $INSTALLER == "sam" ]; then
 
@@ -172,7 +166,6 @@ else
 
     ln -s /data/diaspora/tmp tmp
     ln -s /data/diaspora/uploads public/uploads
-
     
     echo "snapping"
     SNAP_DIR=${DIR}/build/snap
