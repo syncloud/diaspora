@@ -98,16 +98,18 @@ cp ${DIR}/config/diaspora/database-dummy.yml config/database.yml
 cp ${DIR}/config/diaspora/production.rb config/environments/
 cp ${DIR}/config/diaspora/unicorn.rb config/
 cp ${DIR}/config/diaspora/logging.rb config/
-cat config/initializers/carrierwave.rb
-cp ${DIR}/config/diaspora/initializers/carrierwave.rb config/initializers/
-cat config/initializers/carrierwave.rb
+#cat config/initializers/carrierwave.rb
+#cp ${DIR}/config/diaspora/initializers/carrierwave.rb config/initializers/
+#cat config/initializers/carrierwave.rb
 cp ${DIR}/config/diaspora/id_token_config.rb lib/api/openid_connect/
+
+ln -s /data/diaspora/tmp tmp
+ln -s /data/diaspora/uploads public/uploads
 
 echo "" >> Gemfile
 echo "gem 'syslogger', '1.6.5'" >> Gemfile
 
 ${BUILD_DIR}/ruby/bin/gem install bundler
-
 export RAILS_ENV=production
 ${BUILD_DIR}/diaspora/bin/bundle install --deployment --without test development --with postgresql
 rm -rf ${DIASPORA_RUBY_CACHE}
