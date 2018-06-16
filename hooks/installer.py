@@ -198,6 +198,20 @@ class DiasporaInstaller:
     def prepare_storage(self):
         storage.init_storage(APP_NAME, USER_NAME)
         storage_dir = storage.get_storage_dir(APP_NAME)
+        
         tmp_dir = join(storage_dir, 'tmp')
         fs.makepath(tmp_dir)
         fs.chownpath(tmp_dir, USER_NAME)
+        
+        uploads_dir = join(storage_dir, 'uploads')
+        fs.makepath(uploads_dir)
+        fs.chownpath(uploads_dir, USER_NAME)
+        
+        if 'SNAP' not in environ:
+            diaspora_dir = join(self.app_dir, 'diaspora')
+       
+            symlink(tmp_dir, join(diaspora_dir, 'tmp')
+            symlink(uploads_dir, join(diaspora_dir, 'uploads')
+
+        
+        

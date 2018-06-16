@@ -103,9 +103,6 @@ cp ${DIR}/config/diaspora/logging.rb config/
 #cat config/initializers/carrierwave.rb
 cp ${DIR}/config/diaspora/id_token_config.rb lib/api/openid_connect/
 
-ln -s /data/diaspora/tmp tmp
-ln -s /data/diaspora/uploads public/uploads
-
 echo "" >> Gemfile
 echo "gem 'syslogger', '1.6.5'" >> Gemfile
 
@@ -163,6 +160,8 @@ set -e
 rm config/diaspora.yml
 rm config/database.yml
 
+ls -la
+
 if [ $INSTALLER == "sam" ]; then
 
     echo "zipping"
@@ -171,6 +170,10 @@ if [ $INSTALLER == "sam" ]; then
 
 else
 
+    ln -s /data/diaspora/tmp tmp
+    ln -s /data/diaspora/uploads public/uploads
+
+    
     echo "snapping"
     SNAP_DIR=${DIR}/build/snap
     ARCH=$(dpkg-architecture -q DEB_HOST_ARCH)
