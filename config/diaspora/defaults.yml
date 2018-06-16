@@ -202,3 +202,6 @@ defaults:
       scope: tags
       include_user_tags: false
       pod_tags:
+
+production:
+  server:
