@@ -18,7 +18,6 @@ defaults:
       backtrace: 15
       dead_jobs_limit: 5000
       dead_jobs_timeout: 3628800 # 6 weeks
-      log: 'log/sidekiq.log'
     s3:
       enable: false
       key:
@@ -203,56 +202,3 @@ defaults:
       scope: tags
       include_user_tags: false
       pod_tags:
-
-development:
-  environment:
-    assets:
-      serve: true
-    single_process_mode: true
-    require_ssl: false
-    logging:
-      debug:
-        sql: true
-  server:
-    unicorn_worker: 1
-  settings:
-    autofollow_on_join: false
-    autofollow_on_join_user: ''
-production:
-  server:
-    listen: 'unix:tmp/diaspora.sock'
-test:
-  environment:
-    url: 'http://localhost:9887/'
-    single_process_mode: true
-    require_ssl: false
-    assets:
-      serve: true
-  settings:
-    autofollow_on_join: false
-    autofollow_on_join_user: ''
-    invitations:
-      open: true
-  services:
-    facebook:
-      enable: true
-      app_id: 'fake'
-      secret: 'sdoigjosdfijg'
-      authorized: true
-  mail:
-    enable: true
-integration1:
-  environment:
-    url: 'http://localhost:45789/'
-    single_process_mode: true
-    assets:
-      serve: true
-    require_ssl: false
-integration2:
-  environment:
-    url: 'http://localhost:34658/'
-    redis: 'redis://localhost:6380'
-    single_process_mode: true
-    assets:
-      serve: true
-    require_ssl: false
