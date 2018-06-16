@@ -153,9 +153,9 @@ ldd ${BUILD_DIR}/ruby/lib/libpq.so
 ${BUILD_DIR}/diaspora/bin/rake assets:precompile
 
 set +e
-grep -r "Rails.root" .
-grep -r "uploads" .
-grep -r "tmp" .
+grep -r "Rails.root" . | grep -v "_spec.rb"
+grep -r "uploads" . | grep -v "_spec.rb"
+grep -r "tmp" . | grep -v "_spec.rb"
 set -e
 
 rm config/diaspora.yml
