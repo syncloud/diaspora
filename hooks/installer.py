@@ -210,8 +210,8 @@ class DiasporaInstaller:
         if 'SNAP' not in environ:
             diaspora_dir = join(self.app_dir, 'diaspora')
        
-            symlink(tmp_dir, join(diaspora_dir, 'tmp')
-            symlink(uploads_dir, join(diaspora_dir, 'uploads')
+            symlink(tmp_dir, join(diaspora_dir, 'tmp'))
+            symlink(uploads_dir, join(diaspora_dir, 'uploads'))
 
         
         
