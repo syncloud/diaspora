@@ -44,11 +44,11 @@ def service_prefix(installer):
 
 
 @pytest.fixture(scope="session")
-def module_setup(request, device_host, data_dir, platform_data_dir, app_dir):
-    request.addfinalizer(lambda: module_teardown(device_host, data_dir, platform_data_dir, app_dir))
+def module_setup(request, device_host, data_dir, platform_data_dir, app_dir, service_prefix):
+    request.addfinalizer(lambda: module_teardown(device_host, data_dir, platform_data_dir, app_dir, service_prefix))
 
 
-def module_teardown(device_host, data_dir, platform_data_dir, app_dir):
+def module_teardown(device_host, data_dir, platform_data_dir, app_dir, service_prefix):
     platform_log_dir = join(LOG_DIR, 'platform_log')
     os.mkdir(platform_log_dir)
     run_ssh(device_host, 'ls -la {0}'.format(data_dir), password=LOGS_SSH_PASSWORD, throw=False)
@@ -58,18 +58,24 @@ def module_teardown(device_host, data_dir, platform_data_dir, app_dir):
     run_ssh(device_host, 'mkdir {0}'.format(TMP_DIR), password=LOGS_SSH_PASSWORD)
 
     run_ssh(device_host, 'journalctl > {0}/journalctl.log'.format(TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
+    run_ssh(device_host, 'ls -la {0}/ > {1}/app.ls.log'.format(app_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
     run_ssh(device_host, 'ls -la {0}/diaspora/ > {1}/app.diaspora.ls.log'.format(app_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
     run_ssh(device_host, 'ls -la {0}/diaspora/log/ > {1}/app.diaspora.log.ls.log'.format(app_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
+    run_ssh(device_host, 'ls -la {0}/diaspora/public/ > {1}/app.diaspora.public.ls.log'.format(app_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
     run_ssh(device_host, 'ls -la {0}/ > {1}/data.ls.log'.format(data_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
     run_ssh(device_host, 'ls -la {0}/log/ > {1}/data.log.ls.log'.format(data_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
     run_ssh(device_host, 'ls -la {0}/diaspora/ > {1}/data.diaspora.ls.log'.format(data_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
     run_ssh(device_host, 'ls -la {0}/diaspora/log/ > {1}/data.diaspora.log.ls.log'.format(data_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
     run_ssh(device_host, 'ls -la {0}/database/ > {1}/data.database.ls.log'.format(data_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
-    
+    run_ssh(device_host, 'journalctl -u {0}diaspora.unicorn --no-pager -n1000 > {1}/systemd.unicorn.log'.format(service_prefix, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
+    run_ssh(device_host, 'journalctl -u {0}diaspora.sidekiq --no-pager -n1000 > {1}/systemd.sidekiq.log'.format(service_prefix, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
+   
     app_log_dir = join(LOG_DIR, 'diaspora_log')
     os.mkdir(app_log_dir)
     run_scp('root@{0}:/var/log/messages* {1}'.format(device_host, app_log_dir), password=LOGS_SSH_PASSWORD, throw=False)
     run_scp('root@{0}:/var/log/*syslog* {1}'.format(device_host, app_log_dir), password=LOGS_SSH_PASSWORD, throw=False) 
+    run_scp('-r root@{0}:{1}/config {2}'.format(device_host, data_dir, app_log_dir), throw=False, password=LOGS_SSH_PASSWORD)
+    
     run_scp('root@{0}:{1}/log/*.log {2}'.format(device_host, data_dir, app_log_dir), password=LOGS_SSH_PASSWORD, throw=False)
     run_scp('root@{0}:{1}/*.log {2}'.format(device_host, TMP_DIR, app_log_dir), password=LOGS_SSH_PASSWORD, throw=False)
     

@@ -126,12 +126,13 @@ class DiasporaInstaller:
         fs.makepath(join(self.app_data_dir, 'redis'))
         fs.makepath(join(self.app_data_dir, 'log'))
         fs.makepath(join(self.app_data_dir, 'nginx'))
+        fs.makepath(join(self.app_data_dir, 'tmp'))
 
         fs.chownpath(self.app_data_dir, USER_NAME, recursive=True)
         if 'SNAP' not in environ:
             self.log.info(fs.chownpath(self.app_dir, USER_NAME, recursive=True))
 
-        self.update_configuraiton()
+        self.update_configuration()
 
         self.log.info("setup systemd")
 
@@ -164,7 +165,7 @@ class DiasporaInstaller:
         app.add_service(SYSTEMD_NGINX_NAME)
 
     def configure(self):
-        storage.init_storage(APP_NAME, USER_NAME)
+        self.prepare_storage()
         UserConfig(self.app_data_dir).set_activated(True)
 
     def remove(self):
@@ -180,9 +181,9 @@ class DiasporaInstaller:
             shutil.rmtree(self.app_dir)
         
     def update_domain(self):
-        self.update_configuraiton()
+        self.update_configuration()
 
-    def update_configuraiton(self):
+    def update_configuration(self):
 
         diaspora_config = yaml.load(open(self.diaspora_config))
 
@@ -190,3 +191,27 @@ class DiasporaInstaller:
         diaspora_config['configuration']['environment']['assets']['host'] = self.app_url
 
         yaml.dump(diaspora_config, open(self.diaspora_config, 'w'))
+
+    def on_storage_change(self):
+        self.prepare_storage()
+
+    def prepare_storage(self):
+        storage.init_storage(APP_NAME, USER_NAME)
+        storage_dir = storage.get_storage_dir(APP_NAME)
+        
+        tmp_dir = join(storage_dir, 'tmp')
+        fs.makepath(tmp_dir)
+        fs.chownpath(tmp_dir, USER_NAME)
+        
+        uploads_dir = join(storage_dir, 'uploads')
+        fs.makepath(uploads_dir)
+        fs.chownpath(uploads_dir, USER_NAME)
+        
+        if 'SNAP' not in environ:
+            diaspora_dir = join(self.app_dir, 'diaspora')
+       
+            symlink(tmp_dir, join(diaspora_dir, 'tmp'))
+            symlink(uploads_dir, join(diaspora_dir, 'public', 'uploads'))
+
+        
+        

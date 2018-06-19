@@ -1,6 +1,6 @@
 configuration:
   environment:
-    url: "http://localhost"
+    url:
     certificate_authorities: '/etc/ssl/certs/ca-certificates.crt'
     redis: 'unix:///nonexistent/redis/redis.sock'
     require_ssl: false
@@ -8,7 +8,7 @@ configuration:
       log: "/nonexistent/log/sidekiq.log"
     s3: ## Section
     assets: ## Section
-      host: http://localhost
+      host:
     logging: ## Section
       logrotate: ## Section
       debug: ## Section

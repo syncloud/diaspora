@@ -103,11 +103,7 @@ cp ${DIR}/config/diaspora/id_token_config.rb lib/api/openid_connect/
 echo "" >> Gemfile
 echo "gem 'syslogger', '1.6.5'" >> Gemfile
 
-mkdir log
-touch log/production.log
-
 ${BUILD_DIR}/ruby/bin/gem install bundler
-
 export RAILS_ENV=production
 ${BUILD_DIR}/diaspora/bin/bundle install --deployment --without test development --with postgresql
 rm -rf ${DIASPORA_RUBY_CACHE}
@@ -143,14 +139,19 @@ cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libtasn1.so* ${BUILD_DIR}/
 cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libnettle.so* ${BUILD_DIR}/ruby/lib
 cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libhogweed.so* ${BUILD_DIR}/ruby/lib
 cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libffi.so* ${BUILD_DIR}/ruby/lib
+cp -r ${BUILD_DIR}/ImageMagick/lib/* ${BUILD_DIR}/ruby/lib
+
 
 ls -la ${BUILD_DIR}/ruby/lib
 
 ldd ${BUILD_DIR}/ruby/lib/libpq.so
 
 ${BUILD_DIR}/diaspora/bin/rake assets:precompile
+
+ls -la
 rm config/diaspora.yml
 rm config/database.yml
+rm -rf tmp
 
 if [ $INSTALLER == "sam" ]; then
 
@@ -160,6 +161,9 @@ if [ $INSTALLER == "sam" ]; then
 
 else
 
+    ln -s /data/diaspora/tmp tmp
+    ln -s /data/diaspora/uploads public/uploads
+    
     echo "snapping"
     SNAP_DIR=${DIR}/build/snap
     ARCH=$(dpkg-architecture -q DEB_HOST_ARCH)
