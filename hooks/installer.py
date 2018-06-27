@@ -117,7 +117,7 @@ class DiasporaInstaller:
         if not UserConfig(self.app_data_dir).is_activated():
             database_init(self.log, self.app_dir, self.app_data_dir, self.database_path, USER_NAME)
     
-    def regenerate_config(self)
+    def regenerate_config(self):
         variables = {
             'app_dir': self.app_dir,
             'app_data_dir': self.app_data_dir,
