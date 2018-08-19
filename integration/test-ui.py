@@ -49,7 +49,7 @@ def driver():
     profile = new_profile("Mozilla/5.0 (X11; Linux x86_64; rv:10.0) Gecko/20100101 Firefox/10.0")
     driver = new_driver(profile)
     driver.set_window_position(0, 0)
-    driver.set_window_size(1280, 2000)
+    driver.set_window_size(1024, 768)
     return driver
     
     

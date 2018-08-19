@@ -100,6 +100,24 @@ class DiasporaInstaller:
         home_folder = join('/home', USER_NAME)
         linux.useradd(USER_NAME, home_folder=home_folder)
         
+        self.regenerate_config()
+        
+        fs.makepath(join(self.app_data_dir, 'config'))
+        fs.makepath(join(self.app_data_dir, 'redis'))
+        fs.makepath(join(self.app_data_dir, 'log'))
+        fs.makepath(join(self.app_data_dir, 'nginx'))
+        fs.makepath(join(self.app_data_dir, 'tmp'))
+
+        fs.chownpath(self.app_data_dir, USER_NAME, recursive=True)
+        if 'SNAP' not in environ:
+            self.log.info(fs.chownpath(self.app_dir, USER_NAME, recursive=True))
+
+        self.log.info("setup systemd")
+
+        if not UserConfig(self.app_data_dir).is_activated():
+            database_init(self.log, self.app_dir, self.app_data_dir, self.database_path, USER_NAME)
+    
+    def regenerate_config(self):
         variables = {
             'app_dir': self.app_dir,
             'app_data_dir': self.app_data_dir,
@@ -115,29 +133,15 @@ class DiasporaInstaller:
             'platform_app_dir': self.platform_app_dir,
             'database_url': self.database_url,
             'diaspora_gemfile': self.diaspora_gemfile,
-            'database_socket': self.database_socket
+            'database_socket': self.database_socket,
+            'app_url': self.app_url,
+            'device_domain_name': self.device_domain_name
         }
 
         templates_path = join(self.app_dir, 'config.templates')
         config_path = join(self.app_data_dir, 'config')
         gen.generate_files(templates_path, config_path, variables)
 
-        fs.makepath(join(self.app_data_dir, 'config'))
-        fs.makepath(join(self.app_data_dir, 'redis'))
-        fs.makepath(join(self.app_data_dir, 'log'))
-        fs.makepath(join(self.app_data_dir, 'nginx'))
-        fs.makepath(join(self.app_data_dir, 'tmp'))
-
-        fs.chownpath(self.app_data_dir, USER_NAME, recursive=True)
-        if 'SNAP' not in environ:
-            self.log.info(fs.chownpath(self.app_dir, USER_NAME, recursive=True))
-
-        self.update_configuration()
-
-        self.log.info("setup systemd")
-
-        if not UserConfig(self.app_data_dir).is_activated():
-            database_init(self.log, self.app_dir, self.app_data_dir, self.database_path, USER_NAME)
 
     def db_migrate(self):
         if not UserConfig(self.app_data_dir).is_activated():
@@ -181,16 +185,7 @@ class DiasporaInstaller:
             shutil.rmtree(self.app_dir)
         
     def update_domain(self):
-        self.update_configuration()
-
-    def update_configuration(self):
-
-        diaspora_config = yaml.load(open(self.diaspora_config))
-
-        diaspora_config['configuration']['environment']['url'] = self.app_url
-        diaspora_config['configuration']['environment']['assets']['host'] = self.app_url
-
-        yaml.dump(diaspora_config, open(self.diaspora_config, 'w'))
+        self.regenerate_config()
 
     def on_storage_change(self):
         self.prepare_storage()
