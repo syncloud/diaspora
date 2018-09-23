@@ -29,7 +29,7 @@ mkdir ${DIR}/lib
 
 cd ${DIR}
 coin --to lib py https://pypi.python.org/packages/2.7/r/requests/requests-2.7.0-py2.py3-none-any.whl
-coin --to lib py https://files.pythonhosted.org/packages/03/b8/df2554dea3982720c1b6f40efd1fc575207b434d0971cf6813c014848f98/syncloud-lib-49.tar.gz
+coin --to lib py https://files.pythonhosted.org/packages/c9/7c/5238f3993654ccd8ff4e8f7b0bcef9ed1b6a541ac289d026a931293cfb0b/syncloud-lib-50.tar.gz
 coin --to lib py ${DOWNLOAD_URL}/PyYAML-x86_64.tar.gz
 
 rm -rf build
