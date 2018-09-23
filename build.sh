@@ -24,13 +24,7 @@ if [ -n "$DRONE" ]; then
     rm -rf ${DIR}/.coin.cache
 fi
 
-rm -rf ${DIR}/lib
-mkdir ${DIR}/lib
-
 cd ${DIR}
-coin --to lib py https://pypi.python.org/packages/2.7/r/requests/requests-2.7.0-py2.py3-none-any.whl
-coin --to lib py https://files.pythonhosted.org/packages/c9/7c/5238f3993654ccd8ff4e8f7b0bcef9ed1b6a541ac289d026a931293cfb0b/syncloud-lib-50.tar.gz
-coin --to lib py ${DOWNLOAD_URL}/PyYAML-x86_64.tar.gz
 
 rm -rf build
 BUILD_DIR=${DIR}/build/${NAME}
@@ -42,10 +36,12 @@ coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/postgresql-${ARCH}.tar.gz
 coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/redis-${ARCH}.tar.gz
 coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/nodejs-${ARCH}.tar.gz
 coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/ImageMagick-${ARCH}.tar.gz
+coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/python-${ARCH}.tar.gz
+
+${BUILD_DIR}/python/bin/pip install -r ${DIR}/requirements.txt
 
 cp -r ${DIR}/bin ${BUILD_DIR}
 cp -r ${DIR}/config ${BUILD_DIR}/config.templates
-cp -r ${DIR}/lib ${BUILD_DIR}
 cp -r ${DIR}/hooks ${BUILD_DIR}
 
 cd ${BUILD_DIR}
