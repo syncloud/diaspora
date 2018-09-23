@@ -29,7 +29,7 @@ mkdir ${DIR}/lib
 
 cd ${DIR}
 coin --to lib py https://pypi.python.org/packages/2.7/r/requests/requests-2.7.0-py2.py3-none-any.whl
-coin --to lib py https://pypi.python.org/packages/c9/0d/f49388f198779701bb1d3ad936521e994498e37a246ee0a8f0e2349f5ab0/syncloud-lib-45.tar.gz#md5=81503e40a5bef362dc698bdddc3d85c6
+coin --to lib py https://files.pythonhosted.org/packages/03/b8/df2554dea3982720c1b6f40efd1fc575207b434d0971cf6813c014848f98/syncloud-lib-49.tar.gz
 coin --to lib py ${DOWNLOAD_URL}/PyYAML-x86_64.tar.gz
 
 rm -rf build
@@ -141,7 +141,6 @@ cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libhogweed.so* ${BUILD_DIR
 cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libffi.so* ${BUILD_DIR}/ruby/lib
 cp -r ${BUILD_DIR}/ImageMagick/lib/* ${BUILD_DIR}/ruby/lib
 
-
 ls -la ${BUILD_DIR}/ruby/lib
 
 ldd ${BUILD_DIR}/ruby/lib/libpq.so
@@ -153,29 +152,19 @@ rm config/diaspora.yml
 rm config/database.yml
 rm -rf tmp
 
-if [ $INSTALLER == "sam" ]; then
-
-    echo "zipping"
-    rm -rf ${NAME}*.tar.gz
-    tar cpzf ${DIR}/${NAME}-${VERSION}-${ARCH}.tar.gz -C ${DIR}/build/ ${NAME}
-
-else
-
-    ln -s /data/diaspora/tmp tmp
-    ln -s /data/diaspora/uploads public/uploads
+ln -s /data/diaspora/tmp tmp
+ln -s /data/diaspora/uploads public/uploads
     
-    echo "snapping"
-    SNAP_DIR=${DIR}/build/snap
-    ARCH=$(dpkg-architecture -q DEB_HOST_ARCH)
-    rm -rf ${DIR}/*.snap
-    mkdir ${SNAP_DIR}
-    cp -r ${BUILD_DIR}/* ${SNAP_DIR}/
-    cp -r ${DIR}/snap/meta ${SNAP_DIR}/
-    cp ${DIR}/snap/snap.yaml ${SNAP_DIR}/meta/snap.yaml
-    echo "version: $VERSION" >> ${SNAP_DIR}/meta/snap.yaml
-    echo "architectures:" >> ${SNAP_DIR}/meta/snap.yaml
-    echo "- ${ARCH}" >> ${SNAP_DIR}/meta/snap.yaml
+echo "snapping"
+SNAP_DIR=${DIR}/build/snap
+ARCH=$(dpkg-architecture -q DEB_HOST_ARCH)
+rm -rf ${DIR}/*.snap
+mkdir ${SNAP_DIR}
+cp -r ${BUILD_DIR}/* ${SNAP_DIR}/
+cp -r ${DIR}/snap/meta ${SNAP_DIR}/
+cp ${DIR}/snap/snap.yaml ${SNAP_DIR}/meta/snap.yaml
+echo "version: $VERSION" >> ${SNAP_DIR}/meta/snap.yaml
+echo "architectures:" >> ${SNAP_DIR}/meta/snap.yaml
+echo "- ${ARCH}" >> ${SNAP_DIR}/meta/snap.yaml
 
-    mksquashfs ${SNAP_DIR} ${DIR}/${NAME}_${VERSION}_${ARCH}.snap -noappend -comp xz -no-xattrs -all-root
-
-fi
+mksquashfs ${SNAP_DIR} ${DIR}/${NAME}_${VERSION}_${ARCH}.snap -noappend -comp xz -no-xattrs -all-root

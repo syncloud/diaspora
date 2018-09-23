@@ -15,10 +15,8 @@ from subprocess import check_output, STDOUT, CalledProcessError
 
 from syncloud_app import logger
 
-from syncloud_platform.gaplib import fs, linux, gen
-
-from syncloud_platform.application import api
 from syncloudlib.application import paths, urls, storage, ports
+from syncloudlib import fs, linux, gen
 
 import postgres
 from config import Config
@@ -159,30 +157,9 @@ class DiasporaInstaller:
             self.log.info(e.output)
             raise e
         
-    def start(self):
-        app = api.get_app_setup(APP_NAME)
- 
-        app.add_service(SYSTEMD_POSTGRESQL)
-        app.add_service(SYSTEMD_REDIS)
-        app.add_service(SYSTEMD_SIDEKIQ)
-        app.add_service(SYSTEMD_UNICORN)
-        app.add_service(SYSTEMD_NGINX_NAME)
-
     def configure(self):
         self.prepare_storage()
         UserConfig(self.app_data_dir).set_activated(True)
-
-    def remove(self):
-        app = api.get_app_setup(APP_NAME)
- 
-        app.remove_service(SYSTEMD_NGINX_NAME)
-        app.remove_service(SYSTEMD_UNICORN)
-        app.remove_service(SYSTEMD_SIDEKIQ)
-        app.remove_service(SYSTEMD_REDIS)
-        app.remove_service(SYSTEMD_POSTGRESQL)
-
-        if isdir(self.app_dir):
-            shutil.rmtree(self.app_dir)
         
     def update_domain(self):
         self.regenerate_config()
