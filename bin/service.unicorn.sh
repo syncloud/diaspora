@@ -12,7 +12,7 @@ fi
 case $1 in
 pre-start)
     timeout 5 /bin/bash -c 'until [ -S '${DB_SOCKET}' ]; do echo "waiting for ${DB_SOCKET}"; sleep 1; done'
-    ${PLATFORM_PYTHON} ${DIR}/hooks/db-migrate.py
+    ${DIR}/hooks/db-migrate
     ;;
 start)
     cd $DIR/diaspora
