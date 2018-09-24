@@ -1,2 +1,4 @@
+#!/snap/diaspora/current/python/bin/python
+
 from installer import DiasporaInstaller
 DiasporaInstaller().db_migrate()

@@ -24,13 +24,7 @@ if [ -n "$DRONE" ]; then
     rm -rf ${DIR}/.coin.cache
 fi
 
-rm -rf ${DIR}/lib
-mkdir ${DIR}/lib
-
 cd ${DIR}
-coin --to lib py https://pypi.python.org/packages/2.7/r/requests/requests-2.7.0-py2.py3-none-any.whl
-coin --to lib py https://pypi.python.org/packages/c9/0d/f49388f198779701bb1d3ad936521e994498e37a246ee0a8f0e2349f5ab0/syncloud-lib-45.tar.gz#md5=81503e40a5bef362dc698bdddc3d85c6
-coin --to lib py ${DOWNLOAD_URL}/PyYAML-x86_64.tar.gz
 
 rm -rf build
 BUILD_DIR=${DIR}/build/${NAME}
@@ -42,10 +36,12 @@ coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/postgresql-${ARCH}.tar.gz
 coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/redis-${ARCH}.tar.gz
 coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/nodejs-${ARCH}.tar.gz
 coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/ImageMagick-${ARCH}.tar.gz
+coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/python-${ARCH}.tar.gz
+
+${BUILD_DIR}/python/bin/pip install -r ${DIR}/requirements.txt
 
 cp -r ${DIR}/bin ${BUILD_DIR}
 cp -r ${DIR}/config ${BUILD_DIR}/config.templates
-cp -r ${DIR}/lib ${BUILD_DIR}
 cp -r ${DIR}/hooks ${BUILD_DIR}
 
 cd ${BUILD_DIR}
@@ -141,7 +137,6 @@ cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libhogweed.so* ${BUILD_DIR
 cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libffi.so* ${BUILD_DIR}/ruby/lib
 cp -r ${BUILD_DIR}/ImageMagick/lib/* ${BUILD_DIR}/ruby/lib
 
-
 ls -la ${BUILD_DIR}/ruby/lib
 
 ldd ${BUILD_DIR}/ruby/lib/libpq.so
@@ -153,29 +148,19 @@ rm config/diaspora.yml
 rm config/database.yml
 rm -rf tmp
 
-if [ $INSTALLER == "sam" ]; then
-
-    echo "zipping"
-    rm -rf ${NAME}*.tar.gz
-    tar cpzf ${DIR}/${NAME}-${VERSION}-${ARCH}.tar.gz -C ${DIR}/build/ ${NAME}
-
-else
-
-    ln -s /data/diaspora/tmp tmp
-    ln -s /data/diaspora/uploads public/uploads
+ln -s /data/diaspora/tmp tmp
+ln -s /data/diaspora/uploads public/uploads
     
-    echo "snapping"
-    SNAP_DIR=${DIR}/build/snap
-    ARCH=$(dpkg-architecture -q DEB_HOST_ARCH)
-    rm -rf ${DIR}/*.snap
-    mkdir ${SNAP_DIR}
-    cp -r ${BUILD_DIR}/* ${SNAP_DIR}/
-    cp -r ${DIR}/snap/meta ${SNAP_DIR}/
-    cp ${DIR}/snap/snap.yaml ${SNAP_DIR}/meta/snap.yaml
-    echo "version: $VERSION" >> ${SNAP_DIR}/meta/snap.yaml
-    echo "architectures:" >> ${SNAP_DIR}/meta/snap.yaml
-    echo "- ${ARCH}" >> ${SNAP_DIR}/meta/snap.yaml
+echo "snapping"
+SNAP_DIR=${DIR}/build/snap
+ARCH=$(dpkg-architecture -q DEB_HOST_ARCH)
+rm -rf ${DIR}/*.snap
+mkdir ${SNAP_DIR}
+cp -r ${BUILD_DIR}/* ${SNAP_DIR}/
+cp -r ${DIR}/snap/meta ${SNAP_DIR}/
+cp ${DIR}/snap/snap.yaml ${SNAP_DIR}/meta/snap.yaml
+echo "version: $VERSION" >> ${SNAP_DIR}/meta/snap.yaml
+echo "architectures:" >> ${SNAP_DIR}/meta/snap.yaml
+echo "- ${ARCH}" >> ${SNAP_DIR}/meta/snap.yaml
 
-    mksquashfs ${SNAP_DIR} ${DIR}/${NAME}_${VERSION}_${ARCH}.snap -noappend -comp xz -no-xattrs -all-root
-
-fi
+mksquashfs ${SNAP_DIR} ${DIR}/${NAME}_${VERSION}_${ARCH}.snap -noappend -comp xz -no-xattrs -all-root
