@@ -41,7 +41,7 @@ def new_driver(profile):
     binary = FirefoxBinary(firefox_path)
 
     return webdriver.Firefox(profile, capabilities=caps, log_path="{0}/firefox.log".format(LOG_DIR),
-                             firefox_binary=binary, executable_path='/tools/geckodriver/geckodriver'))
+                             firefox_binary=binary, executable_path='/tools/geckodriver/geckodriver')
 
 
 @pytest.fixture(scope="module")
