@@ -10,14 +10,13 @@ DIASPORA_VERSION=0.7.5.0
 DIASPORA_ARCHIVE=v${DIASPORA_VERSION}
 DOWNLOAD_URL=http://artifact.syncloud.org/3rdparty
 
-if [[ -z "$2" ]]; then
-    echo "usage $0 version installer"
+if [[ -z "$1" ]]; then
+    echo "usage $0 version"
     exit 1
 fi
 
 ARCH=$(uname -m)
 VERSION=$1
-INSTALLER=$2
 
 if [ -n "$DRONE" ]; then
     echo "running under drone, removing coin cache"

@@ -24,23 +24,23 @@ TMP_DIR = '/tmp/syncloud'
 APP = "diaspora"
 
 @pytest.fixture(scope="session")
-def platform_data_dir(installer):
-    return get_data_dir(installer, 'platform')
+def platform_data_dir():
+    return get_data_dir('platform')
 
     
 @pytest.fixture(scope="session")
-def data_dir(installer):
-    return get_data_dir(installer, APP)
+def data_dir():
+    return get_data_dir(APP)
 
 
 @pytest.fixture(scope="session")
-def app_dir(installer):
-    return get_app_dir(installer, APP)
+def app_dir():
+    return get_app_dir(APP)
     
 
 @pytest.fixture(scope="session")
-def service_prefix(installer):
-    return get_service_prefix(installer)
+def service_prefix():
+    return get_service_prefix()
 
 
 @pytest.fixture(scope="session")
@@ -54,7 +54,6 @@ def module_teardown(device_host, data_dir, platform_data_dir, app_dir, service_p
     run_ssh(device_host, 'ls -la {0}'.format(data_dir), password=LOGS_SSH_PASSWORD, throw=False)
    
     run_scp('root@{0}:{1}/log/* {2}'.format(device_host, platform_data_dir, platform_log_dir), password=LOGS_SSH_PASSWORD, throw=False) 
-    run_scp('root@{0}:/var/log/sam.log {1}'.format(device_host, platform_log_dir), password=LOGS_SSH_PASSWORD, throw=False)
     run_ssh(device_host, 'mkdir {0}'.format(TMP_DIR), password=LOGS_SSH_PASSWORD)
 
     run_ssh(device_host, 'journalctl > {0}/journalctl.log'.format(TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
@@ -143,8 +142,8 @@ def test_platform_rest_after_activation(device_host):
     assert response.status_code == 200
 
 
-def test_install(app_archive_path, device_host, installer, user_domain):
-    local_install(device_host, DEVICE_PASSWORD, app_archive_path, installer)
+def test_install(app_archive_path, device_host, user_domain):
+    local_install(device_host, DEVICE_PASSWORD, app_archive_path)
 
 
 def test_create_user(auth, user_domain, device_host):
