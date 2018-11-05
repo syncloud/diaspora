@@ -20,7 +20,7 @@ screenshot_dir = join(DIR, 'screenshot')
 
 def new_profile(user_agent):
     profile = webdriver.FirefoxProfile()
-    profile.add_extension('{0}/JSErrorCollector.xpi'.format(DIR))
+    profile.add_extension('/tools/JSErrorCollector.xpi')
     profile.set_preference('app.update.auto', False)
     profile.set_preference('app.update.enabled', False)
     profile.set_preference("general.useragent.override", user_agent)
@@ -33,7 +33,7 @@ def new_driver(profile):
         shutil.rmtree(screenshot_dir)
     os.mkdir(screenshot_dir)
 
-    firefox_path = '{0}/firefox/firefox'.format(DIR)
+    firefox_path = '/tools/firefox/firefox'
     caps = DesiredCapabilities.FIREFOX
     caps["marionette"] = True
     caps['acceptSslCerts'] = True
@@ -41,7 +41,7 @@ def new_driver(profile):
     binary = FirefoxBinary(firefox_path)
 
     return webdriver.Firefox(profile, capabilities=caps, log_path="{0}/firefox.log".format(LOG_DIR),
-                             firefox_binary=binary, executable_path=join(DIR, 'geckodriver/geckodriver'))
+                             firefox_binary=binary, executable_path='/tools/geckodriver/geckodriver'))
 
 
 @pytest.fixture(scope="module")
