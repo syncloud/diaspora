@@ -20,7 +20,7 @@ screenshot_dir = join(DIR, 'screenshot')
 
 def new_profile(user_agent):
     profile = webdriver.FirefoxProfile()
-    profile.add_extension('/tools/JSErrorCollector.xpi')
+    profile.add_extension('/tools/firefox/JSErrorCollector.xpi')
     profile.set_preference('app.update.auto', False)
     profile.set_preference('app.update.enabled', False)
     profile.set_preference("general.useragent.override", user_agent)
