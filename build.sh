@@ -2,8 +2,10 @@
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
-export TMPDIR=/tmp
-export TMP=/tmp
+if [[ -z "$1" ]]; then
+    echo "usage $0 version"
+    exit 1
+fi
 
 NAME=diaspora
 DIASPORA_VERSION=0.7.5.0

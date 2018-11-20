@@ -171,12 +171,3 @@ class DiasporaInstaller:
         uploads_dir = join(storage_dir, 'uploads')
         fs.makepath(uploads_dir)
         fs.chownpath(uploads_dir, USER_NAME)
-        
-        if 'SNAP' not in environ:
-            diaspora_dir = join(self.app_dir, 'diaspora')
-       
-            symlink(tmp_dir, join(diaspora_dir, 'tmp'))
-            symlink(uploads_dir, join(diaspora_dir, 'public', 'uploads'))
-
-        
-        
