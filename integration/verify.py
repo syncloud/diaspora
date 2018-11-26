@@ -19,6 +19,8 @@ SYNCLOUD_INFO = 'syncloud.info'
 DEVICE_USER = 'user'
 DEVICE_PASSWORD = 'password'
 DEFAULT_DEVICE_PASSWORD = 'syncloud'
+REDIRECT_USER = "teamcity@syncloud.it"
+REDIRECT_PASSWORD = "password"
 LOGS_SSH_PASSWORD = DEFAULT_DEVICE_PASSWORD
 TMP_DIR = '/tmp/syncloud'
 APP = "diaspora"
@@ -92,15 +94,15 @@ def test_start(module_setup):
 
 
 @pytest.fixture(scope='function')
-def diaspora_session(device_host, user_domain):
+def diaspora_session(device_host, app_domain):
     session = requests.session()
     response = session.get('https://{0}/login'.format(device_host),
-                           headers={"Host": user_domain},
+                           headers={"Host": app_domain},
                            allow_redirects=False, verify=False)
     assert response.status_code == 301, response.text
 
     response = session.post('https://{0}/users/sign_in'.format(device_host),
-                            headers={"Host": user_domain},
+                            headers={"Host": app_domain},
                             data={'user[username]': DEVICE_USER,
                                   'user[password]': DEVICE_PASSWORD,
                                   # 'authenticity_token': token,
@@ -118,12 +120,14 @@ def test_start(module_setup):
     os.mkdir(LOG_DIR)
 
 
-def test_activate_device(auth, device_host):
+def test_activate_device(auth, device_host, main_domain):
     email, password, domain = auth
 
     response = requests.post('http://{0}:81/rest/activate'.format(device_host),
-                             data={'main_domain': 'syncloud.info', 'redirect_email': email,
-                                   'redirect_password': password, 'user_domain': domain,
+                             data={'main_domain': main_domain,
+                                   'redirect_email': REDIRECT_USER,
+                                   'redirect_password': REDIRECT_PASSWORD,
+                                   'user_domain': domain,
                                    'device_username': DEVICE_USER, 'device_password': DEVICE_PASSWORD})
     assert response.status_code == 200
     global LOGS_SSH_PASSWORD
@@ -142,14 +146,14 @@ def test_platform_rest_after_activation(device_host):
     assert response.status_code == 200
 
 
-def test_install(app_archive_path, device_host, user_domain):
+def test_install(app_archive_path, device_host, app_domain):
     local_install(device_host, DEVICE_PASSWORD, app_archive_path)
 
 
-def test_create_user(auth, user_domain, device_host):
+def test_create_user(auth, app_domain, device_host):
     email, password, domain = auth
     response = requests.post('https://{0}/users'.format(device_host),
-                             headers={"Host": user_domain},
+                             headers={"Host": app_domain},
                              verify=False, allow_redirects=False,
                              data={
                                  'user[email]': email,
@@ -161,10 +165,10 @@ def test_create_user(auth, user_domain, device_host):
     assert response.status_code == 302, response.text
 
 
-# def test_upload_profile_photo(diaspora_session, user_domain, device_host):
+# def test_upload_profile_photo(diaspora_session, app_domain, device_host):
 #
 #     response = diaspora_session.get('https://{0}/profile/edit'.format(device_host),
-#                                     headers={"Host": user_domain},
+#                                     headers={"Host": app_domain},
 #                                     allow_redirects=False, verify=False)
 #     assert response.status_code == 200, response.text
 #
@@ -173,7 +177,7 @@ def test_create_user(auth, user_domain, device_host):
 #
 #     response = diaspora_session.post('https://{0}/photos'.format(device_host),
 #                                      headers={
-#                                          "Host": user_domain,
+#                                          "Host": app_domain,
 #                                          'X-File-Name': 'profile.png',
 #                                          'X-CSRF-Token': token
 #                                      },
