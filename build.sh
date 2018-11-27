@@ -151,7 +151,9 @@ rm -rf tmp
 
 ln -s /data/diaspora/tmp tmp
 ln -s /data/diaspora/uploads public/uploads
-    
+
+cd ${DIR}
+
 echo "snapping"
 SNAP_DIR=${DIR}/build/snap
 ARCH=$(dpkg-architecture -q DEB_HOST_ARCH)

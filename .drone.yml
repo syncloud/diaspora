@@ -38,7 +38,7 @@ pipeline:
       - VERSION=$(cat version)
       - ./upload.sh $DRONE_BRANCH $VERSION
 
-  ci-artifact:
+  artifact:
     image: syncloud/build-deps-${arch}
     secrets: [ARTIFACT_SSH_KEY]
     commands:
