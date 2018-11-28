@@ -8,7 +8,7 @@ if [[ -z "$1" ]]; then
 fi
 
 NAME=diaspora
-DIASPORA_VERSION=0.7.5.0
+DIASPORA_VERSION=0.7.8.0
 DIASPORA_ARCHIVE=v${DIASPORA_VERSION}
 DOWNLOAD_URL=http://artifact.syncloud.org/3rdparty
 
@@ -66,7 +66,7 @@ do
 done
 
 echo "installing libraries"
-apt -y install binutils-gold
+apt -y install binutils-gold libjemalloc-dev
 update-alternatives --install "/usr/bin/ld" "ld" "/usr/bin/ld.gold" 20
 update-alternatives --install "/usr/bin/ld" "ld" "/usr/bin/ld.bfd" 10
 
@@ -136,6 +136,7 @@ cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libtasn1.so* ${BUILD_DIR}/
 cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libnettle.so* ${BUILD_DIR}/ruby/lib
 cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libhogweed.so* ${BUILD_DIR}/ruby/lib
 cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libffi.so* ${BUILD_DIR}/ruby/lib
+cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libjemalloc.so ${BUILD_DIR}/ruby/lib
 cp -r ${BUILD_DIR}/ImageMagick/lib/* ${BUILD_DIR}/ruby/lib
 
 ls -la ${BUILD_DIR}/ruby/lib

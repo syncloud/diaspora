@@ -149,13 +149,12 @@ def test_install(app_archive_path, device_host, app_domain):
     local_install(device_host, DEVICE_PASSWORD, app_archive_path)
 
 
-def test_create_user(auth, app_domain, device_host):
-    email, password, domain = auth
-    response = requests.post('https://{0}/users'.format(device_host),
-                             headers={"Host": app_domain},
+def test_create_user(app_domain, device_host):
+
+    response = requests.post('https://{0}/users'.format(app_domain),
                              verify=False, allow_redirects=False,
                              data={
-                                 'user[email]': email,
+                                 'user[email]': REDIRECT_USER,
                                  'user[username]': DEVICE_USER,
                                  'user[password]': DEVICE_PASSWORD,
                                  'user[password_confirmation]': DEVICE_PASSWORD,
