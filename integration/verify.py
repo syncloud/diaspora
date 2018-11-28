@@ -120,7 +120,7 @@ def test_start(module_setup):
     os.mkdir(LOG_DIR)
 
 
-def test_activate_device(device_host, main_domain):
+def test_activate_device(device_host, main_domain, domain):
     
     response = requests.post('http://{0}:81/rest/activate'.format(device_host),
                              data={'main_domain': main_domain,
