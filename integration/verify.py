@@ -121,8 +121,7 @@ def test_start(module_setup):
 
 
 def test_activate_device(auth, device_host, main_domain):
-    email, password, domain = auth
-
+    
     response = requests.post('http://{0}:81/rest/activate'.format(device_host),
                              data={'main_domain': main_domain,
                                    'redirect_email': REDIRECT_USER,
