@@ -62,8 +62,8 @@ def mobile_driver():
     return driver
     
 
-def test_index(driver, mobile_driver, user_domain):
-    url = "https://{0}".format(user_domain)
+def test_index(driver, mobile_driver, app_domain):
+    url = "https://{0}".format(app_domain)
     driver.get(url)
     mobile_driver.get(url)
     time.sleep(10)
@@ -72,8 +72,8 @@ def test_index(driver, mobile_driver, user_domain):
     screenshots(mobile_driver, 'index-mobile')
     
     
-def test_desktop_signup(driver, mobile_driver, user_domain):
-    driver.get("https://{0}/users/sign_up".format(user_domain))
+def test_desktop_signup(driver, mobile_driver, app_domain):
+    driver.get("https://{0}/users/sign_up".format(app_domain))
     time.sleep(10)
     
     screenshots(driver, 'signup')
@@ -96,9 +96,9 @@ def test_desktop_signup(driver, mobile_driver, user_domain):
     screenshots(driver, 'signup-done')
 
 
-def test_mobile_signin(mobile_driver, user_domain):
+def test_mobile_signin(mobile_driver, app_domain):
 
-    mobile_driver.get("https://{0}/users/sign_in".format(user_domain))
+    mobile_driver.get("https://{0}/users/sign_in".format(app_domain))
     screenshots(mobile_driver, 'signin-mobile')
 
     user_username = mobile_driver.find_element_by_id("user_username")
@@ -114,9 +114,9 @@ def test_mobile_signin(mobile_driver, user_domain):
     screenshots(mobile_driver, 'signin-mobile-done')
 
 
-def test_stream(driver, user_domain):
+def test_stream(driver, app_domain):
 
-    url = "https://{0}/stream".format(user_domain)
+    url = "https://{0}/stream".format(app_domain)
     driver.get(url)
     time.sleep(10)
     
@@ -132,18 +132,18 @@ def test_stream(driver, user_domain):
     screenshots(driver, 'stream')
     
 
-def test_mobile_stream(mobile_driver, user_domain):
+def test_mobile_stream(mobile_driver, app_domain):
 
-    url = "https://{0}/stream".format(user_domain)
+    url = "https://{0}/stream".format(app_domain)
     mobile_driver.get(url)
     time.sleep(10)
     
     screenshots(mobile_driver, 'stream-first-time-mobile')
     
 
-def test_post(driver, user_domain):
+def test_post(driver, app_domain):
    
-    url = "https://{0}/stream".format(user_domain)
+    url = "https://{0}/stream".format(app_domain)
     driver.get(url)
     
     time.sleep(10)
@@ -155,18 +155,18 @@ def test_post(driver, user_domain):
     screenshots(driver, 'post')
  
 
-def test_mobile_post(mobile_driver, user_domain):
+def test_mobile_post(mobile_driver, app_domain):
    
-    url = "https://{0}/stream".format(user_domain)
+    url = "https://{0}/stream".format(app_domain)
     mobile_driver.get(url)
     
     time.sleep(10)
     screenshots(mobile_driver, 'post-mobile')
 
 
-def test_profile_picture(driver, mobile_driver, user_domain):
+def test_profile_picture(driver, mobile_driver, app_domain):
    
-    url = "https://{0}/profile/edit".format(user_domain)
+    url = "https://{0}/profile/edit".format(app_domain)
     driver.get(url)
     mobile_driver.get(url)    
     time.sleep(10)
