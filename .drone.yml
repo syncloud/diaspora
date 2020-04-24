@@ -1,60 +1,176 @@
-platform: linux/${arch}
+---
+kind: pipeline
+name: arm
 
-clone:
-  git:
-    image: syncloud/drone-git-${arch}
-    depth: 50
+platform:
+  os: linux
+  arch: arm
 
-pipeline:
-  version:
-    image: syncloud/build-deps-${arch}
-    commands:
-      - echo $(date +%y%m%d) > version
-      
-  build:
-    image: syncloud/build-deps-${arch}
-    commands:
-      - VERSION=$(cat version)
-      - ./build.sh $VERSION
-  
-  test:
-    image: syncloud/build-deps-${arch}
-    commands:
-      - VERSION=$(cat version)
-      - ./integration/test-docker.sh build-$(uname -m)-$DRONE_BRANCH device $(cat package.name) verify.py
+steps:
+- name: version
+  image: syncloud/build-deps-arm
+  commands:
+  - echo $(date +%y%m%d)$DRONE_BUILD_NUMBER > version
+  - echo arm$DRONE_BRANCH > domain
 
-  test-ui:
-    image: syncloud/build-deps-${arch}
-    commands:
-      - VERSION=$(cat version)
-      - ./integration/test-docker.sh build-$(uname -m)-$DRONE_BRANCH device $(cat package.name) test-ui.py
-    when:
-      platform: linux/amd64
+- name: build
+  image: syncloud/build-deps-arm
+  commands:
+  - VERSION=$(cat version)
+  - ./build.sh diaspora $VERSION
 
-  upload:
-    image: syncloud/build-deps-${arch}
-    secrets: [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY]
-    commands:
-      - VERSION=$(cat version)
-      - ./upload.sh $DRONE_BRANCH $VERSION
+- name: test-intergation
+  image: syncloud/build-deps-arm
+  commands:
+  - pip2 install -r dev_requirements.txt
+  - APP_ARCHIVE_PATH=$(realpath $(cat package.name))
+  - DOMAIN=$(cat domain)
+  - cd integration
+  - py.test -x -s verify.py --domain=$DOMAIN --app-archive-path=$APP_ARCHIVE_PATH --device-host=device --app=diaspora
 
-  artifact:
-    image: syncloud/build-deps-${arch}
-    secrets: [ARTIFACT_SSH_KEY]
-    commands:
-      - ./upload-artifact.sh integration/log $DRONE_BUILD_NUMBER-$(dpkg --print-architecture)
-      - ./upload-artifact.sh integration/screenshot $DRONE_BUILD_NUMBER-$(dpkg --print-architecture)
-    when:
-      status: [ failure, success ] 
+
+- name: upload
+  image: syncloud/build-deps-arm
+  commands:
+  - VERSION=$(cat version)
+  - PACKAGE=$(cat package.name)
+  - pip2 install -r dev_requirements.txt
+  - syncloud-upload.sh diaspora $DRONE_BRANCH $VERSION $PACKAGE
+  environment:
+    AWS_ACCESS_KEY_ID:
+      from_secret: AWS_ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY:
+      from_secret: AWS_SECRET_ACCESS_KEY
+
+- name: artifact
+  image: appleboy/drone-scp
+  settings:
+    command_timeout: 2m
+    host:
+      from_secret: artifact_host
+    key:
+      from_secret: artifact_key
+    source: artifact/*
+    strip_components: 1
+    target: /home/artifact/repo/diaspora/${DRONE_BUILD_NUMBER}-arm
+    timeout: 2m
+    username: artifact
+  when:
+    status:
+    - failure
+    - success
 
 services:
-  device:
-    image: syncloud/systemd-${arch}
-    privileged: true
-    volumes:
-      - /var/run/dbus:/var/run/dbus
- 
-matrix:
-  arch: 
-    - arm
-    - amd64
+- name: device
+  image: syncloud/platform-jessie-arm
+  privileged: true
+  volumes:
+  - name: dbus
+    path: /var/run/dbus
+  - name: dev
+    path: /dev
+
+volumes:
+- name: dbus
+  host:
+    path: /var/run/dbus
+- name: dev
+  host:
+    path: /dev
+- name: shm
+  temp: {}
+
+---
+kind: pipeline
+name: amd64
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+- name: version
+  image: syncloud/build-deps-amd64
+  commands:
+  - echo $(date +%y%m%d)$DRONE_BUILD_NUMBER > version
+  - echo amd64$DRONE_BRANCH > domain
+
+- name: build
+  image: syncloud/build-deps-amd64
+  commands:
+  - VERSION=$(cat version)
+  - ./build.sh diaspora $VERSION
+
+- name: test-intergation
+  image: syncloud/build-deps-amd64
+  commands:
+  - pip2 install -r dev_requirements.txt
+  - APP_ARCHIVE_PATH=$(realpath $(cat package.name))
+  - DOMAIN=$(cat domain)
+  - cd integration
+  - py.test -x -s verify.py --domain=$DOMAIN --app-archive-path=$APP_ARCHIVE_PATH --device-host=device --app=diaspora
+
+- name: test-ui
+  image: syncloud/build-deps-amd64
+  commands:
+  - pip2 install -r dev_requirements.txt
+  - DOMAIN=$(cat domain)
+  - cd integration
+  - xvfb-run -l --server-args='-screen 0, 1024x4096x24' py.test -x -s test-ui.py --ui-mode=desktop --domain=$DOMAIN --device-host=device --app=diaspora
+  - xvfb-run -l --server-args='-screen 0, 1024x4096x24' py.test -x -s test-ui.py --ui-mode=mobile --domain=$DOMAIN --device-host=device --app=diaspora
+  volumes:
+  - name: shm
+    path: /dev/shm
+
+- name: upload
+  image: syncloud/build-deps-amd64
+  commands:
+  - VERSION=$(cat version)
+  - PACKAGE=$(cat package.name)
+  - pip2 install -r dev_requirements.txt
+  - syncloud-upload.sh diaspora $DRONE_BRANCH $VERSION $PACKAGE
+  environment:
+    AWS_ACCESS_KEY_ID:
+      from_secret: AWS_ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY:
+      from_secret: AWS_SECRET_ACCESS_KEY
+
+- name: artifact
+  image: appleboy/drone-scp
+  settings:
+    command_timeout: 2m
+    host:
+      from_secret: artifact_host
+    key:
+      from_secret: artifact_key
+    source: artifact/*
+    strip_components: 1
+    target: /home/artifact/repo/diaspora/${DRONE_BUILD_NUMBER}-amd64
+    timeout: 2m
+    username: artifact
+  when:
+    status:
+    - failure
+    - success
+
+services:
+- name: device
+  image: syncloud/platform-jessie-amd64
+  privileged: true
+  volumes:
+  - name: dbus
+    path: /var/run/dbus
+  - name: dev
+    path: /dev
+
+volumes:
+- name: dbus
+  host:
+    path: /var/run/dbus
+- name: dev
+  host:
+    path: /dev
+- name: shm
+  temp: {}
+
+...
