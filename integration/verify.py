@@ -23,7 +23,7 @@ def module_setup(request, device, platform_data_dir, app_dir, artifact_dir):
         os.mkdir(platform_log_dir)
         device.run_ssh('ls -la /var/snap/duaspora/common', throw=False)
    
-        device.scp_from_device('{0}/log/* {1}'.format(platform_data_dir, platform_log_dir), throw=False) 
+        device.scp_from_device('{0}/log/*'.format(platform_data_dir), platform_log_dir, throw=False) 
         device.run_ssh('mkdir {0}'.format(TMP_DIR))
 
         device.run_ssh('journalctl > {0}/journalctl.log'.format(TMP_DIR), throw=False)
@@ -41,12 +41,12 @@ def module_setup(request, device, platform_data_dir, app_dir, artifact_dir):
    
         app_log_dir = join(LOG_DIR, 'diaspora_log')
         os.mkdir(app_log_dir)
-        device.scp_from_device('/var/log/messages* {0}'.format(app_log_dir), throw=False)
-        device.scp_from_device('/var/log/*syslog* {0}'.format(app_log_dir), throw=False) 
-        device.scp_from_device('{0}/config {1}'.format(data_dir, app_log_dir), throw=False)
+        device.scp_from_device('/var/log/messages*', app_log_dir)
+        device.scp_from_device('/var/log/*syslog*', app_log_dir) 
+        device.scp_from_device('{0}/config'.format(data_dir), app_log_dir)
     
-        device.scp_from_device('{0}/log/*.log {1}'.format(data_dir, app_log_dir), throw=False)
-        device.scp_from_device('{0}/*.log {1}'.format(TMP_DIR, app_log_dir), throw=False)
+        device.scp_from_device('{0}/log/*.log'.format(data_dir), app_log_dir)
+        device.scp_from_device('{0}/*.log'.format(TMP_DIR), app_log_dir)
     
     request.addfinalizer(module_teardown)
 
