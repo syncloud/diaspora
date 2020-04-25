@@ -14,6 +14,7 @@ from syncloudlib.integration.hosts import add_host_alias_by_ip
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 DIR = dirname(__file__)
+TMP_DIR = '/tmp/syncloud'
 
 
 @pytest.fixture(scope="session")
