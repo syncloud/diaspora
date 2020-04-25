@@ -10,7 +10,7 @@ fi
 NAME=diaspora
 DIASPORA_VERSION=0.7.8.0
 DIASPORA_ARCHIVE=v${DIASPORA_VERSION}
-DOWNLOAD_URL=http://artifact.syncloud.org/3rdparty
+DOWNLOAD_URL=https://github.com/syncloud/3rdparty/releases/download/1
 
 if [[ -z "$1" ]]; then
     echo "usage $0 version"
@@ -20,24 +20,39 @@ fi
 ARCH=$(uname -m)
 VERSION=$1
 
-if [ -n "$DRONE" ]; then
-    echo "running under drone, removing coin cache"
-    rm -rf ${DIR}/.coin.cache
-fi
-
 cd ${DIR}
 
 rm -rf build
 BUILD_DIR=${DIR}/build/${NAME}
 mkdir -p ${BUILD_DIR}
 
-coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/ruby-${ARCH}.tar.gz
-coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/nginx-${ARCH}.tar.gz
-coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/postgresql-${ARCH}.tar.gz
-coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/redis-${ARCH}.tar.gz
-coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/nodejs-${ARCH}.tar.gz
-coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/ImageMagick-${ARCH}.tar.gz
-coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/python-${ARCH}.tar.gz
+wget --progress=dot:giga ${DOWNLOAD_URL}/ruby-${ARCH}.tar.gz
+tar xf ruby-${ARCH}.tar.gz
+mv ruby ${BUILD_DIR}
+
+wget --progress=dot:giga ${DOWNLOAD_URL}/nginx-${ARCH}.tar.gz
+tar xf nginx-${ARCH}.tar.gz
+mv nginx ${BUILD_DIR}
+
+wget --progress=dot:giga ${DOWNLOAD_URL}/postgresql-${ARCH}.tar.gz
+tar xf postgresql-${ARCH}.tar.gz
+mv postgresql ${BUILD_DIR}
+
+wget --progress=dot:giga ${DOWNLOAD_URL}/redis-${ARCH}.tar.gz
+tar xf redis-${ARCH}.tar.gz
+mv redis ${BUILD_DIR}
+
+wget --progress=dot:giga ${DOWNLOAD_URL}/nodejs-${ARCH}.tar.gz
+tar xf nodejs-${ARCH}.tar.gz
+mv nodejs ${BUILD_DIR}
+
+wget --progress=dot:giga ${DOWNLOAD_URL}/ImageMagick-${ARCH}.tar.gz
+tar xf ImageMagick-${ARCH}.tar.gz
+mv ImageMagick ${BUILD_DIR}
+
+wget --progress=dot:giga ${DOWNLOAD_URL}/python-${ARCH}.tar.gz
+tar xf python-${ARCH}.tar.gz
+mv python ${BUILD_DIR}
 
 ${BUILD_DIR}/python/bin/pip install -r ${DIR}/requirements.txt
 
