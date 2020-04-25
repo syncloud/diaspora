@@ -8,78 +8,49 @@ import pytest
 import requests
 from requests.adapters import HTTPAdapter
 
-from syncloudlib.integration.installer import local_install, wait_for_sam, wait_for_rest, local_remove, \
-    get_data_dir, get_app_dir, get_service_prefix, get_ssh_env_vars
-from syncloudlib.integration.loop import loop_device_cleanup
-from syncloudlib.integration.ssh import run_scp, run_ssh
+from syncloudlib.integration.installer import local_install, wait_for_installer
+from syncloudlib.integration.loop import loop_device_add, loop_device_cleanup
+from syncloudlib.integration.hosts import add_host_alias_by_ip
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 DIR = dirname(__file__)
-LOG_DIR = join(DIR, 'log')
-SYNCLOUD_INFO = 'syncloud.info'
-DEVICE_USER = 'user'
-DEVICE_PASSWORD = 'password'
-DEFAULT_DEVICE_PASSWORD = 'syncloud'
-REDIRECT_USER = "teamcity@syncloud.it"
-REDIRECT_PASSWORD = "password"
-LOGS_SSH_PASSWORD = DEFAULT_DEVICE_PASSWORD
-TMP_DIR = '/tmp/syncloud'
-APP = "diaspora"
-
-@pytest.fixture(scope="session")
-def platform_data_dir():
-    return get_data_dir('platform')
-
-    
-@pytest.fixture(scope="session")
-def data_dir():
-    return get_data_dir(APP)
 
 
 @pytest.fixture(scope="session")
-def app_dir():
-    return get_app_dir(APP)
-    
-
-@pytest.fixture(scope="session")
-def service_prefix():
-    return get_service_prefix()
-
-
-@pytest.fixture(scope="session")
-def module_setup(request, device_host, data_dir, platform_data_dir, app_dir, service_prefix):
-    request.addfinalizer(lambda: module_teardown(device_host, data_dir, platform_data_dir, app_dir, service_prefix))
-
-
-def module_teardown(device_host, data_dir, platform_data_dir, app_dir, service_prefix):
-    platform_log_dir = join(LOG_DIR, 'platform_log')
-    os.mkdir(platform_log_dir)
-    run_ssh(device_host, 'ls -la {0}'.format(data_dir), password=LOGS_SSH_PASSWORD, throw=False)
+def module_setup(request, device, platform_data_dir, app_dir, artifact_dir):
+    def module_teardown():
+        platform_log_dir = join(artifact_dir, 'platform_log')
+        os.mkdir(platform_log_dir)
+        device.run_ssh('ls -la /var/snap/duaspora/common', throw=False)
    
-    run_scp('root@{0}:{1}/log/* {2}'.format(device_host, platform_data_dir, platform_log_dir), password=LOGS_SSH_PASSWORD, throw=False) 
-    run_ssh(device_host, 'mkdir {0}'.format(TMP_DIR), password=LOGS_SSH_PASSWORD)
+        device.scp_from_device('{0}/log/* {1}'.format(platform_data_dir, platform_log_dir), throw=False) 
+        device.run_ssh('mkdir {0}'.format(TMP_DIR))
 
-    run_ssh(device_host, 'journalctl > {0}/journalctl.log'.format(TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
-    run_ssh(device_host, 'ls -la {0}/ > {1}/app.ls.log'.format(app_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
-    run_ssh(device_host, 'ls -la {0}/diaspora/ > {1}/app.diaspora.ls.log'.format(app_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
-    run_ssh(device_host, 'ls -la {0}/diaspora/log/ > {1}/app.diaspora.log.ls.log'.format(app_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
-    run_ssh(device_host, 'ls -la {0}/diaspora/public/ > {1}/app.diaspora.public.ls.log'.format(app_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
-    run_ssh(device_host, 'ls -la {0}/ > {1}/data.ls.log'.format(data_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
-    run_ssh(device_host, 'ls -la {0}/log/ > {1}/data.log.ls.log'.format(data_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
-    run_ssh(device_host, 'ls -la {0}/diaspora/ > {1}/data.diaspora.ls.log'.format(data_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
-    run_ssh(device_host, 'ls -la {0}/diaspora/log/ > {1}/data.diaspora.log.ls.log'.format(data_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
-    run_ssh(device_host, 'ls -la {0}/database/ > {1}/data.database.ls.log'.format(data_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
-    run_ssh(device_host, 'journalctl -u {0}diaspora.unicorn --no-pager -n1000 > {1}/systemd.unicorn.log'.format(service_prefix, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
-    run_ssh(device_host, 'journalctl -u {0}diaspora.sidekiq --no-pager -n1000 > {1}/systemd.sidekiq.log'.format(service_prefix, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
+        device.run_ssh('journalctl > {0}/journalctl.log'.format(TMP_DIR), throw=False)
+        device.run_ssh('ls -la {0}/ > {1}/app.ls.log'.format(app_dir, TMP_DIR), throw=False)
+        device.run_ssh('ls -la {0}/diaspora/ > {1}/app.diaspora.ls.log'.format(app_dir, TMP_DIR), throw=False)
+        device.run_ssh('ls -la {0}/diaspora/log/ > {1}/app.diaspora.log.ls.log'.format(app_dir, TMP_DIR), throw=False)
+        device.run_ssh('ls -la {0}/diaspora/public/ > {1}/app.diaspora.public.ls.log'.format(app_dir, TMP_DIR), throw=False)
+        device.run_ssh('ls -la {0}/ > {1}/data.ls.log'.format(data_dir, TMP_DIR), throw=False)
+        device.run_ssh('ls -la {0}/log/ > {1}/data.log.ls.log'.format(data_dir, TMP_DIR), throw=False)
+        device.run_ssh('ls -la {0}/diaspora/ > {1}/data.diaspora.ls.log'.format(data_dir, TMP_DIR), throw=False)
+        device.run_ssh('ls -la {0}/diaspora/log/ > {1}/data.diaspora.log.ls.log'.format(data_dir, TMP_DIR), throw=False)
+        device.run_ssh('ls -la {0}/database/ > {1}/data.database.ls.log'.format(data_dir, TMP_DIR), throw=False)
+        device.run_ssh('journalctl -u {0}diaspora.unicorn --no-pager -n1000 > {1}/systemd.unicorn.log'.format(service_prefix, TMP_DIR), throw=False)
+        device.run_ssh('journalctl -u {0}diaspora.sidekiq --no-pager -n1000 > {1}/systemd.sidekiq.log'.format(service_prefix, TMP_DIR), throw=False)
    
-    app_log_dir = join(LOG_DIR, 'diaspora_log')
-    os.mkdir(app_log_dir)
-    run_scp('root@{0}:/var/log/messages* {1}'.format(device_host, app_log_dir), password=LOGS_SSH_PASSWORD, throw=False)
-    run_scp('root@{0}:/var/log/*syslog* {1}'.format(device_host, app_log_dir), password=LOGS_SSH_PASSWORD, throw=False) 
-    run_scp('-r root@{0}:{1}/config {2}'.format(device_host, data_dir, app_log_dir), throw=False, password=LOGS_SSH_PASSWORD)
+        app_log_dir = join(LOG_DIR, 'diaspora_log')
+        os.mkdir(app_log_dir)
+        device.scp_from_device('/var/log/messages* {0}'.format(app_log_dir), throw=False)
+        device.scp_from_device('/var/log/*syslog* {0}'.format(app_log_dir), throw=False) 
+        device.scp_from_device('{0}/config {1}'.format(data_dir, app_log_dir), throw=False)
     
-    run_scp('root@{0}:{1}/log/*.log {2}'.format(device_host, data_dir, app_log_dir), password=LOGS_SSH_PASSWORD, throw=False)
-    run_scp('root@{0}:{1}/*.log {2}'.format(device_host, TMP_DIR, app_log_dir), password=LOGS_SSH_PASSWORD, throw=False)
+        device.scp_from_device('{0}/log/*.log {1}'.format(data_dir, app_log_dir), throw=False)
+        device.scp_from_device('{0}/*.log {1}'.format(TMP_DIR, app_log_dir), throw=False)
     
+    request.addfinalizer(module_teardown)
+
+
 
 @pytest.fixture(scope='function')
 def syncloud_session(device_host):
