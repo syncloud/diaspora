@@ -40,7 +40,7 @@ def module_setup(request, device, platform_data_dir, app_dir, artifact_dir, data
         device.run_ssh('journalctl -u snap.diaspora.unicorn --no-pager -n1000 > {0}/systemd.unicorn.log'.format(TMP_DIR), throw=False)
         device.run_ssh('journalctl -u snap.diaspora.sidekiq --no-pager -n1000 > {0}/systemd.sidekiq.log'.format(TMP_DIR), throw=False)
    
-        app_log_dir = join(LOG_DIR, 'diaspora_log')
+        app_log_dir = join(artifact_dir, 'log')
         os.mkdir(app_log_dir)
         device.scp_from_device('/var/log/messages*', app_log_dir)
         device.scp_from_device('/var/log/*syslog*', app_log_dir) 
@@ -48,7 +48,8 @@ def module_setup(request, device, platform_data_dir, app_dir, artifact_dir, data
     
         device.scp_from_device('{0}/log/*.log'.format(data_dir), app_log_dir)
         device.scp_from_device('{0}/*.log'.format(TMP_DIR), app_log_dir)
-    
+        check_output('chmod -R a+r {0}'.format(artifact_dir), shell=True)
+
     request.addfinalizer(module_teardown)
 
 
