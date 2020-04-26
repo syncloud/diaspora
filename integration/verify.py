@@ -61,11 +61,6 @@ def syncloud_session(device_host):
     return session
 
 
-def test_start(module_setup):
-    shutil.rmtree(LOG_DIR, ignore_errors=True)
-    os.mkdir(LOG_DIR)
-
-
 @pytest.fixture(scope='function')
 def diaspora_session(device_host, app_domain):
     session = requests.session()
@@ -88,9 +83,10 @@ def diaspora_session(device_host, app_domain):
     return session
 
 
-def test_start(module_setup):
-    shutil.rmtree(LOG_DIR, ignore_errors=True)
-    os.mkdir(LOG_DIR)
+def test_start(module_setup, device, device_host, app, domain):
+    add_host_alias_by_ip(app, domain, device_host)
+    device.run_ssh('date', retries=100)
+    device.run_ssh('mkdir {0}'.format(TMP_DIR))
 
 
 def test_activate_device(device_host, main_domain, domain):
