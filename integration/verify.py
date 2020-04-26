@@ -61,7 +61,7 @@ def syncloud_session(device_host):
 
 
 @pytest.fixture(scope='function')
-def diaspora_session(device_host, app_domain):
+def diaspora_session(device_host, app_domain, device_user, device_password):
     session = requests.session()
     response = session.get('https://{0}/login'.format(device_host),
                            headers={"Host": app_domain},
@@ -70,8 +70,8 @@ def diaspora_session(device_host, app_domain):
 
     response = session.post('https://{0}/users/sign_in'.format(device_host),
                             headers={"Host": app_domain},
-                            data={'user[username]': DEVICE_USER,
-                                  'user[password]': DEVICE_PASSWORD,
+                            data={'user[username]': device_user,
+                                  'user[password]': device_password,
                                   # 'authenticity_token': token,
                                   'user[remember_me]': '1',
                                   'commit': 'Sign in'},
@@ -98,15 +98,15 @@ def test_install(app_archive_path, device_session, device_host, device_password)
     wait_for_installer(device_session, device_host)
 
 
-def test_create_user(app_domain, device_host):
+def test_create_user(app_domain, device_host, device_user, device_password, redirect_user):
 
     response = requests.post('https://{0}/users'.format(app_domain),
                              verify=False, allow_redirects=False,
                              data={
-                                 'user[email]': REDIRECT_USER,
-                                 'user[username]': DEVICE_USER,
-                                 'user[password]': DEVICE_PASSWORD,
-                                 'user[password_confirmation]': DEVICE_PASSWORD,
+                                 'user[email]': redirect_user,
+                                 'user[username]': device_user,
+                                 'user[password]': device_password,
+                                 'user[password_confirmation]': device_password,
                                  'commit': "Sign+up"
                              })
     assert response.status_code == 302, response.text
@@ -164,3 +164,4 @@ def test_create_user(app_domain, device_host):
 
 # def test_reinstall(app_archive_path, device_host):
 #     __local_install(app_archive_path, device_host)
+
