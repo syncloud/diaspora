@@ -7,10 +7,8 @@ from os.path import isdir, join
 import shutil
 from subprocess import check_output, STDOUT, CalledProcessError
 
-from syncloud_app import logger
-
+from syncloudlib import fs, linux, gen, logger
 from syncloudlib.application import paths, urls, storage, ports
-from syncloudlib import fs, linux, gen
 
 import postgres
 from config import Config
