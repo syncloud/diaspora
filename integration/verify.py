@@ -38,11 +38,11 @@ def module_setup(request, device, platform_data_dir, app_dir, artifact_dir, data
         device.run_ssh('ls -la {0}/database/ > {1}/data.database.ls.log'.format(data_dir, TMP_DIR), throw=False)
         device.run_ssh('journalctl -u snap.diaspora.unicorn --no-pager -n1000 > {0}/systemd.unicorn.log'.format(TMP_DIR), throw=False)
         device.run_ssh('journalctl -u snap.diaspora.sidekiq --no-pager -n1000 > {0}/systemd.sidekiq.log'.format(TMP_DIR), throw=False)
-   
+        device.run_ssh('tail -500 /var/log/syslog > {0}/syslog.log'.format(TMP_DIR), throw=False)
+        device.run_ssh('tail -500 /var/log/messages > {0}/messages.log'.format(TMP_DIR), throw=False)
+      
         app_log_dir = join(artifact_dir, 'log')
         os.mkdir(app_log_dir)
-        device.scp_from_device('/var/log/messages*', app_log_dir)
-        device.scp_from_device('/var/log/*syslog*', app_log_dir) 
         device.scp_from_device('{0}/config'.format(data_dir), app_log_dir)
     
         device.scp_from_device('{0}/log/*.log'.format(data_dir), app_log_dir)
