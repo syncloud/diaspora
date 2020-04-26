@@ -37,8 +37,8 @@ def module_setup(request, device, platform_data_dir, app_dir, artifact_dir, data
         device.run_ssh('ls -la {0}/diaspora/ > {1}/data.diaspora.ls.log'.format(data_dir, TMP_DIR), throw=False)
         device.run_ssh('ls -la {0}/diaspora/log/ > {1}/data.diaspora.log.ls.log'.format(data_dir, TMP_DIR), throw=False)
         device.run_ssh('ls -la {0}/database/ > {1}/data.database.ls.log'.format(data_dir, TMP_DIR), throw=False)
-        device.run_ssh('journalctl -u {0}diaspora.unicorn --no-pager -n1000 > {1}/systemd.unicorn.log'.format(service_prefix, TMP_DIR), throw=False)
-        device.run_ssh('journalctl -u {0}diaspora.sidekiq --no-pager -n1000 > {1}/systemd.sidekiq.log'.format(service_prefix, TMP_DIR), throw=False)
+        device.run_ssh('journalctl -u snap.diaspora.unicorn --no-pager -n1000 > {0}/systemd.unicorn.log'.format(TMP_DIR), throw=False)
+        device.run_ssh('journalctl -u snap.diaspora.sidekiq --no-pager -n1000 > {0}/systemd.sidekiq.log'.format(TMP_DIR), throw=False)
    
         app_log_dir = join(LOG_DIR, 'diaspora_log')
         os.mkdir(app_log_dir)
