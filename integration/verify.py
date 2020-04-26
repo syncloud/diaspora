@@ -25,8 +25,7 @@ def module_setup(request, device, platform_data_dir, app_dir, artifact_dir, data
         device.run_ssh('ls -la /var/snap/duaspora/common', throw=False)
    
         device.scp_from_device('{0}/log/*'.format(platform_data_dir), platform_log_dir, throw=False) 
-        device.run_ssh('mkdir {0}'.format(TMP_DIR))
-
+       
         device.run_ssh('journalctl > {0}/journalctl.log'.format(TMP_DIR), throw=False)
         device.run_ssh('ls -la {0}/ > {1}/app.ls.log'.format(app_dir, TMP_DIR), throw=False)
         device.run_ssh('ls -la {0}/diaspora/ > {1}/app.diaspora.ls.log'.format(app_dir, TMP_DIR), throw=False)
