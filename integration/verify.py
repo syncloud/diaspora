@@ -88,33 +88,14 @@ def test_start(module_setup, device, device_host, app, domain):
     device.run_ssh('mkdir {0}'.format(TMP_DIR))
 
 
-def test_activate_device(device_host, main_domain, domain):
-    
-    response = requests.post('http://{0}:81/rest/activate'.format(device_host),
-                             data={'main_domain': main_domain,
-                                   'redirect_email': REDIRECT_USER,
-                                   'redirect_password': REDIRECT_PASSWORD,
-                                   'user_domain': domain,
-                                   'device_username': DEVICE_USER, 'device_password': DEVICE_PASSWORD})
-    assert response.status_code == 200
-    global LOGS_SSH_PASSWORD
-    LOGS_SSH_PASSWORD = DEVICE_PASSWORD
+def test_activate_device(device):
+    response = device.activate()
+    assert response.status_code == 200, response.text
 
 
-def test_running_platform_web_after_activation(device_host):
-    check_call('nc -zv -w 1 {0} 80'.format(device_host), shell=True)
-
-
-def test_platform_rest_after_activation(device_host):
-    session = requests.session()
-    url = 'https://{0}'.format(device_host)
-    session.mount(url, HTTPAdapter(max_retries=5))
-    response = session.get(url, timeout=60, verify=False)
-    assert response.status_code == 200
-
-
-def test_install(app_archive_path, device_host, app_domain):
-    local_install(device_host, DEVICE_PASSWORD, app_archive_path)
+def test_install(app_archive_path, device_session, device_host, device_password):
+    local_install(device_host, device_password, app_archive_path)
+    wait_for_installer(device_session, device_host)
 
 
 def test_create_user(app_domain, device_host):
