@@ -50,9 +50,9 @@ def test_signup(driver, app_domain, ui_mode, screenshot_dir):
     screenshots(driver, screenshot_dir, 'signup-' + ui_mode)
 
     user_email = driver.find_element_by_id("user_email")
-    user_email.send_keys('user@example.com')
+    user_email.send_keys(ui_mode + '@example.com')
     user_username = driver.find_element_by_id("user_username")
-    user_username.send_keys('username')
+    user_username.send_keys(ui_mode)
     user_password = driver.find_element_by_id("user_password")
     user_password.send_keys('password')
     user_password_confirmation = driver.find_element_by_id('user_password_confirmation')
@@ -90,8 +90,9 @@ def test_post(driver, app_domain, ui_mode, screenshot_dir):
    
     url = "https://{0}/stream".format(app_domain)
     driver.get(url)
-    
     time.sleep(10)
+    screenshots(driver, screenshot_dir, 'post-before-' + ui_mode)
+
     status_message_text = driver.find_element_by_id("status_message_text")
     status_message_text.send_keys('test message')
     status_message_text.submit()
