@@ -14,5 +14,3 @@ if [[ "$(whoami)" == "diaspora" ]]; then
 else
     sudo -E -H -u diaspora LD_LIBRARY_PATH=${LD_LIBRARY_PATH} ${DIR}/postgresql/bin/initdb "$@"
 fi
-PATH=${LD_LIBRARY_PATH} ${DIR}/postgresql/bin/initdb "$@"
-fi

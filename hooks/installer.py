@@ -1,27 +1,14 @@
-from os.path import dirname, join, abspath, isdir
-from os import listdir
-import sys
-
-from os import environ, symlink
-from os.path import isdir, join
+import logging
 import shutil
-from subprocess import check_output, STDOUT, CalledProcessError
+from os import environ
+from os.path import isdir, join
+from subprocess import check_output, CalledProcessError
 
 from syncloudlib import fs, linux, gen, logger
-from syncloudlib.application import paths, urls, storage, ports
+from syncloudlib.application import paths, urls, storage
 
 import postgres
-from config import Config
 from config import UserConfig
-import yaml
-import logging
-
-
-SYSTEMD_NGINX_NAME = 'diaspora.nginx'
-SYSTEMD_POSTGRESQL = 'diaspora.postgresql'
-SYSTEMD_REDIS = 'diaspora.redis'
-SYSTEMD_SIDEKIQ = 'diaspora.sidekiq'
-SYSTEMD_UNICORN = 'diaspora.unicorn'
 
 APP_NAME = 'diaspora'
 USER_NAME = 'diaspora'
@@ -37,11 +24,11 @@ DB_TYPE = 'postgres'
 logger.init(logging.DEBUG, console=True, line_format='%(message)s')
 
 
-def database_init(logger, app_dir, app_data_dir, database_path, user_name):
+def database_init(logger, app_dir, app_data_dir, database_path):
     logger.info("creating database files")
     if not isdir(database_path):
         cmd = join(app_dir, 'bin/initdb.sh')
-        self.log.info(check_output([cmd, self.database_dir]))
+        logger.info(check_output([cmd, database_path]))
         postgresql_conf_to = join(database_path, 'postgresql.conf')
         postgresql_conf_from = join(app_data_dir, 'config', 'postgresql', 'postgresql.conf')
         shutil.copy(postgresql_conf_from, postgresql_conf_to)
@@ -84,7 +71,6 @@ class DiasporaInstaller:
 
     def install(self):
 
-
         home_folder = join('/home', USER_NAME)
         linux.useradd(USER_NAME, home_folder=home_folder)
         
@@ -102,7 +88,7 @@ class DiasporaInstaller:
 
         self.log.info("setup systemd")
         if not UserConfig(self.app_data_dir).is_activated():
-            database_init(self.log, self.app_dir, self.app_data_dir, self.database_path, USER_NAME)
+            database_init(self.log, self.app_dir, self.app_data_dir, self.database_path)
     
     def regenerate_config(self):
         variables = {
@@ -128,7 +114,6 @@ class DiasporaInstaller:
         templates_path = join(self.app_dir, 'config.templates')
         config_path = join(self.app_data_dir, 'config')
         gen.generate_files(templates_path, config_path, variables)
-
 
     def db_migrate(self):
         environ['LD_LIBRARY_PATH'] = self.ld_library_path
