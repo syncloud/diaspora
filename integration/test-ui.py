@@ -88,7 +88,7 @@ def test_stream(driver, app_domain, ui_mode, screenshot_dir):
 
 def test_post(driver, app_domain, ui_mode, screenshot_dir):
    
-    url = "https://{0}/stream".format(app_domain)
+    url = "https://{0}/status_messages/new".format(app_domain)
     driver.get(url)
     time.sleep(10)
     screenshots(driver, screenshot_dir, 'post-before-' + ui_mode)
