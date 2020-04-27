@@ -74,13 +74,14 @@ def test_stream(driver, app_domain, ui_mode, screenshot_dir):
     time.sleep(10)
     
     screenshots(driver, screenshot_dir, 'stream-first-time-' + ui_mode)
-    
-    driver.find_element_by_css_selector('.popover-title .close').click()
-    time.sleep(10)
-    driver.find_element_by_css_selector('.popover-title .close').click()
-    time.sleep(10)
-    driver.find_element_by_css_selector('.popover-title .close').click()
-    time.sleep(10)
+
+    if ui_mode == "desktop":
+        driver.find_element_by_css_selector('.popover-title .close').click()
+        time.sleep(10)
+        driver.find_element_by_css_selector('.popover-title .close').click()
+        time.sleep(10)
+        driver.find_element_by_css_selector('.popover-title .close').click()
+        time.sleep(10)
     
     screenshots(driver, screenshot_dir, 'stream+' + ui_mode)
     
