@@ -10,6 +10,8 @@ from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
+from syncloudlib.integration.hosts import add_host_alias_by_ip
+from syncloudlib.integration.screenshots import screenshots
 
 DIR = dirname(__file__)
 
