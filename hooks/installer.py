@@ -78,7 +78,6 @@ class DiasporaInstaller:
         environ['DB'] = DB_TYPE
         environ['GEM_HOME'] = self.gem_home
         environ['PATH'] = self.path
-        environ['LD_LIBRARY_PATH'] = self.ld_library_path
         environ['DIASPORA_CONFIG_DIR'] = '{0}/config/diaspora'.format(self.app_data_dir)
         environ['DATABASE_URL'] = self.database_url
         environ['BUNDLE_GEMFILE'] = self.diaspora_gemfile
@@ -102,8 +101,8 @@ class DiasporaInstaller:
             self.log.info(fs.chownpath(self.app_dir, USER_NAME, recursive=True))
 
         self.log.info("setup systemd")
-
         if not UserConfig(self.app_data_dir).is_activated():
+            environ['LD_LIBRARY_PATH'] = self.ld_library_path
             database_init(self.log, self.app_dir, self.app_data_dir, self.database_path, USER_NAME)
     
     def regenerate_config(self):
@@ -133,6 +132,7 @@ class DiasporaInstaller:
 
 
     def db_migrate(self):
+        environ['LD_LIBRARY_PATH'] = self.ld_library_path
         if not UserConfig(self.app_data_dir).is_activated():
             self.initialize()
 
