@@ -110,7 +110,7 @@ def test_profile_picture(driver, app_domain, ui_mode, screenshot_dir):
     file = driver.find_element_by_css_selector('input[type="file"]')
     driver.execute_script("arguments[0].removeAttribute('style')", file)
     time.sleep(2)
-    screenshots(driver, screensho_dir, 'profile-file-style-' + ui_mode)
+    screenshots(driver, screenshot_dir, 'profile-file-style-' + ui_mode)
     
     file.send_keys(join(DIR, 'images', 'profile.jpeg'))
     screenshots(driver, screenshot_dir, 'profile-before-new-picture-' + ui_mode)
