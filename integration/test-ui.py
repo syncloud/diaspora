@@ -38,7 +38,6 @@ def test_start(module_setup, app, domain, device_host):
 def test_index(driver, app_domain, ui_mode, screenshot_dir):
     url = "https://{0}".format(app_domain)
     driver.get(url)
-    mobile_driver.get(url)
     time.sleep(10)
     
     screenshots(driver, screenshot_dir, 'index-' + ui_mode)
