@@ -109,18 +109,15 @@ def test_profile_picture(driver, app_domain, ui_mode, screenshot_dir):
         
     screenshots(driver, screenshot_dir, 'profile-' + ui_mode)
     
-    file = driver.find_element_by_css_selector('input[type="file"]')
-    driver.execute_script("arguments[0].removeAttribute('style')", file)
-    time.sleep(2)
-    screenshots(driver, screenshot_dir, 'profile-file-style-' + ui_mode)
-    
-    file.send_keys(join(DIR, 'images', 'profile.jpeg'))
-    screenshots(driver, screenshot_dir, 'profile-before-new-picture-' + ui_mode)
-    
-    #file.submit()
-
-    time.sleep(10)
-
-    screenshots(driver, screenshot_dir, 'profile-new-picture-' + ui_mode)
+    if ui_mode == "desktop":
+        file = driver.find_element_by_css_selector('input[type="file"]')
+        driver.execute_script("arguments[0].removeAttribute('style')", file)
+        time.sleep(2)
+        screenshots(driver, screenshot_dir, 'profile-file-style-' + ui_mode)
+        file.send_keys(join(DIR, 'images', 'profile.jpeg'))
+        screenshots(driver, screenshot_dir, 'profile-before-new-picture-' + ui_mode)
+        #file.submit()
+        time.sleep(10)
+        screenshots(driver, screenshot_dir, 'profile-new-picture-' + ui_mode)
     
 
