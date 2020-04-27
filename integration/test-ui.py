@@ -1,6 +1,7 @@
 import os
 import shutil
 import time
+from subprocess import check_output
 from os.path import dirname, join, exists
 
 import pytest
@@ -11,11 +12,6 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 
 DIR = dirname(__file__)
-LOG_DIR = join(DIR, 'log')
-DEVICE_USER = 'user'
-DEVICE_PASSWORD = 'password'
-log_dir = join(LOG_DIR, 'app_log')
-screenshot_dir = join(DIR, 'screenshot')
 
 
 @pytest.fixture(scope="session")
