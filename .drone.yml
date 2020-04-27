@@ -1,6 +1,6 @@
 ---
 kind: pipeline
-name: arm
+name: arm jessie
 
 platform:
   os: linux
@@ -82,7 +82,7 @@ volumes:
 
 ---
 kind: pipeline
-name: arm
+name: arm buster
 
 platform:
   os: linux
@@ -164,7 +164,7 @@ volumes:
 
 ---
 kind: pipeline
-name: amd64
+name: amd64 jessie
 
 platform:
   os: linux
@@ -257,7 +257,7 @@ volumes:
 
 ---
 kind: pipeline
-name: amd64
+name: amd64 buster
 
 platform:
   os: linux

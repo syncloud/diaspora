@@ -2,7 +2,7 @@ local name = "diaspora";
 
 local build(arch, distro) = {
     kind: "pipeline",
-    name: arch,
+    name: arch + " " + distro,
 
     platform: {
         os: "linux",
