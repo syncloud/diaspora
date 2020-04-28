@@ -58,6 +58,9 @@ apps:
     stop-command: bin/service.nginx.sh stop
     reload-command: bin/service.nginx.sh reload
 
+  psql:
+    command: bin/psql.sh
+
 confinement: strict
 description: Diaspora
 grade: stable

@@ -61,9 +61,6 @@ class Config:
     def path(self):
         return self.parser.get('diaspora', 'path')
 
-    def ld_library_path(self):
-        return self.parser.get('diaspora', 'ld_library_path')
-
     def unicorn_cmd(self):
         return self.parser.get('diaspora', 'unicorn_cmd')
 

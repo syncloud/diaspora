@@ -10,6 +10,5 @@ environ['RAILS_ENV'] = config.rails_env()
 environ['DB'] = config.db()
 environ['GEM_HOME'] = config.gem_home()
 environ['PATH'] = config.path()
-environ['LD_LIBRARY_PATH'] = config.ld_library_path()
 
 print(check_output(config.unicorn_cmd(), shell=True, cwd=config.diaspora_dir()))

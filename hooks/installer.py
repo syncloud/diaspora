@@ -50,7 +50,6 @@ class DiasporaInstaller:
         self.rails_env = 'production'
         self.gem_home = '{0}/ruby'.format(self.app_dir)
         self.path = '{0}/ruby/bin:{0}/nodejs/bin:{0}/ImageMagick/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'.format(self.app_dir)
-        self.ld_library_path = '{0}/ruby/lib:{0}/ImageMagick/lib:{0}/postgresql/lib'.format(self.app_dir)
         self.rake_db_cmd = '{0}/bin/update_db'.format(self.app_dir)
         self.diaspora_dir = '{0}/diaspora'.format(self.app_dir)
         self.psql_bin = '{0}/postgresql/bin/psql'.format(self.app_dir)
@@ -60,7 +59,8 @@ class DiasporaInstaller:
         self.database_path_escaped = self.database_path.replace("/", "%2F")
         self.database_url = "postgresql://diaspora:diaspora@{0}:{1}/diaspora?encoding=unicode".format(self.database_path_escaped, PSQL_PORT)
         self.diaspora_gemfile = '{0}/Gemfile'.format(self.diaspora_dir)
-        
+        self.db = Database()
+
         environ['RAILS_ENV'] = self.rails_env
         environ['DB'] = DB_TYPE
         environ['GEM_HOME'] = self.gem_home
@@ -102,7 +102,6 @@ class DiasporaInstaller:
             'db_type': DB_TYPE,
             'gem_home': self.gem_home,
             'path': self.path,
-            'ld_library_path': self.ld_library_path,
             'platform_app_dir': self.platform_app_dir,
             'database_url': self.database_url,
             'diaspora_gemfile': self.diaspora_gemfile,
@@ -116,16 +115,16 @@ class DiasporaInstaller:
         gen.generate_files(templates_path, config_path, variables)
 
     def db_migrate(self):
-        environ['LD_LIBRARY_PATH'] = self.ld_library_path
         if not UserConfig(self.app_data_dir).is_activated():
             self.initialize()
 
     def initialize(self):
 
         self.log.info("initialization")
-        postgres.execute("ALTER USER {0} WITH PASSWORD '{0}';".format(APP_NAME), self.psql_bin, DB_USER, self.database_path, PSQL_PORT, "postgres")
+        self.db.execute("postgres", DB_USER, "ALTER USER {0} WITH PASSWORD '{0}';".format(APP_NAME))
         env = dict(environ, RAILS_LOG_TO_STDOUT='true')
         try:
+            environ['LD_LIBRARY_PATH'] = '{0}/ruby/lib:{0}/ImageMagick/lib:{0}/postgresql/lib'.format(self.app_dir)
             output = check_output("{0}/diaspora/bin/rake db:create db:migrate 2>&1".format(self.app_dir), shell=True, cwd=self.diaspora_dir, env=env)
             self.log.info(output)
         except CalledProcessError, e:
