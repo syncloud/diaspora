@@ -16,6 +16,7 @@ pre-start)
     ;;
 start)
     cd $DIR/diaspora
+    export LD_LIBRARY_PATH=$DIR/ruby/lib:$DIR/ImageMagick/lib:$DIR/postgresql/lib
     exec ${DIR}/ruby/bin/bundle exec "unicorn -c config/unicorn.rb -E $RAILS_ENV -d"
     ;;
 post-start)
