@@ -7,8 +7,8 @@ from subprocess import check_output, CalledProcessError
 from syncloudlib import fs, linux, gen, logger
 from syncloudlib.application import paths, urls, storage
 
-import postgres
 from config import UserConfig
+from postgres import Database
 
 APP_NAME = 'diaspora'
 USER_NAME = 'diaspora'
