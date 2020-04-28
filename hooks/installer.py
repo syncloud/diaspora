@@ -28,7 +28,7 @@ def database_init(logger, app_dir, app_data_dir, database_path):
     logger.info("creating database files")
     if not isdir(database_path):
         cmd = join(app_dir, 'bin/initdb.sh')
-        logger.info(check_output([cmd, database_path]))
+        logger.info(check_output([cmd, '-E', 'UTF8', database_path]))
         postgresql_conf_to = join(database_path, 'postgresql.conf')
         postgresql_conf_from = join(app_data_dir, 'config', 'postgresql', 'postgresql.conf')
         shutil.copy(postgresql_conf_from, postgresql_conf_to)
