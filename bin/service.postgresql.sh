@@ -13,13 +13,13 @@ export LD_LIBRARY_PATH=${DIR}/postgresql/lib
 
 case $1 in
 start)
-    exec ${DIR}/postgresql/bin/pg_ctl -w -s -D ${PSQL_DATABASE}/database start
+    exec ${DIR}/postgresql/bin/pg_ctl -w -s -D ${PSQL_DATABASE} start
     ;;
 reload)
-    exec ${DIR}/postgresql/bin/pg_ctl -s -D ${PSQL_DATABASE}/database reload
+    exec ${DIR}/postgresql/bin/pg_ctl -s -D ${PSQL_DATABASE} reload
     ;;
 stop)
-    exec ${DIR}/postgresql/bin/pg_ctl -s -D ${PSQL_DATABASE}/database stop -m fast
+    exec ${DIR}/postgresql/bin/pg_ctl -s -D ${PSQL_DATABASE} stop -m fast
     ;;
 *)
     echo "not valid command"
