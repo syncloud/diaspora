@@ -22,7 +22,7 @@ VERSION=$1
 
 echo "installing libraries"
 apt-get update
-apt-get -y install binutils-gold libjemalloc-dev dpkg-dev gnupg2
+apt-get -y install binutils-gold libjemalloc-dev dpkg-dev gnupg2 libgnutls28-dev
 
 cd ${DIR}
 
