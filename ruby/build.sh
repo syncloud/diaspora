@@ -48,3 +48,5 @@ export LD_LIBRARY_PATH=${PREFIX}/ruby/lib
 
 echo "embedded libs"
 ldd ${PREFIX}/ruby/bin/ruby.bin
+
+ldd ${PREFIX}/ruby/lib/libcurl.so

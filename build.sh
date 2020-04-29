@@ -94,18 +94,6 @@ export PATH=${BUILD_DIR}/ruby/bin:${BUILD_DIR}/nodejs/bin:$PATH
 export GEM_HOME=${BUILD_DIR}/ruby
 export LD_LIBRARY_PATH=${BUILD_DIR}/ruby/lib
 
-DIASPORA_RUBY_CACHE=${DIR}/.ruby.cache
-if [ ! -z "$DRONE" ]; then
-  echo "running under build serer, cleaning ruby dependencies cache"
-  rm -rf ${DIASPORA_RUBY_CACHE}
-fi
-
-if [ -d "$DIASPORA_RUBY_CACHE" ]; then
-    echo "using diaspora ruby dependencies cache: ${DIASPORA_RUBY_CACHE}"
-    rm -rf ${BUILD_DIR}/ruby
-    cp -r ${DIASPORA_RUBY_CACHE} ${BUILD_DIR}/ruby
-fi
-
 cp ${DIR}/config/diaspora/diaspora-dummy.yml config/diaspora.yml
 cp ${DIR}/config/diaspora/database-dummy.yml config/database.yml
 cp ${DIR}/config/diaspora/production.rb config/environments/
@@ -119,11 +107,6 @@ echo "gem 'syslogger', '1.6.5'" >> Gemfile
 ${BUILD_DIR}/ruby/bin/gem install bundler
 export RAILS_ENV=production
 ${BUILD_DIR}/diaspora/bin/bundle install --deployment --without test development --with postgresql
-rm -rf ${DIASPORA_RUBY_CACHE}
-
-if [ -z "$DRONE" ]; then
-   cp -r ${BUILD_DIR}/ruby ${DIASPORA_RUBY_CACHE}
-fi
 
 find ${BUILD_DIR}/diaspora/vendor/bundle/ruby/ -type l
 find ${BUILD_DIR}/diaspora/vendor/bundle/ruby/ -type l -exec readlink {} \;
