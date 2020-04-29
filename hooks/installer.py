@@ -44,8 +44,6 @@ class DiasporaInstaller:
         self.app_data_dir = paths.get_data_dir(APP_NAME)
         self.app_url = urls.get_app_url(APP_NAME)
         self.app_domain_name = urls.get_app_domain_name(APP_NAME)
-        self.platform_app_dir = paths.get_app_dir('platform')
-        self.platform_data_dir = paths.get_data_dir('platform')
         self.device_domain_name = urls.get_device_domain_name()
         self.rails_env = 'production'
         self.gem_home = '{0}/ruby'.format(self.app_dir)
@@ -102,7 +100,6 @@ class DiasporaInstaller:
             'db_type': DB_TYPE,
             'gem_home': self.gem_home,
             'path': self.path,
-            'platform_app_dir': self.platform_app_dir,
             'database_url': self.database_url,
             'diaspora_gemfile': self.diaspora_gemfile,
             'database_socket': self.database_socket,

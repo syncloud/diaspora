@@ -128,8 +128,8 @@ local build(arch, distro) = {
 };
 
 [
-    #build("arm", "jessie"),
+    build("arm", "jessie"),
     build("arm", "buster"),
-    #build("amd64", "jessie"),
+    build("amd64", "jessie"),
     build("amd64", "buster"),
 ]
