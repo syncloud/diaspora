@@ -2,27 +2,27 @@
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
-export TMPDIR=/tmp
-export TMP=/tmp
+if [[ -z "$1" ]]; then
+    echo "usage $0 version"
+    exit 1
+fi
 
 NAME=diaspora
-DIASPORA_VERSION=0.7.5.0
+DIASPORA_VERSION=0.7.8.0
 DIASPORA_ARCHIVE=v${DIASPORA_VERSION}
-DOWNLOAD_URL=http://artifact.syncloud.org/3rdparty
+DOWNLOAD_URL=https://github.com/syncloud/3rdparty/releases/download/1
 
-if [[ -z "$2" ]]; then
-    echo "usage $0 version installer"
+if [[ -z "$1" ]]; then
+    echo "usage $0 version"
     exit 1
 fi
 
 ARCH=$(uname -m)
 VERSION=$1
-INSTALLER=$2
 
-if [ -n "$DRONE" ]; then
-    echo "running under drone, removing coin cache"
-    rm -rf ${DIR}/.coin.cache
-fi
+echo "installing libraries"
+apt-get update
+apt-get -y install binutils-gold libjemalloc-dev dpkg-dev gnupg2
 
 cd ${DIR}
 
@@ -30,13 +30,32 @@ rm -rf build
 BUILD_DIR=${DIR}/build/${NAME}
 mkdir -p ${BUILD_DIR}
 
-coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/ruby-${ARCH}.tar.gz
-coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/nginx-${ARCH}.tar.gz
-coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/postgresql-${ARCH}.tar.gz
-coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/redis-${ARCH}.tar.gz
-coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/nodejs-${ARCH}.tar.gz
-coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/ImageMagick-${ARCH}.tar.gz
-coin --to ${BUILD_DIR} raw ${DOWNLOAD_URL}/python-${ARCH}.tar.gz
+$DIR/ruby/build.sh
+mv $DIR/ruby/build/ruby ${BUILD_DIR}
+
+wget --progress=dot:giga ${DOWNLOAD_URL}/nginx-${ARCH}.tar.gz
+tar xf nginx-${ARCH}.tar.gz
+mv nginx ${BUILD_DIR}
+
+wget --progress=dot:giga ${DOWNLOAD_URL}/postgresql-${ARCH}.tar.gz
+tar xf postgresql-${ARCH}.tar.gz
+mv postgresql ${BUILD_DIR}
+
+wget --progress=dot:giga ${DOWNLOAD_URL}/redis-${ARCH}.tar.gz
+tar xf redis-${ARCH}.tar.gz
+mv redis ${BUILD_DIR}
+
+wget --progress=dot:giga ${DOWNLOAD_URL}/nodejs-${ARCH}.tar.gz
+tar xf nodejs-${ARCH}.tar.gz
+mv nodejs ${BUILD_DIR}
+
+wget --progress=dot:giga ${DOWNLOAD_URL}/ImageMagick-${ARCH}.tar.gz
+tar xf ImageMagick-${ARCH}.tar.gz
+mv ImageMagick ${BUILD_DIR}
+
+wget --progress=dot:giga ${DOWNLOAD_URL}/python-${ARCH}.tar.gz
+tar xf python-${ARCH}.tar.gz
+mv python ${BUILD_DIR}
 
 ${BUILD_DIR}/python/bin/pip install -r ${DIR}/requirements.txt
 
@@ -64,8 +83,6 @@ do
   patch -p0 < $f
 done
 
-echo "installing libraries"
-apt -y install binutils-gold
 update-alternatives --install "/usr/bin/ld" "ld" "/usr/bin/ld.gold" 20
 update-alternatives --install "/usr/bin/ld" "ld" "/usr/bin/ld.bfd" 10
 
@@ -76,18 +93,6 @@ ld --version
 export PATH=${BUILD_DIR}/ruby/bin:${BUILD_DIR}/nodejs/bin:$PATH
 export GEM_HOME=${BUILD_DIR}/ruby
 export LD_LIBRARY_PATH=${BUILD_DIR}/ruby/lib
-
-DIASPORA_RUBY_CACHE=${DIR}/.ruby.cache
-if [ ! -z "$DRONE" ]; then
-  echo "running under build serer, cleaning ruby dependencies cache"
-  rm -rf ${DIASPORA_RUBY_CACHE}
-fi
-
-if [ -d "$DIASPORA_RUBY_CACHE" ]; then
-    echo "using diaspora ruby dependencies cache: ${DIASPORA_RUBY_CACHE}"
-    rm -rf ${BUILD_DIR}/ruby
-    cp -r ${DIASPORA_RUBY_CACHE} ${BUILD_DIR}/ruby
-fi
 
 cp ${DIR}/config/diaspora/diaspora-dummy.yml config/diaspora.yml
 cp ${DIR}/config/diaspora/database-dummy.yml config/database.yml
@@ -102,11 +107,6 @@ echo "gem 'syslogger', '1.6.5'" >> Gemfile
 ${BUILD_DIR}/ruby/bin/gem install bundler
 export RAILS_ENV=production
 ${BUILD_DIR}/diaspora/bin/bundle install --deployment --without test development --with postgresql
-rm -rf ${DIASPORA_RUBY_CACHE}
-
-if [ -z "$DRONE" ]; then
-   cp -r ${BUILD_DIR}/ruby ${DIASPORA_RUBY_CACHE}
-fi
 
 find ${BUILD_DIR}/diaspora/vendor/bundle/ruby/ -type l
 find ${BUILD_DIR}/diaspora/vendor/bundle/ruby/ -type l -exec readlink {} \;
@@ -118,15 +118,15 @@ cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libpq.so* ${BUILD_DIR}/rub
 cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libgmp*.so* ${BUILD_DIR}/ruby/lib
 cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libgssapi_krb5.so* ${BUILD_DIR}/ruby/lib
 cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libldap_r-2.4.so* ${BUILD_DIR}/ruby/lib
-cp /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libpthread.so* ${BUILD_DIR}/ruby/lib
-cp /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libc.so* ${BUILD_DIR}/ruby/lib
-cp /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libdl.so* ${BUILD_DIR}/ruby/lib
+#cp /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libpthread.so* ${BUILD_DIR}/ruby/lib
+#cp /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libc.so* ${BUILD_DIR}/ruby/lib
+#cp /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libdl.so* ${BUILD_DIR}/ruby/lib
 cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libkrb5.so* ${BUILD_DIR}/ruby/lib
 cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libk5crypto.so* ${BUILD_DIR}/ruby/lib
 cp /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libcom_err.so* ${BUILD_DIR}/ruby/lib
 cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libkrb5support.so* ${BUILD_DIR}/ruby/lib
 cp /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libkeyutils.so* ${BUILD_DIR}/ruby/lib
-cp /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libresolv.so* ${BUILD_DIR}/ruby/lib
+#cp /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libresolv.so* ${BUILD_DIR}/ruby/lib
 cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/liblber-2.4.so* ${BUILD_DIR}/ruby/lib
 cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libsasl2.so* ${BUILD_DIR}/ruby/lib
 cp /lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libz.so* ${BUILD_DIR}/ruby/lib
@@ -135,6 +135,7 @@ cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libtasn1.so* ${BUILD_DIR}/
 cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libnettle.so* ${BUILD_DIR}/ruby/lib
 cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libhogweed.so* ${BUILD_DIR}/ruby/lib
 cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libffi.so* ${BUILD_DIR}/ruby/lib
+cp /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libjemalloc.so ${BUILD_DIR}/ruby/lib
 cp -r ${BUILD_DIR}/ImageMagick/lib/* ${BUILD_DIR}/ruby/lib
 
 ls -la ${BUILD_DIR}/ruby/lib
@@ -150,7 +151,9 @@ rm -rf tmp
 
 ln -s /data/diaspora/tmp tmp
 ln -s /data/diaspora/uploads public/uploads
-    
+
+cd ${DIR}
+
 echo "snapping"
 SNAP_DIR=${DIR}/build/snap
 ARCH=$(dpkg-architecture -q DEB_HOST_ARCH)
@@ -163,4 +166,7 @@ echo "version: $VERSION" >> ${SNAP_DIR}/meta/snap.yaml
 echo "architectures:" >> ${SNAP_DIR}/meta/snap.yaml
 echo "- ${ARCH}" >> ${SNAP_DIR}/meta/snap.yaml
 
-mksquashfs ${SNAP_DIR} ${DIR}/${NAME}_${VERSION}_${ARCH}.snap -noappend -comp xz -no-xattrs -all-root
+PACKAGE=${NAME}_${VERSION}_${ARCH}.snap
+echo ${PACKAGE} > package.name
+
+mksquashfs ${SNAP_DIR} ${DIR}/${PACKAGE} -noappend -comp xz -no-xattrs -all-root

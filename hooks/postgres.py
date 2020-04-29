@@ -1,11 +1,13 @@
-from syncloud_app import logger
+from syncloudlib import logger
 from subprocess import check_output
 
 
-def execute(sql, psql_bin, db_user, db_socket, db_port, database):
+class Database:
 
-    log = logger.get_logger('diaspora_postgres')
-    log.info("executing: {0}".format(sql))
-    log.info(check_output('{0} -U {1} -h {2} -p {3} -d {4} -c "{5}"'.format(
-        psql_bin, db_user, db_socket, db_port, database, sql),
-        shell=True))
+    def __init__(self):
+        self.log = logger.get_logger('database')
+
+    def execute(self, database, user, sql):
+        self.log.info("executing: {0}".format(sql))
+        cmd = 'snap run diaspora.psql -U {0} -d {1} -c "{2}"'.format(user, database, sql)
+        self.log.info(check_output(cmd, shell=True))

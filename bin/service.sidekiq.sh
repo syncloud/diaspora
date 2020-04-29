@@ -12,6 +12,7 @@ fi
 case $1 in
 start)
     cd ${DIR}/diaspora
+    export LD_LIBRARY_PATH=$DIR/ruby/lib
     exec ${DIR}/ruby/bin/bundle exec "sidekiq -e production 2>&1"
     ;;
 *)

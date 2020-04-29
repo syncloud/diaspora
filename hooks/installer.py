@@ -1,29 +1,14 @@
-from os.path import dirname, join, abspath, isdir
-from os import listdir
-import sys
-
-from os import environ, symlink
-from os.path import isdir, join
-import shutil
-from subprocess import check_output, STDOUT, CalledProcessError
-
-from syncloud_app import logger
-
-from syncloudlib.application import paths, urls, storage, ports
-from syncloudlib import fs, linux, gen
-
-import postgres
-from config import Config
-from config import UserConfig
-import yaml
 import logging
+import shutil
+from os import environ
+from os.path import isdir, join
+from subprocess import check_output, CalledProcessError
 
+from syncloudlib import fs, linux, gen, logger
+from syncloudlib.application import paths, urls, storage
 
-SYSTEMD_NGINX_NAME = 'diaspora.nginx'
-SYSTEMD_POSTGRESQL = 'diaspora.postgresql'
-SYSTEMD_REDIS = 'diaspora.redis'
-SYSTEMD_SIDEKIQ = 'diaspora.sidekiq'
-SYSTEMD_UNICORN = 'diaspora.unicorn'
+from config import UserConfig
+from postgres import Database
 
 APP_NAME = 'diaspora'
 USER_NAME = 'diaspora'
@@ -39,11 +24,11 @@ DB_TYPE = 'postgres'
 logger.init(logging.DEBUG, console=True, line_format='%(message)s')
 
 
-def database_init(logger, app_dir, app_data_dir, database_path, user_name):
+def database_init(logger, app_dir, app_data_dir, database_path):
     logger.info("creating database files")
     if not isdir(database_path):
-        psql_initdb = join(app_dir, 'postgresql/bin/initdb')
-        logger.info(check_output(['sudo', '-H', '-u', user_name, psql_initdb, '-E', 'UTF8', database_path], stderr=STDOUT))
+        cmd = join(app_dir, 'bin/initdb.sh')
+        logger.info(check_output([cmd, '-E', 'UTF8', database_path]))
         postgresql_conf_to = join(database_path, 'postgresql.conf')
         postgresql_conf_from = join(app_data_dir, 'config', 'postgresql', 'postgresql.conf')
         shutil.copy(postgresql_conf_from, postgresql_conf_to)
@@ -59,13 +44,10 @@ class DiasporaInstaller:
         self.app_data_dir = paths.get_data_dir(APP_NAME)
         self.app_url = urls.get_app_url(APP_NAME)
         self.app_domain_name = urls.get_app_domain_name(APP_NAME)
-        self.platform_app_dir = paths.get_app_dir('platform')
-        self.platform_data_dir = paths.get_data_dir('platform')
         self.device_domain_name = urls.get_device_domain_name()
         self.rails_env = 'production'
         self.gem_home = '{0}/ruby'.format(self.app_dir)
         self.path = '{0}/ruby/bin:{0}/nodejs/bin:{0}/ImageMagick/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'.format(self.app_dir)
-        self.ld_library_path = '{0}/ruby/lib:{0}/ImageMagick/lib:{0}/postgresql/lib'.format(self.app_dir)
         self.rake_db_cmd = '{0}/bin/update_db'.format(self.app_dir)
         self.diaspora_dir = '{0}/diaspora'.format(self.app_dir)
         self.psql_bin = '{0}/postgresql/bin/psql'.format(self.app_dir)
@@ -75,18 +57,17 @@ class DiasporaInstaller:
         self.database_path_escaped = self.database_path.replace("/", "%2F")
         self.database_url = "postgresql://diaspora:diaspora@{0}:{1}/diaspora?encoding=unicode".format(self.database_path_escaped, PSQL_PORT)
         self.diaspora_gemfile = '{0}/Gemfile'.format(self.diaspora_dir)
-        
+        self.db = Database()
+
         environ['RAILS_ENV'] = self.rails_env
         environ['DB'] = DB_TYPE
         environ['GEM_HOME'] = self.gem_home
         environ['PATH'] = self.path
-        environ['LD_LIBRARY_PATH'] = self.ld_library_path
         environ['DIASPORA_CONFIG_DIR'] = '{0}/config/diaspora'.format(self.app_data_dir)
         environ['DATABASE_URL'] = self.database_url
         environ['BUNDLE_GEMFILE'] = self.diaspora_gemfile
 
     def install(self):
-
 
         home_folder = join('/home', USER_NAME)
         linux.useradd(USER_NAME, home_folder=home_folder)
@@ -104,9 +85,8 @@ class DiasporaInstaller:
             self.log.info(fs.chownpath(self.app_dir, USER_NAME, recursive=True))
 
         self.log.info("setup systemd")
-
         if not UserConfig(self.app_data_dir).is_activated():
-            database_init(self.log, self.app_dir, self.app_data_dir, self.database_path, USER_NAME)
+            database_init(self.log, self.app_dir, self.app_data_dir, self.database_path)
     
     def regenerate_config(self):
         variables = {
@@ -120,8 +100,6 @@ class DiasporaInstaller:
             'db_type': DB_TYPE,
             'gem_home': self.gem_home,
             'path': self.path,
-            'ld_library_path': self.ld_library_path,
-            'platform_app_dir': self.platform_app_dir,
             'database_url': self.database_url,
             'diaspora_gemfile': self.diaspora_gemfile,
             'database_socket': self.database_socket,
@@ -133,7 +111,6 @@ class DiasporaInstaller:
         config_path = join(self.app_data_dir, 'config')
         gen.generate_files(templates_path, config_path, variables)
 
-
     def db_migrate(self):
         if not UserConfig(self.app_data_dir).is_activated():
             self.initialize()
@@ -141,9 +118,10 @@ class DiasporaInstaller:
     def initialize(self):
 
         self.log.info("initialization")
-        postgres.execute("ALTER USER {0} WITH PASSWORD '{0}';".format(APP_NAME), self.psql_bin, DB_USER, self.database_path, PSQL_PORT, "postgres")
+        self.db.execute("postgres", DB_USER, "ALTER USER {0} WITH PASSWORD '{0}';".format(APP_NAME))
         env = dict(environ, RAILS_LOG_TO_STDOUT='true')
         try:
+            environ['LD_LIBRARY_PATH'] = '{0}/ruby/lib:{0}/ImageMagick/lib:{0}/postgresql/lib'.format(self.app_dir)
             output = check_output("{0}/diaspora/bin/rake db:create db:migrate 2>&1".format(self.app_dir), shell=True, cwd=self.diaspora_dir, env=env)
             self.log.info(output)
         except CalledProcessError, e:
@@ -171,12 +149,3 @@ class DiasporaInstaller:
         uploads_dir = join(storage_dir, 'uploads')
         fs.makepath(uploads_dir)
         fs.chownpath(uploads_dir, USER_NAME)
-        
-        if 'SNAP' not in environ:
-            diaspora_dir = join(self.app_dir, 'diaspora')
-       
-            symlink(tmp_dir, join(diaspora_dir, 'tmp'))
-            symlink(uploads_dir, join(diaspora_dir, 'public', 'uploads'))
-
-        
-        

@@ -8,77 +8,50 @@ import pytest
 import requests
 from requests.adapters import HTTPAdapter
 
-from syncloudlib.integration.installer import local_install, wait_for_sam, wait_for_rest, local_remove, \
-    get_data_dir, get_app_dir, get_service_prefix, get_ssh_env_vars
-from syncloudlib.integration.loop import loop_device_cleanup
-from syncloudlib.integration.ssh import run_scp, run_ssh
+from syncloudlib.integration.installer import local_install, wait_for_installer
+from syncloudlib.integration.loop import loop_device_add, loop_device_cleanup
+from syncloudlib.integration.hosts import add_host_alias_by_ip
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 DIR = dirname(__file__)
-LOG_DIR = join(DIR, 'log')
-SYNCLOUD_INFO = 'syncloud.info'
-DEVICE_USER = 'user'
-DEVICE_PASSWORD = 'password'
-DEFAULT_DEVICE_PASSWORD = 'syncloud'
-LOGS_SSH_PASSWORD = DEFAULT_DEVICE_PASSWORD
 TMP_DIR = '/tmp/syncloud'
-APP = "diaspora"
-
-@pytest.fixture(scope="session")
-def platform_data_dir(installer):
-    return get_data_dir(installer, 'platform')
-
-    
-@pytest.fixture(scope="session")
-def data_dir(installer):
-    return get_data_dir(installer, APP)
 
 
 @pytest.fixture(scope="session")
-def app_dir(installer):
-    return get_app_dir(installer, APP)
-    
-
-@pytest.fixture(scope="session")
-def service_prefix(installer):
-    return get_service_prefix(installer)
-
-
-@pytest.fixture(scope="session")
-def module_setup(request, device_host, data_dir, platform_data_dir, app_dir, service_prefix):
-    request.addfinalizer(lambda: module_teardown(device_host, data_dir, platform_data_dir, app_dir, service_prefix))
-
-
-def module_teardown(device_host, data_dir, platform_data_dir, app_dir, service_prefix):
-    platform_log_dir = join(LOG_DIR, 'platform_log')
-    os.mkdir(platform_log_dir)
-    run_ssh(device_host, 'ls -la {0}'.format(data_dir), password=LOGS_SSH_PASSWORD, throw=False)
+def module_setup(request, device, platform_data_dir, app_dir, artifact_dir, data_dir):
+    def module_teardown():
+        platform_log_dir = join(artifact_dir, 'platform_log')
+        os.mkdir(platform_log_dir)
+        device.run_ssh('ls -la /var/snap/duaspora/common', throw=False)
    
-    run_scp('root@{0}:{1}/log/* {2}'.format(device_host, platform_data_dir, platform_log_dir), password=LOGS_SSH_PASSWORD, throw=False) 
-    run_scp('root@{0}:/var/log/sam.log {1}'.format(device_host, platform_log_dir), password=LOGS_SSH_PASSWORD, throw=False)
-    run_ssh(device_host, 'mkdir {0}'.format(TMP_DIR), password=LOGS_SSH_PASSWORD)
+        device.scp_from_device('{0}/log/*'.format(platform_data_dir), platform_log_dir, throw=False) 
+       
+        device.run_ssh('journalctl > {0}/journalctl.log'.format(TMP_DIR), throw=False)
+        device.run_ssh('ls -la {0}/ > {1}/app.ls.log'.format(app_dir, TMP_DIR), throw=False)
+        device.run_ssh('ls -la {0}/diaspora/ > {1}/app.diaspora.ls.log'.format(app_dir, TMP_DIR), throw=False)
+        device.run_ssh('ls -la {0}/diaspora/log/ > {1}/app.diaspora.log.ls.log'.format(app_dir, TMP_DIR), throw=False)
+        device.run_ssh('ls -la {0}/diaspora/public/ > {1}/app.diaspora.public.ls.log'.format(app_dir, TMP_DIR), throw=False)
+        device.run_ssh('ls -la {0}/ > {1}/data.ls.log'.format(data_dir, TMP_DIR), throw=False)
+        device.run_ssh('ls -la {0}/log/ > {1}/data.log.ls.log'.format(data_dir, TMP_DIR), throw=False)
+        device.run_ssh('ls -la {0}/diaspora/ > {1}/data.diaspora.ls.log'.format(data_dir, TMP_DIR), throw=False)
+        device.run_ssh('ls -la {0}/diaspora/log/ > {1}/data.diaspora.log.ls.log'.format(data_dir, TMP_DIR), throw=False)
+        device.run_ssh('ls -la {0}/database/ > {1}/data.database.ls.log'.format(data_dir, TMP_DIR), throw=False)
+        device.run_ssh('journalctl -u snap.diaspora.unicorn --no-pager -n1000 > {0}/systemd.unicorn.log'.format(TMP_DIR), throw=False)
+        device.run_ssh('journalctl -u snap.diaspora.sidekiq --no-pager -n1000 > {0}/systemd.sidekiq.log'.format(TMP_DIR), throw=False)
+        device.run_ssh('tail -500 /var/log/syslog > {0}/syslog.log'.format(TMP_DIR), throw=False)
+        device.run_ssh('tail -500 /var/log/messages > {0}/messages.log'.format(TMP_DIR), throw=False)
+      
+        app_log_dir = join(artifact_dir, 'log')
+        os.mkdir(app_log_dir)
+        device.scp_from_device('{0}/config'.format(data_dir), app_log_dir)
+    
+        device.scp_from_device('{0}/log/*.log'.format(data_dir), app_log_dir)
+        device.scp_from_device('{0}/*.log'.format(TMP_DIR), app_log_dir)
+        check_output('chmod -R a+r {0}'.format(artifact_dir), shell=True)
 
-    run_ssh(device_host, 'journalctl > {0}/journalctl.log'.format(TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
-    run_ssh(device_host, 'ls -la {0}/ > {1}/app.ls.log'.format(app_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
-    run_ssh(device_host, 'ls -la {0}/diaspora/ > {1}/app.diaspora.ls.log'.format(app_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
-    run_ssh(device_host, 'ls -la {0}/diaspora/log/ > {1}/app.diaspora.log.ls.log'.format(app_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
-    run_ssh(device_host, 'ls -la {0}/diaspora/public/ > {1}/app.diaspora.public.ls.log'.format(app_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
-    run_ssh(device_host, 'ls -la {0}/ > {1}/data.ls.log'.format(data_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
-    run_ssh(device_host, 'ls -la {0}/log/ > {1}/data.log.ls.log'.format(data_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
-    run_ssh(device_host, 'ls -la {0}/diaspora/ > {1}/data.diaspora.ls.log'.format(data_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
-    run_ssh(device_host, 'ls -la {0}/diaspora/log/ > {1}/data.diaspora.log.ls.log'.format(data_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
-    run_ssh(device_host, 'ls -la {0}/database/ > {1}/data.database.ls.log'.format(data_dir, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
-    run_ssh(device_host, 'journalctl -u {0}diaspora.unicorn --no-pager -n1000 > {1}/systemd.unicorn.log'.format(service_prefix, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
-    run_ssh(device_host, 'journalctl -u {0}diaspora.sidekiq --no-pager -n1000 > {1}/systemd.sidekiq.log'.format(service_prefix, TMP_DIR), password=LOGS_SSH_PASSWORD, throw=False)
-   
-    app_log_dir = join(LOG_DIR, 'diaspora_log')
-    os.mkdir(app_log_dir)
-    run_scp('root@{0}:/var/log/messages* {1}'.format(device_host, app_log_dir), password=LOGS_SSH_PASSWORD, throw=False)
-    run_scp('root@{0}:/var/log/*syslog* {1}'.format(device_host, app_log_dir), password=LOGS_SSH_PASSWORD, throw=False) 
-    run_scp('-r root@{0}:{1}/config {2}'.format(device_host, data_dir, app_log_dir), throw=False, password=LOGS_SSH_PASSWORD)
-    
-    run_scp('root@{0}:{1}/log/*.log {2}'.format(device_host, data_dir, app_log_dir), password=LOGS_SSH_PASSWORD, throw=False)
-    run_scp('root@{0}:{1}/*.log {2}'.format(device_host, TMP_DIR, app_log_dir), password=LOGS_SSH_PASSWORD, throw=False)
-    
+    request.addfinalizer(module_teardown)
+
+
 
 @pytest.fixture(scope='function')
 def syncloud_session(device_host):
@@ -87,23 +60,18 @@ def syncloud_session(device_host):
     return session
 
 
-def test_start(module_setup):
-    shutil.rmtree(LOG_DIR, ignore_errors=True)
-    os.mkdir(LOG_DIR)
-
-
 @pytest.fixture(scope='function')
-def diaspora_session(device_host, user_domain):
+def diaspora_session(device_host, app_domain, device_user, device_password):
     session = requests.session()
     response = session.get('https://{0}/login'.format(device_host),
-                           headers={"Host": user_domain},
+                           headers={"Host": app_domain},
                            allow_redirects=False, verify=False)
     assert response.status_code == 301, response.text
 
     response = session.post('https://{0}/users/sign_in'.format(device_host),
-                            headers={"Host": user_domain},
-                            data={'user[username]': DEVICE_USER,
-                                  'user[password]': DEVICE_PASSWORD,
+                            headers={"Host": app_domain},
+                            data={'user[username]': device_user,
+                                  'user[password]': device_password,
                                   # 'authenticity_token': token,
                                   'user[remember_me]': '1',
                                   'commit': 'Sign in'},
@@ -114,58 +82,40 @@ def diaspora_session(device_host, user_domain):
     return session
 
 
-def test_start(module_setup):
-    shutil.rmtree(LOG_DIR, ignore_errors=True)
-    os.mkdir(LOG_DIR)
+def test_start(module_setup, device, device_host, app, domain):
+    add_host_alias_by_ip(app, domain, device_host)
+    device.run_ssh('date', retries=100)
+    device.run_ssh('mkdir {0}'.format(TMP_DIR))
 
 
-def test_activate_device(auth, device_host):
-    email, password, domain = auth
-
-    response = requests.post('http://{0}:81/rest/activate'.format(device_host),
-                             data={'main_domain': 'syncloud.info', 'redirect_email': email,
-                                   'redirect_password': password, 'user_domain': domain,
-                                   'device_username': DEVICE_USER, 'device_password': DEVICE_PASSWORD})
-    assert response.status_code == 200
-    global LOGS_SSH_PASSWORD
-    LOGS_SSH_PASSWORD = DEVICE_PASSWORD
+def test_activate_device(device):
+    response = device.activate()
+    assert response.status_code == 200, response.text
 
 
-def test_running_platform_web_after_activation(device_host):
-    check_call('nc -zv -w 1 {0} 80'.format(device_host), shell=True)
+def test_install(app_archive_path, device_session, device_host, device_password):
+    local_install(device_host, device_password, app_archive_path)
+    wait_for_installer(device_session, device_host)
 
 
-def test_platform_rest_after_activation(device_host):
-    session = requests.session()
-    url = 'https://{0}'.format(device_host)
-    session.mount(url, HTTPAdapter(max_retries=5))
-    response = session.get(url, timeout=60, verify=False)
-    assert response.status_code == 200
+def test_create_user(app_domain, device_host, device_user, device_password, redirect_user):
 
-
-def test_install(app_archive_path, device_host, installer, user_domain):
-    local_install(device_host, DEVICE_PASSWORD, app_archive_path, installer)
-
-
-def test_create_user(auth, user_domain, device_host):
-    email, password, domain = auth
-    response = requests.post('https://{0}/users'.format(device_host),
-                             headers={"Host": user_domain},
+    response = requests.post('https://{0}/users'.format(app_domain),
                              verify=False, allow_redirects=False,
                              data={
-                                 'user[email]': email,
-                                 'user[username]': DEVICE_USER,
-                                 'user[password]': DEVICE_PASSWORD,
-                                 'user[password_confirmation]': DEVICE_PASSWORD,
+                                 'user[email]': redirect_user,
+                                 'user[username]': device_user,
+                                 'user[password]': device_password,
+                                 'user[password_confirmation]': device_password,
                                  'commit': "Sign+up"
                              })
     assert response.status_code == 302, response.text
 
 
-# def test_upload_profile_photo(diaspora_session, user_domain, device_host):
+# def test_upload_profile_photo(diaspora_session, app_domain, device_host):
 #
 #     response = diaspora_session.get('https://{0}/profile/edit'.format(device_host),
-#                                     headers={"Host": user_domain},
+#                                     headers={"Host": app_domain},
 #                                     allow_redirects=False, verify=False)
 #     assert response.status_code == 200, response.text
 #
@@ -174,7 +124,7 @@ def test_create_user(auth, user_domain, device_host):
 #
 #     response = diaspora_session.post('https://{0}/photos'.format(device_host),
 #                                      headers={
-#                                          "Host": user_domain,
+#                                          "Host": app_domain,
 #                                          'X-File-Name': 'profile.png',
 #                                          'X-CSRF-Token': token
 #                                      },
@@ -214,3 +164,4 @@ def test_create_user(auth, user_domain, device_host):
 
 # def test_reinstall(app_archive_path, device_host):
 #     __local_install(app_archive_path, device_host)
+
