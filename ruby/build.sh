@@ -41,7 +41,7 @@ cp --remove-destination /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libgn
 
 wget https://curl.haxx.se/download/curl-${CURL_VERSION}.tar.gz
 tar xf curl-${CURL_VERSION}.tar.gz
-cd curl-${CURL_VERSION}.tar.gz
+cd curl-${CURL_VERSION}
 ./configure --prefix=${PREFIX}/ruby
 make
 make install
