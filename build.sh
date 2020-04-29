@@ -26,9 +26,8 @@ rm -rf build
 BUILD_DIR=${DIR}/build/${NAME}
 mkdir -p ${BUILD_DIR}
 
-wget --progress=dot:giga ${DOWNLOAD_URL}/ruby-${ARCH}.tar.gz
-tar xf ruby-${ARCH}.tar.gz
-mv ruby ${BUILD_DIR}
+$DIR/ruby/build.sh
+mv $DIR/ruby/build/ruby ${BUILD_DIR}
 
 wget --progress=dot:giga ${DOWNLOAD_URL}/nginx-${ARCH}.tar.gz
 tar xf nginx-${ARCH}.tar.gz
