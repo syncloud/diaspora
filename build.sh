@@ -20,6 +20,10 @@ fi
 ARCH=$(uname -m)
 VERSION=$1
 
+echo "installing libraries"
+apt-get update
+apt-get -y install binutils-gold libjemalloc-dev dpkg-dev gnupg2
+
 cd ${DIR}
 
 rm -rf build
@@ -79,8 +83,6 @@ do
   patch -p0 < $f
 done
 
-echo "installing libraries"
-apt -y install binutils-gold libjemalloc-dev
 update-alternatives --install "/usr/bin/ld" "ld" "/usr/bin/ld.gold" 20
 update-alternatives --install "/usr/bin/ld" "ld" "/usr/bin/ld.bfd" 10
 
