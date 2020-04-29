@@ -1,4 +1,4 @@
-#!/bin/bash -xe
+#!/bin/bash -e
 
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
@@ -8,6 +8,7 @@ export TMPDIR=/tmp
 export TMP=/tmp
 NAME=ruby
 VERSION=2.4.1
+CURL_VERSION=7.38.0
 PREFIX=${DIR}/build
 
 echo "building ${NAME}"
@@ -35,8 +36,15 @@ cp -r ${DIR}/bin  ${PREFIX}/ruby
 cp --remove-destination /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libyaml* ${PREFIX}/ruby/lib
 cp --remove-destination /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libssl*.so* ${PREFIX}/ruby/lib
 cp --remove-destination /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libcrypto.so* ${PREFIX}/ruby/lib
-cp --remove-destination /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libcurl*.so* ${PREFIX}/ruby/lib
 cp --remove-destination /usr/lib/$(dpkg-architecture -q DEB_HOST_GNU_TYPE)/libgnutls*.so* ${PREFIX}/ruby/lib
+
+
+wget https://curl.haxx.se/download/curl-${CURL_VERSION}.tar.gz
+tar xf curl-${CURL_VERSION}.tar.gz
+cd curl-${CURL_VERSION}.tar.gz
+./configure --prefix=${PREFIX}/ruby
+make
+make install
 
 #echo "remove incompatible lib"
 #rm -rf ${PREFIX}/ruby/lib/libdl.so"
@@ -48,5 +56,3 @@ export LD_LIBRARY_PATH=${PREFIX}/ruby/lib
 
 echo "embedded libs"
 ldd ${PREFIX}/ruby/bin/ruby.bin
-
-ldd ${PREFIX}/ruby/lib/libcurl.so
