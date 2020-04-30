@@ -2,23 +2,17 @@
 
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
-if [[ -z "$1" ]]; then
-    echo "usage $0 version"
+if [[ -z "$2" ]]; then
+    echo "usage $0 name version"
     exit 1
 fi
 
-NAME=diaspora
+NAME=$1
+VERSION=$2
+
 DIASPORA_VERSION=0.7.8.0
-DIASPORA_ARCHIVE=v${DIASPORA_VERSION}
 DOWNLOAD_URL=https://github.com/syncloud/3rdparty/releases/download/1
-
-if [[ -z "$1" ]]; then
-    echo "usage $0 version"
-    exit 1
-fi
-
 ARCH=$(uname -m)
-VERSION=$1
 
 echo "installing libraries"
 apt-get update
@@ -168,5 +162,4 @@ echo "- ${ARCH}" >> ${SNAP_DIR}/meta/snap.yaml
 
 PACKAGE=${NAME}_${VERSION}_${ARCH}.snap
 echo ${PACKAGE} > package.name
-
 mksquashfs ${SNAP_DIR} ${DIR}/${PACKAGE} -noappend -comp xz -no-xattrs -all-root
