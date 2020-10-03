@@ -61,6 +61,9 @@ apps:
   psql:
     command: bin/psql.sh
 
+  console:
+    command: bin/console.sh
+
 confinement: strict
 description: Diaspora
 grade: stable
