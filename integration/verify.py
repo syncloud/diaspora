@@ -1,17 +1,11 @@
 import os
-import shutil
-import time
 from os.path import dirname, join
-from subprocess import check_output, check_call
+from subprocess import check_output
 
 import pytest
 import requests
-from requests.adapters import HTTPAdapter
-
-from syncloudlib.integration.installer import local_install, wait_for_installer
-from syncloudlib.integration.loop import loop_device_add, loop_device_cleanup
 from syncloudlib.integration.hosts import add_host_alias_by_ip
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
+from syncloudlib.integration.installer import local_install, wait_for_installer
 
 DIR = dirname(__file__)
 TMP_DIR = '/tmp/syncloud'
@@ -52,14 +46,6 @@ def module_setup(request, device, platform_data_dir, app_dir, artifact_dir, data
     request.addfinalizer(module_teardown)
 
 
-
-@pytest.fixture(scope='function')
-def syncloud_session(device_host):
-    session = requests.session()
-    session.post('https://{0}/rest/login'.format(device_host), data={'name': DEVICE_USER, 'password': DEVICE_PASSWORD}, verify=False)
-    return session
-
-
 @pytest.fixture(scope='function')
 def diaspora_session(device_host, app_domain, device_user, device_password):
     session = requests.session()
@@ -96,6 +82,10 @@ def test_activate_device(device):
 def test_install(app_archive_path, device_session, device_host, device_password):
     local_install(device_host, device_password, app_archive_path)
     wait_for_installer(device_session, device_host)
+
+
+def test_console(device):
+    device.run_ssh("snap run diaspora.console > {0}/console.log 2>&1".format(TMP_DIR))
 
 
 def test_create_user(app_domain, device_host, device_user, device_password, redirect_user):
