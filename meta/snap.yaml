@@ -65,7 +65,7 @@ apps:
     command: bin/console.sh
 
 confinement: strict
-description: Diaspora
+description: A privacy-aware, distributed, open source social network
 grade: stable
 name: diaspora
-summary: Diaspora
+summary: Diaspora social network
